@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		55D024F22EAE35F500E75A5C /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55D024F12EAE35F500E75A5C /* MCP */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		554E9E4A2E82EDE000CF8429 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -45,6 +49,11 @@
 			path = EatNeatUITests;
 			sourceTree = "<group>";
 		};
+		55CA22F42E82F8F000F83235 /* Preview Content */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,6 +61,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55D024F22EAE35F500E75A5C /* MCP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -79,6 +89,7 @@
 				554E9E4C2E82EDE000CF8429 /* EatNeatTests */,
 				554E9E562E82EDE000CF8429 /* EatNeatUITests */,
 				554E9E3A2E82EDDF00CF8429 /* Products */,
+				55CA22F42E82F8F000F83235 /* Preview Content */,
 			);
 			sourceTree = "<group>";
 		};
@@ -109,9 +120,11 @@
 			);
 			fileSystemSynchronizedGroups = (
 				554E9E3B2E82EDDF00CF8429 /* EatNeat */,
+				55CA22F42E82F8F000F83235 /* Preview Content */,
 			);
 			name = EatNeat;
 			packageProductDependencies = (
+				55D024F12EAE35F500E75A5C /* MCP */,
 			);
 			productName = EatNeat;
 			productReference = 554E9E392E82EDDF00CF8429 /* EatNeat.app */;
@@ -195,6 +208,9 @@
 			);
 			mainGroup = 554E9E302E82EDDF00CF8429;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 554E9E3A2E82EDDF00CF8429 /* Products */;
 			projectDirPath = "";
@@ -395,7 +411,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"EatNeat/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
 				DEVELOPMENT_TEAM = UPW4VJM7RU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -424,7 +440,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_ASSET_PATHS = "\"EatNeat/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"Preview Content\"";
 				DEVELOPMENT_TEAM = UPW4VJM7RU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -558,6 +574,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/modelcontextprotocol/swift-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		55D024F12EAE35F500E75A5C /* MCP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */;
+			productName = MCP;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 554E9E312E82EDDF00CF8429 /* Project object */;
 }
