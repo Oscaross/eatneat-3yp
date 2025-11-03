@@ -1,11 +1,12 @@
 import SwiftUI
 
 struct ContentView: View {
-    let viewModel = PantryViewModel()
+    let pantryViewModel = PantryViewModel()
+    @EnvironmentObject var locationManager: LocationManager
     
     init() {
         #if DEBUG
-        SampleData.generateSampleItems().forEach { viewModel.addItem(item: $0) }
+        SampleData.generateSampleItems().forEach { pantryViewModel.addItem(item: $0) }
         #endif
     }
     
@@ -15,14 +16,13 @@ struct ContentView: View {
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
-
-            PantryView(viewModel: viewModel)
+            PantryView(viewModel: pantryViewModel)
                 .tabItem {
                     Label("My Pantry", systemImage: "basket.fill")
                 }
-            DonationView()
+            DonationView(locationManager: locationManager)
                 .tabItem {
-                    Label("Give", systemImage: "heart.circle.fill")
+                    Label("Donate", systemImage: "heart.circle.fill")
                 }
         }
     }
@@ -37,7 +37,7 @@ struct HomeView: View {
     }
 }
 
-#Preview
-{
+#Preview {
     ContentView()
+        .environmentObject(LocationManager())
 }

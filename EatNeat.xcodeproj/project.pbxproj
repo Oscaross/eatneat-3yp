@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		55B424142EB40B95009BF8F0 /* SwiftMCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55B424132EB40B95009BF8F0 /* SwiftMCP */; };
 		55D024F22EAE35F500E75A5C /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55D024F12EAE35F500E75A5C /* MCP */; };
 /* End PBXBuildFile section */
 
@@ -33,9 +34,22 @@
 		554E9E532E82EDE000CF8429 /* EatNeatUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EatNeatUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		55F666162EB646B700D2172D /* Exceptions for "EatNeat" folder in "EatNeat" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 554E9E382E82EDDF00CF8429 /* EatNeat */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		554E9E3B2E82EDDF00CF8429 /* EatNeat */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				55F666162EB646B700D2172D /* Exceptions for "EatNeat" folder in "EatNeat" target */,
+			);
 			path = EatNeat;
 			sourceTree = "<group>";
 		};
@@ -62,6 +76,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				55D024F22EAE35F500E75A5C /* MCP in Frameworks */,
+				55B424142EB40B95009BF8F0 /* SwiftMCP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -125,6 +140,7 @@
 			name = EatNeat;
 			packageProductDependencies = (
 				55D024F12EAE35F500E75A5C /* MCP */,
+				55B424132EB40B95009BF8F0 /* SwiftMCP */,
 			);
 			productName = EatNeat;
 			productReference = 554E9E392E82EDDF00CF8429 /* EatNeat.app */;
@@ -210,6 +226,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */,
+				55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 554E9E3A2E82EDDF00CF8429 /* Products */;
@@ -337,6 +354,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				"INFOPLIST_FILE[sdk=*]" = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
@@ -394,6 +412,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				"INFOPLIST_FILE[sdk=*]" = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
@@ -415,9 +434,14 @@
 				DEVELOPMENT_TEAM = UPW4VJM7RU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EatNeat/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EatNeat;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This application needs your location to discover food banks near you.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -444,9 +468,14 @@
 				DEVELOPMENT_TEAM = UPW4VJM7RU;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = EatNeat/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = EatNeat;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "This application needs your location to discover food banks near you.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIStatusBarStyle = "";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -576,6 +605,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Cocoanetics/SwiftMCP.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 		55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/modelcontextprotocol/swift-sdk.git";
@@ -587,6 +624,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		55B424132EB40B95009BF8F0 /* SwiftMCP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */;
+			productName = SwiftMCP;
+		};
 		55D024F12EAE35F500E75A5C /* MCP */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */;
