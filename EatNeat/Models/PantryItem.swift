@@ -7,7 +7,8 @@
 
 import Foundation
 
-class PantryItem {
+struct PantryItem: Identifiable, Hashable {
+    let id: UUID = UUID()
     var quantity: Int
     var weight: Double?
     var name: String

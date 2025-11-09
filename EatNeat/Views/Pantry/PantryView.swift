@@ -88,7 +88,7 @@ struct PantryView: View {
                                 .font(.system(size: 18, weight: .medium))
                         }
 
-                        // Sorting/filtering button placeholder
+                        // Sorting button
                         Button {
                             showSortOptions = true
                         } label: {
@@ -106,7 +106,7 @@ struct PantryView: View {
                     }
                 }
 
-                // --- Floating Add Button ---
+                // --- Add Button ---
                 Button(action: {
                     showAddItem = true
                 }) {

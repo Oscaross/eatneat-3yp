@@ -14,6 +14,7 @@ enum AppStyle {
     static let secondary = Color.indigo
     static let lightBlueBackground = Color.blue.opacity(0.08)
     static let containerBackground = Color(.systemGray6).opacity(0.1)
+    static let secondaryContainerBackground = Color(.systemGray).opacity(0.15)
     
     // Text styles
     struct Text {

@@ -72,8 +72,7 @@ struct FoodbankNeeds: Decodable {
 
         var map: [String: [PantryItem]] = [:]
         for need in items {
-            print("populating map at \(need)")
-            map[need] = []
+            map[need] = [PantryItem(quantity: 1, name: "Spaghetti", category: Category.grainsAndPasta)] // TODO: update to include actual needs
         }
         return map
     }

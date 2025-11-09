@@ -17,8 +17,29 @@ actor MCPServerManager {
     
     func startServer() async throws {
         let transport = HTTPSSETransport(server: self, host: "0.0.0.0", port: 8080)
+        let url = "https://slightly-decorating-hart-glen.trycloudflare.com/sse"
+        let authUrl = "https://dev-ihzw0efrdvoarqax.us.auth0.com"
+
+        transport.oauthConfiguration = OAuthConfiguration(
+            issuer: URL(string: "\(authUrl)/")!,
+            authorizationEndpoint: URL(string: "\(authUrl)/authorize")!,
+            tokenEndpoint: URL(string: "\(authUrl)/oauth/token")!,
+            introspectionEndpoint: URL(string: "\(authUrl)/userinfo")!,
+            jwksEndpoint: URL(string: "\(authUrl)/.well-known/jwks.json")!,
+            audience: url,
+            clientID: "7by3qGnszksYNkWfJ8aAjS85IIC8cExd",
+            clientSecret: "08zxa3DEakzCEqv1H3DOP1gR8FsiozKU0OXel2mOcXQrPEGtEZc6rJ6-_vlmrZcJ",
+            transparentProxy: true
+        )
+
+        transport.authorizationHandler = { _ in .authorized }
+
+        print("OAuth configured:", transport.oauthConfiguration != nil)
         try await transport.run()
     }
+
+
+    
     
     // --- MCP Tools ---
     
