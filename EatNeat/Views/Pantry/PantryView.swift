@@ -56,7 +56,7 @@ struct PantryView: View {
                                         ScrollView(.horizontal, showsIndicators: false) {
                                             LazyHStack(spacing: 16) {
                                                 ForEach(items, id: \.name) { item in
-                                                    PantryItemCard(item: item)
+                                                    PantryItemCardView(item: item)
                                                 }
                                             }
                                             .padding(.horizontal)
@@ -66,7 +66,7 @@ struct PantryView: View {
                                     else {
                                         VStack(spacing: 10) {
                                             ForEach(items, id: \.name) { item in
-                                                PantryItemRow(item: item)
+                                                PantryItemRowView(item: item)
                                                     .padding(.horizontal)
                                             }
                                         }

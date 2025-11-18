@@ -6,231 +6,171 @@
 //
 
 import SwiftUI
-import Foundation
 
 struct FoodbankCardView: View {
     var name: String
-    var needs: [String : [PantryItem]?] // need string (ie. "Tinned Goods") -> list of items
+    var needs: [String: [PantryItem]?]
     var distance: String
-    
+
     @State private var selectedNeeds: Set<String> = []
     @State private var showAllNeeds: Bool = false
-    @State private var needsHeight: CGFloat = 0
-    @State private var rowThresholdHeight: CGFloat = 95 // height of ~2 rows on most screens
 
-    private struct NeedsHeightKey: PreferenceKey {
-        static var defaultValue: CGFloat = 0
-        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) {
-            value = nextValue()
-        }
-    }
+    // Limit of needs shown when collapsed
+    private let collapsedLimit = 10
 
-    // Generous character truncation limit
-    private func truncated(_ text: String, limit: Int) -> String {
-        guard text.count > limit else { return text }
-        let index = text.index(text.startIndex, offsetBy: limit - 3)
-        return "\(text[..<index])..."
-    }
-
-    // Choose how many labels to show (collapsed vs expanded)
-    private func displayedNeeds(_ allKeys: [String]) -> [String] {
-        guard !showAllNeeds else { return allKeys }
-        // show only first 9–10 tags to roughly fit two rows
-        return Array(allKeys.prefix(10))
-    }
-
-    // Compute tag width adaptively (media-query style)
-    private func tagWidth(for totalWidth: CGFloat) -> CGFloat {
-        switch totalWidth {
-        case 0..<350: return 120   // small iPhones
-        case 350..<500: return 140 // standard iPhones
-        case 500..<700: return 160 // large / landscape
-        default: return 180        // iPad
-        }
-    }
-
-
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            // Header row
-            HStack {
-                HStack(spacing: 6) {
-                    Text(name)
-                        .font(.headline)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.9)
+            headerSection
+            Divider()
+            needsSection
+            matchesSection
+        }
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemBackground)) // elevate card
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(AppStyle.containerGray, lineWidth: 1) // soft visible gray border
+        )
+        .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
+        .padding(.horizontal)
 
-                    Button {
-                        print("Info tapped for \(name)")
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(.blue.opacity(0.8))
-                    }
-                    .buttonStyle(.plain) // prevents highlight effect
-                    .accessibilityLabel("More info about \(name)")
+    }
+
+    // MARK: - Header
+    private var headerSection: some View {
+        HStack {
+            HStack(spacing: 6) {
+                Text(name)
+                    .font(.headline)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.9)
+
+                Button {
+                    print("Info tapped for \(name)")
+                } label: {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.blue.opacity(0.8))
                 }
+                .buttonStyle(.plain)
+            }
+
+            Spacer()
+
+            Text(distance)
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    // MARK: - Needs Section
+    private var needsSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                let needCount = needs.keys.count
+                Text(needCount.formatted() + " " + ((needCount == 1) ? "NEED" : "NEEDS"))
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
 
                 Spacer()
 
-                Text(distance)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                if !selectedNeeds.isEmpty {
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            selectedNeeds.removeAll()
+                        }
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    } label: {
+                        Text("Clear Selection")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Capsule().fill(Color.red.opacity(0.1)))
+                    }
+                    .buttonStyle(.plain)
+                }
             }
 
-            Divider()
+            // --- One horizontal scroll of capsule tags ---
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Array(needs.keys), id: \.self) { needKey in
+                        let isSelected = selectedNeeds.contains(needKey)
 
-            // NEEDS section
-            VStack(alignment: .leading, spacing: 10) {
-                // Header with "Clear Selection"
-                HStack {
-                    Text("NEEDS")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    Spacer()
-
-                    if !selectedNeeds.isEmpty {
                         Button {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                selectedNeeds.removeAll()
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                if isSelected {
+                                    selectedNeeds.remove(needKey)
+                                } else {
+                                    selectedNeeds.insert(needKey)
+                                }
                             }
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
-                            Text("Clear Selection")
+                            Text(needKey.capitalized)
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundColor(.red)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Capsule().fill(Color.red.opacity(0.1)))
+                                .lineLimit(1)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(
+                                    Capsule()
+                                        .fill(isSelected ? AppStyle.accentBlue : Color.clear)
+                                )
+                                .foregroundColor(isSelected ? .white : AppStyle.accentBlue)
+                                .overlay(
+                                    Capsule().stroke(AppStyle.accentBlue, lineWidth: 1.4)
+                                )
                         }
                         .buttonStyle(.plain)
                     }
                 }
-
-                // Grid of need tags
-                GeometryReader { geo in
-                    let totalWidth = geo.size.width
-                    let columns = [GridItem(.adaptive(minimum: tagWidth(for: totalWidth)), spacing: 8)]
-
-                    LazyVGrid(columns: columns, alignment: .leading, spacing: 8) {
-                        ForEach(displayedNeeds(Array(needs.keys)), id: \.self) { needKey in
-                            let isSelected = selectedNeeds.contains(needKey)
-
-                            Button {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    if isSelected {
-                                        selectedNeeds.remove(needKey)
-                                    } else {
-                                        selectedNeeds.insert(needKey)
-                                    }
-                                }
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                            } label: {
-                                Text(truncated(needKey.capitalized, limit: 22)) // generous limit
-                                    .font(.system(size: 13, weight: .semibold))
-                                    .lineLimit(1)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .frame(minWidth: 90, maxWidth: .infinity)
-                                    .background(
-                                        Capsule().fill(
-                                            isSelected ? AppStyle.accentBlue : Color.clear
-                                        )
-                                    )
-                                    .foregroundColor(isSelected ? .white : AppStyle.accentBlue)
-                                    .overlay(
-                                        Capsule().stroke(AppStyle.accentBlue, lineWidth: 1.6)
-                                    )
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .background(
-                        GeometryReader { innerGeo in
-                            Color.clear
-                                .preference(key: NeedsHeightKey.self, value: innerGeo.size.height)
-                        }
-                    )
-                }
-                .frame(minHeight: 100)
-                .onPreferenceChange(NeedsHeightKey.self) { height in
-                    needsHeight = height
-                }
-
-                // Show More / Less toggle (only if grid overflows)
-                if needsHeight > rowThresholdHeight {
-                    Button {
-                        withAnimation(.easeInOut(duration: 0.25)) {
-                            showAllNeeds.toggle()
-                        }
-                    } label: {
-                        Text(showAllNeeds ? "Show Less..." : "Show More...")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(AppStyle.accentBlue)
-                            .frame(maxWidth: .infinity)
-                    }
-                    .buttonStyle(.plain)
-                    .transition(.opacity)
-                }
+                .padding(.vertical, 4)
             }
-            .padding(.top, 4)
-
-
-            // MATCHES section
-            VStack(alignment: .leading, spacing: 8) {
-                Text("MATCHES")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 16) {
-                        // Filter needs by selection
-                        ForEach(Array(needs)
-                                .filter { selectedNeeds.isEmpty || selectedNeeds.contains($0.key) },
-                                id: \.key) { pair in
-
-                            let needKey = pair.key
-                            let items: [PantryItem] = pair.value ?? []
-
-                            if !items.isEmpty {
-                                ForEach(items, id: \.id) { item in
-                                    PantryItemCard(item: item)
-                                }
-                            }
-                            else {
-                                Text("No matches found!")
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-            }
-
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color.clear)
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(AppStyle.containerBackground, lineWidth: 1.2)
-        )
-        .cornerRadius(16)
-        .padding(.horizontal)
+        .padding(.top, 4)
     }
-}
 
-#Preview {
-    FoodbankCardView(
-        name: "Coventry Central Foodbank",
-        needs: [
-            "Tinned Goods": [PantryItem(quantity: 1, name: "Baked Beans", category: Category.none), PantryItem(quantity: 1, name: "Tomatoes", category: Category.none)],
-            "Cereal": [PantryItem(quantity: 1, name: "Cornflakes", category: Category.none)],
-            "Toiletries": nil
-        ],
-        distance: "1.4 km"
-    )
-    .padding()
-    .background(Color(.systemBackground))
-}
 
+    // MARK: - Matches Section
+    private var matchesSection: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("MATCHES")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 12) {
+                    ForEach(Array(needs)
+                        .filter { selectedNeeds.isEmpty || selectedNeeds.contains($0.key) },
+                            id: \.key) { pair in
+
+                        let items: [PantryItem] = pair.value ?? []
+
+                        if !items.isEmpty {
+                            ForEach(items, id: \.id) { item in
+                                PantryItemCardView(item: item)
+                                    .fixedSize()
+                            }
+                        } else {
+                            Text("No matches found!")
+                                .font(.footnote)
+                                .foregroundColor(.secondary)
+                                .padding(.vertical, 4)
+                        }
+                    }
+                }
+                .padding(.horizontal, 4)
+                .padding(.vertical, 2)
+                .frame(minHeight: 0)
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
+        }
+    }
+
+}

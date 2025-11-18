@@ -20,9 +20,20 @@ final class DonationViewModel: ObservableObject {
     func loadFoodbanks() async {
         do {
             let result = try await api.pollFoodbankNeeds()
-            self.foodbanks = result
+            self.foodbanks = filterFoodbanks(foodbanks: result)
         } catch {
             print("Failed to load foodbanks: \(error)")
         }
     }
+    
+    /// Removes redundant foodbanks such as ones with unknown needs.
+    func filterFoodbanks(foodbanks: [FoodbankNeeds]) -> [FoodbankNeeds] {
+        return foodbanks.filter { foodbank in
+            guard let needs = foodbank.needs else {
+                return false // exclude if nil
+            }
+            return !needs.contains("Unknown") // exclude "Unknown" entries
+        }
+    }
+
 }

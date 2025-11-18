@@ -28,10 +28,23 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		55C37B252ECC8B65007163D1 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		554E9E392E82EDDF00CF8429 /* EatNeat.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = EatNeat.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		554E9E492E82EDE000CF8429 /* EatNeatTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EatNeatTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		554E9E532E82EDE000CF8429 /* EatNeatUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EatNeatUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		55C37B272ECC8B65007163D1 /* EatNeatMCP */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = EatNeatMCP; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -61,6 +74,11 @@
 		554E9E562E82EDE000CF8429 /* EatNeatUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = EatNeatUITests;
+			sourceTree = "<group>";
+		};
+		55C37B282ECC8B66007163D1 /* EatNeatMCP */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = EatNeatMCP;
 			sourceTree = "<group>";
 		};
 		55CA22F42E82F8F000F83235 /* Preview Content */ = {
@@ -94,6 +112,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		55C37B242ECC8B65007163D1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -103,6 +128,7 @@
 				554E9E3B2E82EDDF00CF8429 /* EatNeat */,
 				554E9E4C2E82EDE000CF8429 /* EatNeatTests */,
 				554E9E562E82EDE000CF8429 /* EatNeatUITests */,
+				55C37B282ECC8B66007163D1 /* EatNeatMCP */,
 				554E9E3A2E82EDDF00CF8429 /* Products */,
 				55CA22F42E82F8F000F83235 /* Preview Content */,
 			);
@@ -114,6 +140,7 @@
 				554E9E392E82EDDF00CF8429 /* EatNeat.app */,
 				554E9E492E82EDE000CF8429 /* EatNeatTests.xctest */,
 				554E9E532E82EDE000CF8429 /* EatNeatUITests.xctest */,
+				55C37B272ECC8B65007163D1 /* EatNeatMCP */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -192,6 +219,28 @@
 			productReference = 554E9E532E82EDE000CF8429 /* EatNeatUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		55C37B262ECC8B65007163D1 /* EatNeatMCP */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55C37B2D2ECC8B66007163D1 /* Build configuration list for PBXNativeTarget "EatNeatMCP" */;
+			buildPhases = (
+				55C37B232ECC8B65007163D1 /* Sources */,
+				55C37B242ECC8B65007163D1 /* Frameworks */,
+				55C37B252ECC8B65007163D1 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				55C37B282ECC8B66007163D1 /* EatNeatMCP */,
+			);
+			name = EatNeatMCP;
+			packageProductDependencies = (
+			);
+			productName = EatNeatMCP;
+			productReference = 55C37B272ECC8B65007163D1 /* EatNeatMCP */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -212,6 +261,9 @@
 					554E9E522E82EDE000CF8429 = {
 						CreatedOnToolsVersion = 16.0;
 						TestTargetID = 554E9E382E82EDDF00CF8429;
+					};
+					55C37B262ECC8B65007163D1 = {
+						CreatedOnToolsVersion = 16.0;
 					};
 				};
 			};
@@ -236,6 +288,7 @@
 				554E9E382E82EDDF00CF8429 /* EatNeat */,
 				554E9E482E82EDE000CF8429 /* EatNeatTests */,
 				554E9E522E82EDE000CF8429 /* EatNeatUITests */,
+				55C37B262ECC8B65007163D1 /* EatNeatMCP */,
 			);
 		};
 /* End PBXProject section */
@@ -280,6 +333,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		554E9E4F2E82EDE000CF8429 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		55C37B232ECC8B65007163D1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -563,6 +623,32 @@
 			};
 			name = Release;
 		};
+		55C37B2B2ECC8B66007163D1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UPW4VJM7RU;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		55C37B2C2ECC8B66007163D1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = UPW4VJM7RU;
+				ENABLE_HARDENED_RUNTIME = YES;
+				MACOSX_DEPLOYMENT_TARGET = 15.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -598,6 +684,15 @@
 			buildConfigurations = (
 				554E9E642E82EDE000CF8429 /* Debug */,
 				554E9E652E82EDE000CF8429 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55C37B2D2ECC8B66007163D1 /* Build configuration list for PBXNativeTarget "EatNeatMCP" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				55C37B2B2ECC8B66007163D1 /* Debug */,
+				55C37B2C2ECC8B66007163D1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

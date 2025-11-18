@@ -72,7 +72,7 @@ struct FoodbankNeeds: Decodable {
 
         var map: [String: [PantryItem]] = [:]
         for need in items {
-            map[need] = [PantryItem(quantity: 1, name: "Spaghetti", category: Category.grainsAndPasta)] // TODO: update to include actual needs
+            map[need] = [PantryItem(quantity: 1, name: "Spaghetti", category: Category.pastaRiceAndNoodles)] // TODO: update to include actual needs
         }
         return map
     }

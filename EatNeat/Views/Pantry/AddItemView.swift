@@ -51,7 +51,6 @@ struct AddItemView: View {
 
                         HStack(spacing: 8) {
                             Button(action: {
-                                HapticFeedback.hapticImpact(intensity: .light)
                                 quantity -= (quantity > 0) ? 1 : 0
                             }) {
                                 Image(systemName: "minus.circle.fill")
@@ -66,7 +65,6 @@ struct AddItemView: View {
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
 
                             Button(action: {
-                                HapticFeedback.hapticImpact(intensity: .light)
                                 quantity += (quantity <= AppConstants.MAX_ITEM_QUANTITY) ? 1 : 0
                             }) {
                                 Image(systemName: "plus.circle.fill")
@@ -91,7 +89,6 @@ struct AddItemView: View {
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
 
                             Button(action: {
-                                HapticFeedback.hapticImpact(intensity: .light)
                                 toggleWeightUnit()
                             }) {
                                 Text(metric ? "grams" : "lbs")

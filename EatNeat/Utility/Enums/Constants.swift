@@ -10,4 +10,5 @@ import SwiftUI
 enum AppConstants {
     static let MAX_ITEM_QUANTITY = 50
     static let FOODBANK_SEARCH_RADIUS_KM = 10
+    static let DEFAULT_CATEGORIES: Set<Category> = []
 }
