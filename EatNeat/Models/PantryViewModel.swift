@@ -31,4 +31,17 @@ class PantryViewModel: ObservableObject {
             itemsByCategory[category] = []
         }
     }
+    
+    /// Prints all entries to the pantry as a comma-separated string including their UUIDs.
+    func printAllPantryEntries() -> String {
+        var result = ""
+        
+        for category in Category.allCases {
+            for item in itemsByCategory[category] ?? [] {
+                result += "\(item.name) (ID: \(item.id)), "
+            }
+        }
+        
+        return result
+    }
 }

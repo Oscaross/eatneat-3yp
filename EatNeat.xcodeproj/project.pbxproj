@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		55B424142EB40B95009BF8F0 /* SwiftMCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55B424132EB40B95009BF8F0 /* SwiftMCP */; };
+		55C37B342ECC8E85007163D1 /* SwiftMCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55C37B332ECC8E85007163D1 /* SwiftMCP */; };
+		55C37B362ECC8E88007163D1 /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55C37B352ECC8E88007163D1 /* MCP */; };
 		55D024F22EAE35F500E75A5C /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55D024F12EAE35F500E75A5C /* MCP */; };
 /* End PBXBuildFile section */
 
@@ -116,6 +118,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				55C37B342ECC8E85007163D1 /* SwiftMCP in Frameworks */,
+				55C37B362ECC8E88007163D1 /* MCP in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +135,7 @@
 				55C37B282ECC8B66007163D1 /* EatNeatMCP */,
 				554E9E3A2E82EDDF00CF8429 /* Products */,
 				55CA22F42E82F8F000F83235 /* Preview Content */,
+				55C37B322ECC8E81007163D1 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -143,6 +148,13 @@
 				55C37B272ECC8B65007163D1 /* EatNeatMCP */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		55C37B322ECC8E81007163D1 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -236,6 +248,8 @@
 			);
 			name = EatNeatMCP;
 			packageProductDependencies = (
+				55C37B332ECC8E85007163D1 /* SwiftMCP */,
+				55C37B352ECC8E88007163D1 /* MCP */,
 			);
 			productName = EatNeatMCP;
 			productReference = 55C37B272ECC8B65007163D1 /* EatNeatMCP */;
@@ -723,6 +737,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */;
 			productName = SwiftMCP;
+		};
+		55C37B332ECC8E85007163D1 /* SwiftMCP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */;
+			productName = SwiftMCP;
+		};
+		55C37B352ECC8E88007163D1 /* MCP */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */;
+			productName = MCP;
 		};
 		55D024F12EAE35F500E75A5C /* MCP */ = {
 			isa = XCSwiftPackageProductDependency;
