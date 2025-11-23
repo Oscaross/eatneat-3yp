@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct DonationView: View {
+    @ObservedObject var viewModel: DonationViewModel
+    
     // --- Foodbank Info View ---
     @State private var selectedFoodbank: FoodbankNeeds? = nil
     @State private var showFoodbankSheet = false
@@ -15,16 +17,8 @@ struct DonationView: View {
     // --- Help Tooltip ---
     @State private var showHelpDialog: Bool = false
     
-    // --- API ---
-    @EnvironmentObject var locationManager: LocationManager
-    @StateObject private var viewModel: DonationViewModel
-    
     // --- Refresh Button Tooltip ---
     @State private var isRefreshing = false
-    
-    init(locationManager: LocationManager) {
-        _viewModel = StateObject(wrappedValue: DonationViewModel(locationManager: locationManager))
-    }
     
     var body: some View {
         NavigationStack {
@@ -35,16 +29,16 @@ struct DonationView: View {
                     Spacer()
                 } else {
                     TabView {
-                        ForEach(viewModel.foodbanks, id: \.id) { foodbank in
+                        ForEach(Array(viewModel.foodbanks.values), id: \.id) { foodbank in
                             FoodbankCardView(
                                 name: foodbank.name,
-                                needs: foodbank.mapNeedsToPantry(),
+                                needsList: foodbank.needsList,
+                                matchedNeeds: foodbank.matchedNeeds,
                                 distance: formattedDistance(foodbank.distance)
                             )
                             .padding(.horizontal)
                             .onTapGesture {
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                
                                 selectedFoodbank = foodbank
                                 showFoodbankSheet = true
                             }
@@ -114,9 +108,4 @@ struct DonationView: View {
         return d >= 1000 ? String(format: "%.1f km", d / 1000.0)
                          : String(format: "%.0f m", d)
     }
-}
-
-#Preview
-{
-    DonationView(locationManager: LocationManager())
 }

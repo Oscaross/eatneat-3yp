@@ -11,13 +11,15 @@ import MCP
 
 @main
 struct EatNeatApp: App {
-    @StateObject private var locationManager = LocationManager() // required for give food API to find nearby foodbanks
+    @StateObject private var pantryViewModel = PantryViewModel() // pantry view model to manage pantry data
+    @StateObject private var donationViewModel = DonationViewModel(locationManager: LocationManager()) // donation view model to manage foodbanks and their need > item mappings
     @StateObject var appBridge = AppBridge() // app bridge to expose functionality to MCP server
 
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(locationManager)
+                .environmentObject(pantryViewModel)
+                .environmentObject(donationViewModel)
                 .environmentObject(appBridge)
         }
     }

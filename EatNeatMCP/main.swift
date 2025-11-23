@@ -32,22 +32,27 @@ class EatNeatMCP {
         ]
     }
     
-    /// Maps a foodbank need to an instance of a pantry item
+
     @MCPTool(
-        description: "Map a foodbank need to a pantry item."
+        description: """
+        Register a match between a user's pantry item and a foodbank need. \
+        Call this when you decide an item closely matches a need. \
+        Do NOT map the same item to more than one need.
+        """
     )
-    func mapNeedToItem(needID: UUID, itemID: UUID) async throws -> [String: String] {
+    func registerItemNeedMatch(itemId: Int, needId: Int) async throws -> [String: Any] {
         let payload: [String: Any] = [
-            "action": "mapNeedToItem",
-            "needID": needID.uuidString,
-            "itemID": itemID.uuidString
+            "action": "registerItemNeedMatch",
+            "itemId": itemId,
+            "needId": needId
         ]
-        
+
         try await postToAppBridge(payload: payload)
-        
+
         return [
-            "status": "sent",
-            "echo": "\(needID.uuidString) -> \(itemID.uuidString)"
+            "status": "ok",
+            "itemId": itemId,
+            "needId": needId
         ]
     }
 

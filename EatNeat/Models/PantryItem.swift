@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PantryItem: Identifiable, Hashable {
+struct PantryItem: Identifiable, Hashable, Codable {
     let id: UUID = UUID()
     var quantity: Int
     var weight: Double?
@@ -22,5 +22,4 @@ struct PantryItem: Identifiable, Hashable {
         self.category = category
         self.dateAdded = Date()
     }
-    
 }

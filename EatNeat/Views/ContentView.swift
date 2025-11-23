@@ -2,15 +2,10 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var bridge: AppBridge
+    @EnvironmentObject var pantryViewModel: PantryViewModel
+    @EnvironmentObject var donationViewModel : DonationViewModel
     
-    let pantryViewModel = PantryViewModel()
-    @EnvironmentObject var locationManager: LocationManager
-    
-    init() {
-        #if DEBUG
-        SampleData.generateSampleItems().forEach { pantryViewModel.addItem(item: $0) }
-        #endif
-    }
+    @State var loadedSampleItems: Bool = false
     
     var body: some View {
         TabView {
@@ -22,7 +17,7 @@ struct ContentView: View {
                 .tabItem {
                     Label("My Pantry", systemImage: "basket.fill")
                 }
-            DonationView(locationManager: locationManager)
+            DonationView(viewModel: donationViewModel)
                 .tabItem {
                     Label("Donate", systemImage: "heart.circle.fill")
                 }
@@ -32,31 +27,27 @@ struct ContentView: View {
             handleBridgeCommand(cmd)
             bridge.consumeCommand(cmd)
         }
+        .task {
+            #if DEBUG
+            if !loadedSampleItems {
+                SampleData.generateSampleItems().forEach { pantryViewModel.addItem(item: $0) }
+                loadedSampleItems = true
+            }
+            #endif
+        }
+
     }
         
-    
+    /// Given a command arriving at the root (this) from the AppBridge, send to the relevant model/component of the app
     func handleBridgeCommand(_ cmd: BridgeCommand) {
-        switch cmd.action {
-        case "showPopup":
-            print("Received command successfully: \(cmd)")
-        case "mapNeedToItem":
-            print("Mapping need to item: \(cmd)")
-        default:
-            print("Unknown bridge command: \(cmd.action)")
+        switch cmd {
+        case .showPopup(_, let message):
+            print("Received showPopup command, message: \(message)")
+
+        case .matchItemToNeed(_, let foodbankID, let needID, let itemID):
+            print("Mapping need to item → foodbankID: \(foodbankID), needID: \(needID), itemID: \(itemID)")
+            donationViewModel.matchItemToNeed(foodbankID: foodbankID, needID: needID, itemID: itemID)
         }
     }
-}
 
-struct HomeView: View {
-    var body: some View {
-        NavigationStack {
-            Text("Home Page")
-                .navigationTitle("EatNeat")
-        }
-    }
-}
-
-#Preview {
-    ContentView()
-        .environmentObject(LocationManager())
 }

@@ -11,8 +11,6 @@ import SwiftUI
 
 @MainActor
 class AppBridge: ObservableObject {
-
-    // Published commands -> UI reacts in SwiftUI
     @Published var pendingCommands: [BridgeCommand] = []
 
     // MARK: - Dev Mode / Prod Mode Config
@@ -26,9 +24,8 @@ class AppBridge: ObservableObject {
             startInboundBridgeServer()
         }
     }
-
-    // MARK: - Inbound HTTP Server (Dev Mode)
-
+    
+    /// Start the local bridge server to listen for incoming commands.
     private func startInboundBridgeServer() {
         do {
             listener = try NWListener(using: .tcp, on: 9090)
@@ -48,6 +45,8 @@ class AppBridge: ObservableObject {
         listener?.start(queue: .main)
         print("AppBridge listening on http://127.0.0.1:9090")
     }
+    
+    /// Boilerplate to handle incoming NWConnection, parse HTTP and JSON payload.
     @MainActor
     private func handleIncoming(connection: NWConnection) {
         connection.receiveMessage { [weak self] data, _, _, _ in
@@ -78,30 +77,10 @@ class AppBridge: ObservableObject {
         }
     }
 
-    // MARK: - Outbound (Prod Mode)
-    func sendToCloud(action: String, payload: [String: Any]) async throws {
-        guard let url = URL(string: "https://mcp.myserver.com/\(action)") else { return }
-
-        var req = URLRequest(url: url)
-        req.httpMethod = "POST"
-        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONSerialization.data(withJSONObject: payload)
-
-        let _ = try await URLSession.shared.data(for: req)
-    }
-
-    // MARK: - Callbacks for SwiftUI
+    /// Callback for the UI to indicate a command has been handled successfully.
     func consumeCommand(_ command: BridgeCommand) {
         if let idx = pendingCommands.firstIndex(where: { $0.id == command.id }) {
             pendingCommands.remove(at: idx)
         }
     }
-}
-
-// MARK: - Command Payloads
-
-struct BridgeCommand: Codable, Identifiable {
-    let id = UUID()
-    let action: String
-    let message: String?
 }

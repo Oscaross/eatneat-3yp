@@ -59,16 +59,6 @@ struct FoodbankInfoView: View {
 
                     Divider()
 
-                    // --- Needs section ---
-                    if let needs = foodbank.needs {
-                        Text("Current Needs:")
-                            .font(.headline)
-
-                    } else {
-                        Text("No current needs listed.")
-                            .foregroundColor(.secondary)
-                    }
-
                     Spacer(minLength: 40)
                 }
                 .padding()

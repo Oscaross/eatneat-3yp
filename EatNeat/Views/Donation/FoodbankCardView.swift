@@ -9,10 +9,11 @@ import SwiftUI
 
 struct FoodbankCardView: View {
     var name: String
-    var needs: [String: [PantryItem]?]
+    var needsList: [Need]
+    var matchedNeeds: [Int: [PantryItem]]
     var distance: String
 
-    @State private var selectedNeeds: Set<String> = []
+    @State private var selectedNeeds: Set<Int> = []
     @State private var showAllNeeds: Bool = false
 
     // Limit of needs shown when collapsed
@@ -30,15 +31,14 @@ struct FoodbankCardView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemBackground)) // elevate card
+                .fill(Color(.systemBackground))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 16)
-                .stroke(AppStyle.containerGray, lineWidth: 1) // soft visible gray border
+                .stroke(AppStyle.containerGray, lineWidth: 1)
         )
         .shadow(color: Color.black.opacity(0.05), radius: 3, x: 0, y: 1)
         .padding(.horizontal)
-
     }
 
     // MARK: - Header
@@ -71,9 +71,10 @@ struct FoodbankCardView: View {
     // MARK: - Needs Section
     private var needsSection: some View {
         VStack(alignment: .leading, spacing: 10) {
+
             HStack {
-                let needCount = needs.keys.count
-                Text(needCount.formatted() + " " + ((needCount == 1) ? "NEED" : "NEEDS"))
+                let needCount = needsList.count
+                Text("\(needCount) \(needCount == 1 ? "NEED" : "NEEDS")")
                     .font(.subheadline)
                     .foregroundColor(.secondary)
 
@@ -97,23 +98,23 @@ struct FoodbankCardView: View {
                 }
             }
 
-            // --- One horizontal scroll of capsule tags ---
+            // Horizontal list of capsule tags
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
-                    ForEach(Array(needs.keys), id: \.self) { needKey in
-                        let isSelected = selectedNeeds.contains(needKey)
+                    ForEach(needsList, id: \.id) { need in
+                        let isSelected = selectedNeeds.contains(need.id)
 
                         Button {
                             withAnimation(.easeInOut(duration: 0.2)) {
                                 if isSelected {
-                                    selectedNeeds.remove(needKey)
+                                    selectedNeeds.remove(need.id)
                                 } else {
-                                    selectedNeeds.insert(needKey)
+                                    selectedNeeds.insert(need.id)
                                 }
                             }
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                         } label: {
-                            Text(needKey.capitalized)
+                            Text(need.name.capitalized)
                                 .font(.system(size: 13, weight: .semibold))
                                 .lineLimit(1)
                                 .padding(.horizontal, 12)
@@ -136,7 +137,6 @@ struct FoodbankCardView: View {
         .padding(.top, 4)
     }
 
-
     // MARK: - Matches Section
     private var matchesSection: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -146,31 +146,27 @@ struct FoodbankCardView: View {
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
-                    ForEach(Array(needs)
-                        .filter { selectedNeeds.isEmpty || selectedNeeds.contains($0.key) },
-                            id: \.key) { pair in
 
-                        let items: [PantryItem] = pair.value ?? []
+                    ForEach(needsList.filter { selectedNeeds.isEmpty || selectedNeeds.contains($0.id) }, id: \.id) { need in
 
-                        if !items.isEmpty {
-                            ForEach(items, id: \.id) { item in
-                                PantryItemCardView(item: item)
-                                    .fixedSize()
-                            }
-                        } else {
+                        let items = matchedNeeds[need.id] ?? []
+
+                        if items.isEmpty {
                             Text("No matches found!")
                                 .font(.footnote)
                                 .foregroundColor(.secondary)
                                 .padding(.vertical, 4)
+                        } else {
+                            ForEach(items, id: \.id) { item in
+                                PantryItemCardView(item: item)
+                                    .fixedSize()
+                            }
                         }
                     }
                 }
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
-                .frame(minHeight: 0)
             }
-            .frame(maxHeight: .infinity, alignment: .top)
         }
     }
-
 }
