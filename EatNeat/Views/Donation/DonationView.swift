@@ -9,6 +9,7 @@ import SwiftUI
 
 struct DonationView: View {
     @ObservedObject var viewModel: DonationViewModel
+    @EnvironmentObject var pantryViewModel: PantryViewModel
     
     // --- Foodbank Info View ---
     @State private var selectedFoodbank: FoodbankNeeds? = nil
@@ -31,15 +32,14 @@ struct DonationView: View {
                     TabView {
                         ForEach(Array(viewModel.foodbanks.values), id: \.id) { foodbank in
                             FoodbankCardView(
-                                name: foodbank.name,
-                                needsList: foodbank.needsList,
-                                matchedNeeds: foodbank.matchedNeeds,
-                                distance: formattedDistance(foodbank.distance)
+                                foodbank: foodbank
                             )
                             .padding(.horizontal)
                             .onTapGesture {
                                 UIImpactFeedbackGenerator(style: .light).impactOccurred()
                                 selectedFoodbank = foodbank
+                                // DEBUG: Print out LLM matching request to terminal
+                                print(selectedFoodbank?.generateAgentRequest(pantryItems: pantryViewModel.getAllItems()))
                                 showFoodbankSheet = true
                             }
                         }
@@ -50,9 +50,6 @@ struct DonationView: View {
             }
             .navigationTitle("Donate")
             .toolbar {
-                // --- location indicator ---
-                // removed for now because I can't get it to look good
-
                 // --- action icons ---
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     Button {
@@ -83,29 +80,37 @@ struct DonationView: View {
                 await viewModel.loadFoodbanks()
             }
             .sheet(isPresented: $showHelpDialog) {
-                HelpView(
-                    title: "Help",
-                    message: "Foodbanks often have an abundance of some goods and a shortage of other goods. Many families and individuals within the community rely on these items to feed and care for each other and their children. EatNeat helps you to identify what foodbanks within your local community desparately need, and what you have told the app you have that could help make a difference.",
-                    faqs: [
-                        ("What are matches?", "Matches are entries into your pantry that we believe could seriously help a foodbank with a shortage of that particular type of good."),
-                        ("Do I have to arrange to donate items?", "No! Just follow the instructions for each foodbank to see how to help, whether that is a local drop-off point or the foodbank themselves."),
-                        ("How are foodbanks discovered?", "EatNeat asks for your location while using the application to find foodbanks within a 25km radius. The data from these foodbanks is then displayed and matched to your individual situation."),
-                        ("Do I have to use the donation feature?", "Nope, it is just a feature that is there to help users who are able to support local foodbanks to do so more efficiently. The application is primarily designed for helping individuals organise and manage their shopping and pantry."),
-                        
-                    ]
-                )
+                helpSheet
             }
-            .sheet(isPresented: $showFoodbankSheet) {
-                if let fb = selectedFoodbank {
-                    FoodbankInfoView(foodbank: fb)
-                }
+            .sheet(item: $selectedFoodbank) { fb in
+                FoodbankInfoView(foodbank: fb)
             }
         }
     }
     
-    private func formattedDistance(_ distance: Double?) -> String {
-        guard let d = distance else { return "–" }
-        return d >= 1000 ? String(format: "%.1f km", d / 1000.0)
-                         : String(format: "%.0f m", d)
+    @ViewBuilder
+    private var helpSheet: some View {
+        HelpView(
+            title: "Help",
+            message: "Foodbanks often have an abundance of some goods and a shortage of other goods. Many families and individuals within the community rely on these items to feed and care for each other and their children. EatNeat helps you to identify what foodbanks within your local community desparately need, and what you have told the app you have that could help make a difference.",
+            faqs: [
+                (
+                    "What are matches?",
+                    "Matches are entries into your pantry that we believe could seriously help a foodbank with a shortage of that particular type of good."
+                ),
+                (
+                    "Do I have to arrange to donate items?",
+                    "No! Just follow the instructions for each foodbank to see how to help, whether that is a local drop-off point or the foodbank themselves."
+                ),
+                (
+                    "How are foodbanks discovered?",
+                    "EatNeat asks for your location while using the application to find foodbanks within a 25km radius. The data from these foodbanks is then displayed and matched to your individual situation."
+                ),
+                (
+                    "Do I have to use the donation feature?",
+                    "Nope, it is just a feature that is there to help users who are able to support local foodbanks to do so more efficiently. The application is primarily designed for helping individuals organise and manage their shopping and pantry."
+                )
+            ]
+        )
     }
 }

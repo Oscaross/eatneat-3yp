@@ -56,6 +56,20 @@ class PantryViewModel: ObservableObject {
         return nil
     }
     
+    /// Returns all items, regardless of category.
+    func getAllItems() -> [PantryItem] {
+        var allItems: [PantryItem] = []
+        
+        for category in Category.allCases {
+            if let items = itemsByCategory[category] {
+                allItems.append(contentsOf: items)
+            }
+        }
+            
+        return allItems
+    }
+    
+    
     /// Prints all entries to the pantry as a comma-separated string including their UUIDs.
     func printAllPantryEntries() -> String {
         var result = ""

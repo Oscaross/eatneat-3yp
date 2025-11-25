@@ -32,6 +32,14 @@ class EatNeatMCP {
         ]
     }
     
+    
+    /// Registers a match between a foodbank need and a user's pantry item, for a specified foodbank.
+    struct RegisterItemNeedMatchResult: Codable {
+        let status: String
+        let foodbankId: String
+        let needId: Int
+        let itemId: String
+    }
 
     @MCPTool(
         description: """
@@ -40,26 +48,33 @@ class EatNeatMCP {
         Do NOT map the same item to more than one need.
         """
     )
-    func registerItemNeedMatch(itemId: Int, needId: Int) async throws -> [String: Any] {
+    func registerItemNeedMatch(itemId: String, needId: Int, foodbankId: String) async throws -> RegisterItemNeedMatchResult {
+        print("[MCP TOOL] Trying to register match: item \(itemId) -> need \(needId) at foodbank \(foodbankId)")
+        
         let payload: [String: Any] = [
-            "action": "registerItemNeedMatch",
-            "itemId": itemId,
-            "needId": needId
+            "matchItemToNeed": [
+                "id": UUID().uuidString,
+                "foodbankID": foodbankId,
+                "needID": needId,
+                "itemID": itemId
+            ]
         ]
 
         try await postToAppBridge(payload: payload)
 
-        return [
-            "status": "ok",
-            "itemId": itemId,
-            "needId": needId
-        ]
+        return RegisterItemNeedMatchResult(
+            status: "ok",
+            foodbankId: foodbankId,
+            needId: needId,
+            itemId: itemId
+        )
     }
 
+
     private func postToAppBridge(payload: [String: Any]) async throws {
-        // DEV MODE: app inside Simulator on same machine
         guard let url = URL(string: "http://127.0.0.1:9090") else {
-            throw NSError(domain: "MCP", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid AppBridge URL"])
+            throw NSError(domain: "MCP", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Invalid AppBridge URL"])
         }
 
         var req = URLRequest(url: url)
@@ -67,18 +82,21 @@ class EatNeatMCP {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONSerialization.data(withJSONObject: payload)
 
-        // Perform POST
         let (_, response) = try await URLSession.shared.data(for: req)
 
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
-            throw NSError(domain: "MCP", code: 2, userInfo: [NSLocalizedDescriptionKey: "AppBridge returned non-200 status"])
+            throw NSError(domain: "MCP", code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "AppBridge returned non-200 status"])
         }
     }
+
 }
 
-// Top-level entry point for the MCP executable.
+// entry code -> ran when we run the target
 let server = EatNeatMCP()
 let transport = StdioTransport(server: server)
+
+print("[MCP] server created")
 
 Task {
     do {

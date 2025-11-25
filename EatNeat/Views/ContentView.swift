@@ -5,7 +5,7 @@ struct ContentView: View {
     @EnvironmentObject var pantryViewModel: PantryViewModel
     @EnvironmentObject var donationViewModel : DonationViewModel
     
-    @State var loadedSampleItems: Bool = false
+    @State private var loadedSampleItems = false
     
     var body: some View {
         TabView {
@@ -27,15 +27,19 @@ struct ContentView: View {
             handleBridgeCommand(cmd)
             bridge.consumeCommand(cmd)
         }
-        .task {
+        .onAppear {
             #if DEBUG
+            pantryViewModel.clearPantry()
+            print("Loading sample data...")
+            
             if !loadedSampleItems {
-                SampleData.generateSampleItems().forEach { pantryViewModel.addItem(item: $0) }
+                SampleData.generateSampleItems().forEach {
+                    pantryViewModel.addItem(item: $0)
+                }
                 loadedSampleItems = true
             }
             #endif
         }
-
     }
         
     /// Given a command arriving at the root (this) from the AppBridge, send to the relevant model/component of the app

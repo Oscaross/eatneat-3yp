@@ -17,10 +17,10 @@ struct FoodbankNeeds: Decodable, Identifiable {
     let rawNeeds: String?
     let homepage: String?
 
+    let needsLastUpdated: Date?
+
     private(set) var needsById: [Int: Need] = [:]
-
     private(set) var needsList: [Need] = []
-
     private(set) var matchedNeeds: [Int: [PantryItem]] = [:]
 
     enum CodingKeys: String, CodingKey {
@@ -32,11 +32,21 @@ struct FoodbankNeeds: Decodable, Identifiable {
 
     enum NeedsKeys: String, CodingKey {
         case needs
+        case found
     }
 
     enum UrlsKeys: String, CodingKey {
         case homepage
     }
+
+    private static let needsFoundDateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.calendar = Calendar(identifier: .iso8601)
+        df.locale = Locale(identifier: "en_US_POSIX")
+        df.timeZone = TimeZone(secondsFromGMT: 0)
+        df.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        return df
+    }()
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -50,8 +60,14 @@ struct FoodbankNeeds: Decodable, Identifiable {
         latLng = try? container.decode(String.self, forKey: .latLng)
         distance = try? container.decode(Double.self, forKey: .distance)
 
+        var foundDate: Date? = nil
+
         if let needsContainer = try? container.nestedContainer(keyedBy: NeedsKeys.self, forKey: .needs) {
             rawNeeds = try? needsContainer.decode(String.self, forKey: .needs)
+
+            if let foundString = try? needsContainer.decode(String.self, forKey: .found) {
+                foundDate = FoodbankNeeds.needsFoundDateFormatter.date(from: foundString)
+            }
         } else {
             rawNeeds = nil
         }
@@ -62,8 +78,47 @@ struct FoodbankNeeds: Decodable, Identifiable {
             homepage = nil
         }
 
+        needsLastUpdated = foundDate
+
         // Build needsList + needsById
         buildNeeds()
+    }
+
+    /// Generates a request string for the LLM agent to map pantry items to foodbank needs.
+    /// Includes: the foodbank ID, a list of needs keyed by Need ID, and pantry items keyed by Item UUID.
+    /// The LLM will use this to produce calls to registerItemNeedMatch().
+    public func generateAgentRequest(pantryItems: [PantryItem]) -> String {
+        var request = ""
+
+        // — Header —
+        request += "You are an intelligent matching agent. Your job is to match a user's pantry items to this foodbank’s needs. Use the provided MCP tool for matching needs to items.\n"
+        request += "Do NOT map the same pantry item to more than one need.\n\n"
+
+        // — Foodbank —
+        request += "Foodbank ID: \(id)\n"
+
+        // — Needs —
+        request += "NEEDS (keyed by needId):\n"
+        for (k, v) in needsById {
+            request += "  - \(k): \(v)\n"
+        }
+        request += "\n"
+
+        // — Pantry Items —
+        request += "PANTRY ITEMS (keyed by itemId):\n"
+        for item in pantryItems {
+            request += "  - \(item.id.uuidString): \(item.name) \n"
+        }
+        request += "\n"
+
+        // — Task Summary —
+        request += """
+        TASK:
+        Match pantry items to needs. Use your judgement when deciding if an item is a suitable match.
+        Begin your matching now.
+        """
+
+        return request
     }
 
     private mutating func buildNeeds() {
@@ -92,8 +147,15 @@ struct FoodbankNeeds: Decodable, Identifiable {
     }
 
     mutating func registerMatch(needId: Int, item: PantryItem) {
+        print("[FoodbankNeeds] trying to match on needId \(needId) with item \(item.name)")
         guard needsById[needId] != nil else { return }
-        // Initialize array if needed, then append
         matchedNeeds[needId, default: []].append(item)
+    }
+    
+    /// Returns a string object that is representative of the distance of the foodbank for the UI.
+    public func formattedDistance() -> String {
+        guard let d = distance else { return "–" }
+        return d >= 1000 ? String(format: "%.1f km away", d / 1000.0)
+                         : String(format: "%.0f m away", d)
     }
 }
