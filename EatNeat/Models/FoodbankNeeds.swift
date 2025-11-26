@@ -22,6 +22,8 @@ struct FoodbankNeeds: Decodable, Identifiable {
     private(set) var needsById: [Int: Need] = [:]
     private(set) var needsList: [Need] = []
     private(set) var matchedNeeds: [Int: [PantryItem]] = [:]
+    
+    var isFavourite: Bool
 
     enum CodingKeys: String, CodingKey {
         case id, name, phone, email, address, postcode
@@ -79,6 +81,8 @@ struct FoodbankNeeds: Decodable, Identifiable {
         }
 
         needsLastUpdated = foundDate
+        
+        isFavourite = false
 
         // Build needsList + needsById
         buildNeeds()
@@ -157,5 +161,9 @@ struct FoodbankNeeds: Decodable, Identifiable {
         guard let d = distance else { return "–" }
         return d >= 1000 ? String(format: "%.1f km away", d / 1000.0)
                          : String(format: "%.0f m away", d)
+    }
+    
+    mutating func toggleFavourite() {
+        isFavourite.toggle()
     }
 }

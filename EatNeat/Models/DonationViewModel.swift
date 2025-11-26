@@ -12,11 +12,12 @@ import SwiftUI
 final class DonationViewModel: ObservableObject {
     @Published var foodbanks: [String: FoodbankNeeds] = [:] // maps foodbank IDs to their needs object
     @Published var shouldRender: Bool = false // whether the data is ready for the front-end to render it
-    @EnvironmentObject var pantryViewModel: PantryViewModel
+    let pantryViewModel: PantryViewModel
 
     private let api: LocalFoodbankAPI
 
-    init(locationManager: LocationManager) {
+    init(locationManager: LocationManager, pantryViewModel: PantryViewModel) {
+        self.pantryViewModel = pantryViewModel
         self.api = LocalFoodbankAPI(locationManager: locationManager)
     }
 
@@ -78,5 +79,4 @@ final class DonationViewModel: ObservableObject {
 
         return dict
     }
-
 }

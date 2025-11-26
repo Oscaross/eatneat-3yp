@@ -21,13 +21,16 @@ struct FoodbankInfoView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: UIScreen.main.bounds.height * 0.04) {
+                VStack(alignment: .leading, spacing: UIScreen.main.bounds.height * 0.03) {
 
                     // MARK: Title Row
                     HStack(spacing: 20) {
 
                         // Favourite star
-                        Button { isFavourite.toggle() } label: {
+                        Button {
+                            isFavourite.toggle()
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        } label: {
                             Image(systemName: isFavourite ? "star.fill" : "star")
                                 .foregroundColor(isFavourite ? .yellow : .gray)
                                 .font(.system(size: 22))

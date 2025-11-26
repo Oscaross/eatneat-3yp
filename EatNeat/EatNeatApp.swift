@@ -11,9 +11,20 @@ import MCP
 
 @main
 struct EatNeatApp: App {
-    @StateObject private var pantryViewModel = PantryViewModel() // pantry view model to manage pantry data
-    @StateObject private var donationViewModel = DonationViewModel(locationManager: LocationManager()) // donation view model to manage foodbanks and their need > item mappings
+    @StateObject private var pantryViewModel = PantryViewModel()
+    @StateObject private var donationViewModel: DonationViewModel
     @StateObject var appBridge = AppBridge() // app bridge to expose functionality to MCP server
+    
+    init() {
+        let pantryVM = PantryViewModel()
+        _pantryViewModel = StateObject(wrappedValue: pantryVM)
+        _donationViewModel = StateObject(
+            wrappedValue: DonationViewModel(
+                locationManager: LocationManager(),
+                pantryViewModel: pantryVM
+            )
+        )
+    }
 
     var body: some Scene {
         WindowGroup {
@@ -21,6 +32,7 @@ struct EatNeatApp: App {
                 .environmentObject(pantryViewModel)
                 .environmentObject(donationViewModel)
                 .environmentObject(appBridge)
+            
         }
     }
 }
