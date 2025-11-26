@@ -17,13 +17,18 @@ class PantryViewModel: ObservableObject {
     
     
     init() {
-        // Initialise all categories with empty arrays so every category key exists
+        // Create empty categories on first launch
         for category in Category.allCases {
             itemsByCategory[category] = []
         }
-        
-        load()
+
+        // If saved itemsByCategory is already present, then use this instead
+        if let saved = try? SaveManager.shared.load([Category: [PantryItem]].self,
+            forKey: "Pantry") {
+                itemsByCategory = saved
+            }
     }
+
     
     /// Adds a PantryItem instance according to primitive required data
     func addItem(name: String, category: Category, quantity: Int = 1, weight: Double? = nil) {
@@ -83,28 +88,8 @@ class PantryViewModel: ObservableObject {
         return result
     }
     
-    // MARK: Persistence: ensure that model persists between restarts and can be synced with iCloud
-    
-    func save() {
-        do {
-            let data = try JSONEncoder().encode(itemsByCategory)
-            try FileManager.default.createDirectory(
-                at: saveURL.deletingLastPathComponent(),
-                withIntermediateDirectories: true
-            )
-            try data.write(to: saveURL)
-        } catch {
-            print("Failed to save pantry: ", error)
-        }
-    }
-    
-    func load() {
-        do {
-            let data = try Data(contentsOf: saveURL)
-            let decoded = try JSONDecoder().decode([Category: [PantryItem]].self, from: data)
-            itemsByCategory = decoded
-        } catch {
-            print("No existing pantry or failed to load: ", error)
-        }
+    /// Saves the current itemsByCategory to persistent storage.
+    private func save() {
+        try? SaveManager.shared.save(itemsByCategory, forKey: "Pantry")
     }
 }
