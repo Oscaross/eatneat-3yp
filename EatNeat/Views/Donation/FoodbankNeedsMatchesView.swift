@@ -38,16 +38,37 @@ struct FoodbankNeedsMatchesView: View {
                 .foregroundColor(.secondary)
             
             if let updated = foodbank.needsLastUpdated {
-                Text("\(updated.formatted(date: .abbreviated, time: .shortened))")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(AppStyle.lightBlueBackground)
-                    )
+                let timeElapsed = Date().timeIntervalSince(updated)
+                let threeMonths: TimeInterval = 60 * 60 * 24 * 90
+                
+                let relativeString = compactRelativeString(from: updated) // formatted string ie. (3mo ago)
+                
+                if (timeElapsed < threeMonths) {
+                    Text("\(updated.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(AppStyle.lightBlueBackground)
+                        )
+                }
+                else {
+                    // Older than 3 months → date + (relative)
+                     Text("\(updated.formatted(date: .abbreviated, time: .omitted)) (\(relativeString))")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(AppStyle.yellowBackground)
+                        )
+                }
+
             }
             
             Spacer()
@@ -154,6 +175,35 @@ struct FoodbankNeedsMatchesView: View {
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
             }
+        }
+        
+    }
+    
+    private func compactRelativeString(from date: Date) -> String {
+        let seconds = Int(Date().timeIntervalSince(date))
+
+        let minute = 60
+        let hour = 60 * minute
+        let day = 24 * hour
+        let week = 7 * day
+        let month = 30 * day
+        let year = 365 * day
+
+        switch seconds {
+        case ..<60:
+            return "just now"
+        case ..<hour:
+            return "\(seconds / minute)m ago"
+        case ..<day:
+            return "\(seconds / hour)h ago"
+        case ..<week:
+            return "\(seconds / day)d ago"
+        case ..<(month):
+            return "\(seconds / week)w ago"
+        case ..<(year):
+            return "\(seconds / month)mo ago"
+        default:
+            return "\(seconds / year)y ago"
         }
     }
 }

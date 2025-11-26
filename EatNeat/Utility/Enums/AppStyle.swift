@@ -13,6 +13,7 @@ enum AppStyle {
     static let primary = Color.blue
     static let secondary = Color.indigo
     static let lightBlueBackground = Color.blue.opacity(0.08)
+    static let yellowBackground = Color.yellow.opacity(0.3)
     static let containerGray = Color(.systemGray6).opacity(0.3)
     static let secondaryContainerGray = Color(.systemGray).opacity(0.2)
     
