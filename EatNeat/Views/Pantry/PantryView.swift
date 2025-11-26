@@ -12,6 +12,9 @@ struct PantryView: View {
     // -- Sorting --
     @State private var showSortOptions = false
     @State private var sortingMode : SortingMode = .alphabetical // default to alphabetical sorting
+    // -- Tapping Items --
+    @State private var itemToEdit: PantryItem?
+    @State private var showingEditor = false
 
     var body: some View {
         NavigationStack {
@@ -56,7 +59,10 @@ struct PantryView: View {
                                         ScrollView(.horizontal, showsIndicators: false) {
                                             LazyHStack(spacing: 16) {
                                                 ForEach(items) { item in
-                                                    PantryItemCardView(item: item)
+                                                    PantryItemCardView(item: item) {
+                                                        itemToEdit = item
+                                                        showingEditor = true
+                                                    }
                                                 }
                                             }
                                             .padding(.horizontal)
@@ -126,7 +132,10 @@ struct PantryView: View {
             }
             .navigationTitle("My Pantry")
             .sheet(isPresented: $showAddItem) {
-                AddItemView(viewModel: viewModel)
+                PantryItemView(mode: .add)
+            }
+            .sheet(item: $itemToEdit) { item in
+                PantryItemView(mode: .edit(existing: item))
             }
         }
     }

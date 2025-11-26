@@ -130,6 +130,9 @@ struct FoodbankNeedsMatchesView: View {
         }
     }
 
+    @State private var itemToEdit: PantryItem?
+    @State private var showingEditor = false
+    
     // MARK: - Matches Scroller
     private var matchesScroller: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -165,9 +168,11 @@ struct FoodbankNeedsMatchesView: View {
                         ForEach(filteredNeeds, id: \.id) { need in
                             let items = foodbank.matchedNeeds[need.id] ?? []
 
-                            ForEach(items, id: \.id) { item in
-                                PantryItemCardView(item: item)
-                                    .fixedSize()
+                            ForEach(items) { item in
+                                PantryItemCardView(item: item) {
+                                    itemToEdit = item
+                                    showingEditor = true
+                                }
                             }
                         }
                     }

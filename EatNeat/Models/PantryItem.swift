@@ -8,18 +8,46 @@
 import Foundation
 
 struct PantryItem: Identifiable, Hashable, Codable {
-    let id: UUID = UUID()
-    var quantity: Int
-    var weight: Double?
+    let id: UUID
+    
     var name: String
     var category: Category
+    var quantity: Int
+
+    
+    var weightUnit: WeightUnit? // the unit of the quantity (ie. ml, g, kg ...)
+    var weightQuantity: Double? // the absolute value of whatever quantity was given (ie. 500 for 500ml of soap)
+
+    var isOpened: Bool
+    var expiry: Date?
+    var cost: Double?
+    
     var dateAdded: Date
     
-    init(quantity: Int, weight: Double? = nil, name: String, category: Category) {
-        self.quantity = quantity
-        self.weight = weight
+    init(
+        id: UUID = UUID(),
+        name: String,
+        category: Category,
+        quantity: Int,
+        weightQuantity: Double? = nil,
+        weightUnit: WeightUnit? = nil,
+        isOpened: Bool = false,
+        expiry: Date? = nil,
+        cost: Double? = nil,
+        dateAdded: Date = Date()
+    ) {
+        self.id = id
         self.name = name
         self.category = category
-        self.dateAdded = Date()
+        self.quantity = quantity
+        
+        self.weightQuantity = weightQuantity
+        self.weightUnit = weightUnit
+        
+        self.isOpened = isOpened
+        self.expiry = expiry
+        self.cost = cost
+        
+        self.dateAdded = dateAdded
     }
 }

@@ -31,11 +31,31 @@ class PantryViewModel: ObservableObject {
 
     
     /// Adds a PantryItem instance according to primitive required data
-    func addItem(name: String, category: Category, quantity: Int = 1, weight: Double? = nil) {
-        let newItem = PantryItem(quantity: quantity, weight: weight, name: name, category: category)
+    func addItem(
+        name: String,
+        category: Category,
+        quantity: Int = 1,
+        weightQuantity: Double? = nil,
+        weightUnit: WeightUnit? = nil,
+        isOpened: Bool = false,
+        expiry: Date? = nil,
+        cost: Double? = nil
+    ) {
+        let newItem = PantryItem(
+            name: name,
+            category: category,
+            quantity: quantity,
+            weightQuantity: weightQuantity,
+            weightUnit: weightUnit,
+            isOpened: isOpened,
+            expiry: expiry,
+            cost: cost
+        )
+
         itemsByCategory[category, default: []].append(newItem)
         save()
     }
+
     
     /// Adds a concrete PantryItem instance
     func addItem(item: PantryItem) {
