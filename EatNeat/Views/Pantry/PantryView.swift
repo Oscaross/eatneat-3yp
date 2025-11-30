@@ -70,12 +70,7 @@ struct PantryView: View {
                                     }
                                     // List-based view
                                     else {
-                                        VStack(spacing: 10) {
-                                            ForEach(items) { item in
-                                                PantryItemRowView(item: item)
-                                                    .padding(.horizontal)
-                                            }
-                                        }
+                                        PantryTableSection(items: items)
                                     }
                                 }
                             }
@@ -132,10 +127,10 @@ struct PantryView: View {
             }
             .navigationTitle("My Pantry")
             .sheet(isPresented: $showAddItem) {
-                PantryItemView(mode: .add)
+                PantryItemView(mode: .add, viewModel: viewModel)
             }
             .sheet(item: $itemToEdit) { item in
-                PantryItemView(mode: .edit(existing: item))
+                PantryItemView(mode: .edit(existing: item), viewModel: viewModel)
             }
         }
     }
@@ -166,5 +161,40 @@ struct PantryView: View {
         case .alphabetical:
             return items.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
         }
+    }
+}
+
+struct PantryTableSection: View {
+    let items: [PantryItem]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+
+            // HEADER
+            HStack {
+                Text("NAME")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.secondary)
+                Spacer()
+                Text("STOCK")
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.secondary)
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(AppStyle.containerGray)
+
+            Divider()
+
+            // ROWS
+            VStack(spacing: 0) {
+                ForEach(items) { item in
+                    PantryItemRowView(item: item)
+                }
+            }
+        }
+        .cardStyle(padding: 8, cornerRadius: 4)
     }
 }

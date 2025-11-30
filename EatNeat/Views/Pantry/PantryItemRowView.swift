@@ -13,15 +13,38 @@ struct PantryItemRowView: View {
     let item: PantryItem
 
     var body: some View {
-        HStack {
+        HStack(alignment: .center) {
+
+            // NAME
             Text(item.name)
                 .font(.body)
+                .lineLimit(1)
+                .truncationMode(.tail)
+
             Spacer()
-            Text("\(Int(item.quantity)) pcs")
+
+            // STOCK (qty + weight if present)
+            Text(stockDescription)
                 .foregroundColor(.secondary)
+                .font(.body)
         }
-        .padding()
-        .background(AppStyle.containerGray)
-        .cornerRadius(8)
+        .padding(.horizontal)
+        .padding(.vertical, 10)
+        .background(Color.clear)
+    }
+
+    private var stockDescription: String {
+        var parts: [String] = []
+
+        // qty
+        parts.append("\(Int(item.quantity)) ×")
+
+        // weight (if available)
+        if let weightValue = item.weightQuantity,
+           let unit = item.weightUnit {
+            parts.append("\(weightValue)\(unit)")
+        }
+
+        return parts.joined(separator: " ")
     }
 }

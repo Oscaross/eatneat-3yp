@@ -63,6 +63,21 @@ class PantryViewModel: ObservableObject {
         save()
     }
     
+    /// Removes  a concrete PantryItem instance
+    func removeItem(item: PantryItem) {
+        for category in Category.allCases {
+            if let index = itemsByCategory[category]?.firstIndex(of: item) {
+                itemsByCategory[category]?.remove(at: index)
+                save()
+                return
+            }
+        }
+    }
+    
+    func updateItem(itemID: UUID, updatedItem: PantryItem) {
+        print("Trying to update item")
+    }
+    
     /// Clears pantry
     func clearPantry() {
         for category in Category.allCases {

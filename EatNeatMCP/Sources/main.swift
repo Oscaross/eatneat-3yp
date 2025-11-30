@@ -12,6 +12,35 @@ import Dispatch
 
 @MCPServer(name: "EatNeatMCP")
 class EatNeatMCP {
+    
+    static func main() async {
+        let server = EatNeatMCP()
+        
+        // Use PORT env var when running on Render, default to 8080 for local tests
+        let portEnv = ProcessInfo.processInfo.environment["PORT"]
+        let port = Int(portEnv ?? "8080") ?? 8080
+
+        let transport = HTTPSSETransport(server: server, port: port)
+
+        // Auth layer
+        if let token = ProcessInfo.processInfo.environment["MCP_TOKEN"] {
+            transport.authorizationHandler = { bearer in
+                guard let bearer, bearer == token else {
+                    return .unauthorized("Invalid token")
+                }
+                return .authorized
+            }
+        }
+
+        print("[MCP] EatNeatMCP HTTP+SSE server starting on port \(port)")
+        
+        do {
+            try await transport.run()
+        } catch {
+            fputs("MCP server error: \(error)\n", stderr)
+        }
+    }
+    
 
     /// Sends a popup command into the EatNeat AppBridge.
     @MCPTool(
@@ -71,6 +100,7 @@ class EatNeatMCP {
     }
 
 
+    /// An MCP tool receives a command from its agent, and redirects traffic to this function. Posts an HTTP request to the client (iOS app) through sending a bridge command, triggering the view model to change on the client side.
     private func postToAppBridge(payload: [String: Any]) async throws {
         guard let url = URL(string: "http://127.0.0.1:9090") else {
             throw NSError(domain: "MCP", code: 1,
@@ -89,24 +119,4 @@ class EatNeatMCP {
                 userInfo: [NSLocalizedDescriptionKey: "AppBridge returned non-200 status"])
         }
     }
-
 }
-
-// entry code -> ran when we run the target
-let server = EatNeatMCP()
-let transport = StdioTransport(server: server)
-
-print("[MCP] server created")
-
-Task {
-    do {
-        try await transport.run()
-        // If the transport returns, exit normally
-        exit(0)
-    } catch {
-        fputs("MCP server error: \(error)\n", stderr)
-        exit(1)
-    }
-}
-
-dispatchMain()

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct PantryItemView: View {
+    @ObservedObject var pantryViewModel: PantryViewModel
     @Environment(\.dismiss) private var dismiss // handle dialog sheet dismissal
     
     var pageTitle: String {
@@ -18,16 +19,27 @@ struct PantryItemView: View {
             return "Edit Item"
         }
     }
-
+    
     let mode: ItemViewMode
     
-    init(mode: ItemViewMode) {
+    init(mode: ItemViewMode, availableLabels: [ItemLabel] = [
+        ItemLabel(name: "New", color: .teal),
+        ItemLabel(name: "Half Eaten", color: .green),
+        ItemLabel(name: "Almost Empty", color: .orange),
+        ItemLabel(name: "Large", color: .red),
+        ItemLabel(name: "Use", color: .purple),
+        ItemLabel(name: "Stale", color: .mint)
+    ], selectedLabel: ItemLabel? = nil,
+         viewModel: PantryViewModel) {
         self.mode = mode
+        self.availableLabels = availableLabels
+        self.selectedLabel = selectedLabel
 
         switch mode {
         case .add:
             break
         case .edit(let item):
+            _id = State(initialValue: item.id)
             _name = State(initialValue: item.name)
             _selectedCategory = State(initialValue: item.category)
             _quantity = State(initialValue: item.quantity)
@@ -37,7 +49,13 @@ struct PantryItemView: View {
             _expiry = State(initialValue: item.expiry)
             _cost = State(initialValue: item.cost)
         }
+        
+        self.pantryViewModel = viewModel
     }
+    
+    // MARK: Item data
+    
+    @State private var id: UUID?
     
     // Non-optional variables -> user has to select these for the item to be added
     @State private var name = ""
@@ -50,15 +68,66 @@ struct PantryItemView: View {
     @State private var weightUnit: WeightUnit = .grams
     @State private var expiry: Date? = nil
     @State private var cost: Double? = nil
+    @State private var label: String? = "New" // e.g., "Expired", "Low Stock", etc.
     
 
     @FocusState private var qtyFieldFocused: Bool // allow user to tap qty number or use stepper
+    
+    // MARK: Label system
+    let availableLabels: [ItemLabel]
+    
+    @State private var selectedLabel: ItemLabel?
+    @State private var showingLabelDialog = false
     
     var body: some View {
         NavigationStack {
             Form {
                 Section(header: Text("Details")) {
-                    TextField("Item Name", text: $name)
+                    HStack {
+                        TextField("Item Name", text: $name)
+
+                        Spacer()
+
+                        if let selectedLabel = selectedLabel {
+                            Button {
+                                showingLabelDialog = true
+                            } label: {
+                                Text(selectedLabel.name)
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(selectedLabel.color)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(selectedLabel.color.opacity(0.12))
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        } else if !availableLabels.isEmpty {
+                            Button {
+                                showingLabelDialog = true
+                            } label: {
+                                Text("...")
+                                    .font(.system(size: 13, weight: .semibold))
+                                    .foregroundColor(.gray)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .fill(.gray.opacity(0.1))
+                                    )
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .confirmationDialog("Choose Label", isPresented: $showingLabelDialog) {
+                        ForEach(availableLabels) { label in
+                            Button(label.name) {
+                                selectedLabel = label
+                            }
+                        }
+                    }
+
                     
                     Picker("Category", selection: $selectedCategory) {
                         ForEach(Category.allCases, id: \.self) { category in
@@ -162,6 +231,8 @@ struct PantryItemView: View {
                 if case .edit(let item) = mode {
                     Section {
                         Button(role: .destructive) {
+                            pantryViewModel.removeItem(item: item)
+                            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
                             dismiss()
                         } label: {
                             Text("Delete Item")
@@ -175,9 +246,39 @@ struct PantryItemView: View {
                 ToolbarItem(placement: .confirmationAction) {
                     switch mode {
                     case .add:
-                        Button("Save") {  }
+                        Button("Save") {
+                            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                            let newItem = PantryItem(
+                                name: name,
+                                category: selectedCategory,
+                                quantity: quantity,
+                                weightQuantity: weight,
+                                weightUnit: weightUnit,
+                                isOpened: isOpened,
+                                expiry: expiry,
+                                cost: cost
+                            )
+
+                            pantryViewModel.addItem(item: newItem)
+                            dismiss()
+                        }
                     case .edit:
-                        Button("Update") {  }
+                        Button("Update") {
+                            let updatedItem = PantryItem(
+                                name: name,
+                                category: selectedCategory,
+                                quantity: quantity,
+                                weightQuantity: weight,
+                                weightUnit: weightUnit,
+                                isOpened: isOpened,
+                                expiry: expiry,
+                                cost: cost
+                            )
+                            
+                            pantryViewModel.updateItem(itemID: id!, updatedItem: updatedItem)
+                            
+                            UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                        }
                     }
                 }
 
