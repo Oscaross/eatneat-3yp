@@ -13,14 +13,12 @@ let package = Package(
         )
     ],
     dependencies: [
-        // ↓ Add this
-        .package(url: "https://github.com/cocoanetics/SwiftMCP.git", from: "1.0.0")
+        .package(url: "https://github.com/Cocoanetics/SwiftMCP.git", branch: "main")
     ],
     targets: [
         .executableTarget(
             name: "EatNeatMCP",
             dependencies: [
-                // ↓ And this
                 .product(name: "SwiftMCP", package: "SwiftMCP")
             ],
             path: "Sources"

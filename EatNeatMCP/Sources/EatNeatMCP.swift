@@ -12,7 +12,6 @@ import Dispatch
 
 @MCPServer(name: "EatNeatMCP")
 class EatNeatMCP {
-    
     static func main() async {
         let server = EatNeatMCP()
         
@@ -20,7 +19,7 @@ class EatNeatMCP {
         let portEnv = ProcessInfo.processInfo.environment["PORT"]
         let port = Int(portEnv ?? "8080") ?? 8080
 
-        let transport = HTTPSSETransport(server: server, port: port)
+        let transport = HTTPSSETransport(server: server, port: port, host: "0.0.0.0")
 
         // Auth layer
         if let token = ProcessInfo.processInfo.environment["MCP_TOKEN"] {
@@ -118,5 +117,12 @@ class EatNeatMCP {
             throw NSError(domain: "MCP", code: 2,
                 userInfo: [NSLocalizedDescriptionKey: "AppBridge returned non-200 status"])
         }
+    }
+}
+
+@main
+struct EatNeatMCPMain {
+    static func main() async {
+        await EatNeatMCP.main()
     }
 }

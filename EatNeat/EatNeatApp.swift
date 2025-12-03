@@ -13,6 +13,7 @@ import MCP
 struct EatNeatApp: App {
     @StateObject private var pantryViewModel = PantryViewModel()
     @StateObject private var donationViewModel: DonationViewModel
+    @StateObject private var agentViewModel = AgentViewModel()
     @StateObject var appBridge = AppBridge() // app bridge to expose functionality to MCP server
     
     init() {
@@ -32,7 +33,7 @@ struct EatNeatApp: App {
                 .environmentObject(pantryViewModel)
                 .environmentObject(donationViewModel)
                 .environmentObject(appBridge)
-            
+                .environmentObject(agentViewModel)
         }
     }
 }

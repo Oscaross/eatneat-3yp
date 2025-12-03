@@ -4,34 +4,65 @@ struct ContentView: View {
     @EnvironmentObject var bridge: AppBridge
     @EnvironmentObject var pantryViewModel: PantryViewModel
     @EnvironmentObject var donationViewModel : DonationViewModel
-    
+    @EnvironmentObject var agentViewModel: AgentViewModel
+
     @State private var loadedSampleItems = false
+    @State private var showingAddItem = false
     
+    @State private var selectedTab: Int = 0
+    @State private var lastNonMiddleTab: Int = 0
+
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
+
             HomeView()
-                .tabItem {
-                    Label("Home", systemImage: "house")
-                }
+                .tabItem { Label("Home", systemImage: "house") }
+                .tag(0)
+
             PantryView(viewModel: pantryViewModel)
+                .tabItem { Label("Pantry", systemImage: "basket.fill") }
+                .tag(1)
+
+            // ----- Middle Action Button -----
+            Color.clear
                 .tabItem {
-                    Label("My Pantry", systemImage: "basket.fill")
+                    Image(systemName: "plus.circle.fill")
+                        .font(.system(size: 30))
                 }
+                .tag(2)
+
             DonationView(viewModel: donationViewModel)
-                .tabItem {
-                    Label("Donate", systemImage: "heart.circle.fill")
-                }
+                .tabItem { Label("Donate", systemImage: "heart.circle.fill") }
+                .tag(3)
+
+            SettingsView()
+                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+                .tag(4)
         }
-        .onReceive(bridge.$pendingCommands) { commands in
-            guard let cmd = commands.last else { return }
-            handleBridgeCommand(cmd)
-            bridge.consumeCommand(cmd)
+        .onChange(of: selectedTab) { oldValue, newValue in
+            if newValue == 2 {
+                // Middle tab tapped
+                UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+
+                Task {
+                    try await agentViewModel.triggerMCPTool(instructions: "Testing MCP Function")
+                }
+
+                showingAddItem = true
+
+                // Return to previous tab
+                selectedTab = lastNonMiddleTab
+            } else {
+                lastNonMiddleTab = newValue
+            }
+        }
+
+        .sheet(isPresented: $showingAddItem) {
+            Text("Add Viewer!")
         }
         .onAppear {
             #if DEBUG
             pantryViewModel.clearPantry()
-            print("Loading sample data...")
-            
             if !loadedSampleItems {
                 SampleData.generateSampleItems().forEach {
                     pantryViewModel.addItem(item: $0)
@@ -41,17 +72,4 @@ struct ContentView: View {
             #endif
         }
     }
-        
-    /// Given a command arriving at the root (this) from the AppBridge, send to the relevant model/component of the app
-    func handleBridgeCommand(_ cmd: BridgeCommand) {
-        switch cmd {
-        case .showPopup(_, let message):
-            print("Received showPopup command, message: \(message)")
-
-        case .matchItemToNeed(_, let foodbankID, let needID, let itemID):
-            print("Mapping need to item → foodbankID: \(foodbankID), needID: \(needID), itemID: \(itemID)")
-            donationViewModel.matchItemToNeed(foodbankID: foodbankID, needID: needID, itemID: itemID)
-        }
-    }
-
 }

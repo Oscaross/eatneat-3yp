@@ -1,5 +1,5 @@
 //
-//  AIRequest.swift
+//  AgentViewModel.swift
 //  EatNeat
 //
 //  Created by Oscar Horner on 28/11/2025.
@@ -13,41 +13,96 @@ import MCP
 import OpenAI
 
 @MainActor
-class AgentViewModel {
-    let openAI = OpenAI(apiToken: "YOUR_TOKEN_HERE") // Model initialization with API key
-    
-    public func triggerMCPTool(instructions: String) async throws {
-        // Connect to MCP server using the MCP Swift library
+class AgentViewModel : ObservableObject {
+    private let openAI: OpenAIProtocol
+
+    init() {
+        let configuration = OpenAI.Configuration(
+            token: Secrets.openAIApiKey,
+            timeoutInterval: 60
+        )
+        self.openAI = OpenAI(configuration: configuration)
+    }
+
+    /// Ask the model to use the EatNeat MCP tools to satisfy `instructions`.
+    /// We don't care about the text reply, only the tool calls.
+    func triggerMCPTool(instructions: String) async throws {
+        print("MCP tool triggered! Instructions: " + instructions)
+        
         let mcpClient = MCP.Client(name: "EatNeat", version: "1.0.0")
 
+        let mcpToken = "1f027ae8c4cf84ac352e0d6f15cbeb9b10cec553643e28d98fd405690b6565f1" // should maybe be obfuscated in Secrets but not that important
+
+        let httpConfig = URLSessionConfiguration.default
+        httpConfig.httpAdditionalHeaders = [
+            "Authorization": "Bearer \(mcpToken)"
+        ]
+
         let transport = HTTPClientTransport(
-            endpoint: URL(string: "https://api.githubcopilot.com/mcp/")!, // TODO: cloud hosted MCP server through Render
-            configuration: URLSessionConfiguration.default
+            endpoint: URL(string: "https://eatneat-mcp.onrender.com/mcp")!,
+            configuration: httpConfig
         )
 
-        let result = try await mcpClient.connect(transport: transport)
+        _ = try await mcpClient.connect(transport: transport)
         let toolsResponse = try await mcpClient.listTools()
 
-        // Create OpenAI MCP tool with discovered tools
         let enabledToolNames = toolsResponse.tools.map { $0.name }
-        let mcpTool = Tool.mcpTool(
-            .init(
-                _type: .mcp,
-                serverLabel: "EatNeat_MCP",
-                serverUrl: "https://api.githubcopilot.com/mcp/", // TODO: cloud hosted MCP server through Render
-                headers: .init(), // TODO: Add auth headers
-                allowedTools: .case1(enabledToolNames),
-                requireApproval: .case2(.always)
+
+        // TODO: Does not work because we expect a ChatCompletionTools array
+        
+        let matchItemToNeedsTool = ChatQuery.ChatCompletionToolParam(
+            function: .init(
+                name: "matchItemToNeeds",
+                description: "Registers a matching from a pantry item to a foodbank need. All IDs are coded.",
+                parameters: makeMatchItemToNeedsSchema(),
+                strict: false
             )
         )
 
-        // Use in chat completion
+
+        // Build chat request
         let query = ChatQuery(
-            messages: [.user(.init(content: .string("Help me search GitHub repositories")))],
+            messages: [
+                .user(.init(content: .string("Call the match foodbank MCP function on foodbankID 1, itemID 2 and needID 1."))) // TODO: Make real message
+            ],
             model: .gpt4_o_mini,
-            tools: [mcpTool]
+            tools: [matchItemToNeedsTool]
         )
 
-        let chatResult = try await openAI.chats(query: query)
+        let result = try await openAI.chats(query: query)
+
+        // We don’t care about the textual reply, this is for debugging:
+        if let message = result.choices.first?.message {
+            print("Model response text:", message.content ?? "<no text>")
+            if let toolCalls = message.toolCalls {
+                print("Model proposed tool calls:", toolCalls)
+            } else {
+                print("No tool calls in this response")
+            }
+        }
+    
     }
+    
+    // DEV: MacPaw library for some reason doesn't compile it's own code supplied in the README (???)
+    /// For now, this is a temporary workaround that generates our MCP schema locally and sends it to ChatGPT.
+    func makeMatchItemToNeedsSchema() -> JSONSchema {
+        let raw: [String: Any] = [
+            "type": "object",
+            "properties": [
+                "itemId": ["type": "string"],
+                "needId": ["type": "integer"],
+                "foodbankId": ["type": "string"]
+            ],
+            "required": ["itemId", "needId", "foodbankId"]
+        ]
+
+        do {
+            let data = try JSONSerialization.data(withJSONObject: raw, options: [])
+            let schema = try JSONDecoder().decode(JSONSchema.self, from: data)
+            return schema
+        } catch {
+            fatalError("Failed to build JSONSchema for matchItemToNeeds: \(error)")
+        }
+    }
+
 }
