@@ -81,48 +81,10 @@ struct FoodbankNeeds: Decodable, Identifiable {
         }
 
         needsLastUpdated = foundDate
-        
         isFavourite = false
 
         // Build needsList + needsById
         buildNeeds()
-    }
-
-    /// Generates a request string for the LLM agent to map pantry items to foodbank needs.
-    /// Includes: the foodbank ID, a list of needs keyed by Need ID, and pantry items keyed by Item UUID.
-    /// The LLM will use this to produce calls to registerItemNeedMatch().
-    public func generateAgentRequest(pantryItems: [PantryItem]) -> String {
-        var request = ""
-
-        // — Header —
-        request += "You are an intelligent matching agent. Your job is to match a user's pantry items to this foodbank’s needs. Use the provided MCP tool for matching needs to items.\n"
-        request += "Do NOT map the same pantry item to more than one need.\n\n"
-
-        // — Foodbank —
-        request += "Foodbank ID: \(id)\n"
-
-        // — Needs —
-        request += "NEEDS (keyed by needId):\n"
-        for (k, v) in needsById {
-            request += "  - \(k): \(v)\n"
-        }
-        request += "\n"
-
-        // — Pantry Items —
-        request += "PANTRY ITEMS (keyed by itemId):\n"
-        for item in pantryItems {
-            request += "  - \(item.id.uuidString): \(item.name) \n"
-        }
-        request += "\n"
-
-        // — Task Summary —
-        request += """
-        TASK:
-        Match pantry items to needs. Use your judgement when deciding if an item is a suitable match.
-        Begin your matching now.
-        """
-
-        return request
     }
 
     private mutating func buildNeeds() {

@@ -43,10 +43,6 @@ struct ContentView: View {
                 // Middle tab tapped
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
-                Task {
-                    try await agentViewModel.triggerMCPTool(instructions: "Testing MCP Function")
-                }
-
                 showingAddItem = true
 
                 // Return to previous tab

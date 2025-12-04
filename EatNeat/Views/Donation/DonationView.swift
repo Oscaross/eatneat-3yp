@@ -10,6 +10,7 @@ import SwiftUI
 struct DonationView: View {
     @ObservedObject var viewModel: DonationViewModel
     @EnvironmentObject var pantryViewModel: PantryViewModel
+    @EnvironmentObject var agentViewModel: AgentViewModel
     
     // --- Foodbank Info View ---
     @State private var selectedFoodbank: FoodbankNeeds? = nil
@@ -36,11 +37,7 @@ struct DonationView: View {
                             )
                             .padding(.horizontal)
                             .onTapGesture {
-                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                                selectedFoodbank = foodbank
-                                // DEBUG: Print out LLM matching request to terminal
-                                print(selectedFoodbank?.generateAgentRequest(pantryItems: pantryViewModel.getAllItems()))
-                                showFoodbankSheet = true
+                                handleFoodbankTap(foodbank)
                             }
                         }
                     }
@@ -87,6 +84,25 @@ struct DonationView: View {
             }
         }
     }
+    
+    private func handleFoodbankTap(_ foodbank: FoodbankNeeds) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        selectedFoodbank = foodbank
+        showFoodbankSheet = true
+
+        Task {
+            try await agentViewModel.triggerMCPTool(
+                tool: .matchItemToNeeds,
+                instructions: MCPInstructions.matchItemToNeedsInstructions(
+                    needs: foodbank,
+                    items: pantryViewModel.getAllItems()
+                ),
+                pantryViewModel: pantryViewModel,
+                donationViewModel: viewModel
+            )
+        }
+    }
+
     
     @ViewBuilder
     private var helpSheet: some View {
