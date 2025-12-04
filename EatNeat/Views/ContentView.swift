@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject var bridge: AppBridge
     @EnvironmentObject var pantryViewModel: PantryViewModel
     @EnvironmentObject var donationViewModel : DonationViewModel
     @EnvironmentObject var agentViewModel: AgentViewModel

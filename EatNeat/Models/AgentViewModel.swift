@@ -12,75 +12,71 @@ import Foundation
 import MCP
 import OpenAI
 
-@MainActor
 class AgentViewModel : ObservableObject {
-    private let openAI: OpenAIProtocol
-
-    init() {
-        let configuration = OpenAI.Configuration(
-            token: Secrets.openAIApiKey,
-            timeoutInterval: 60
-        )
-        self.openAI = OpenAI(configuration: configuration)
-    }
-
     /// Ask the model to use the EatNeat MCP tools to satisfy `instructions`.
     /// We don't care about the text reply, only the tool calls.
     func triggerMCPTool(instructions: String) async throws {
         print("MCP tool triggered! Instructions: " + instructions)
         
-        let mcpClient = MCP.Client(name: "EatNeat", version: "1.0.0")
-
-        let mcpToken = "1f027ae8c4cf84ac352e0d6f15cbeb9b10cec553643e28d98fd405690b6565f1" // should maybe be obfuscated in Secrets but not that important
-
-        let httpConfig = URLSessionConfiguration.default
-        httpConfig.httpAdditionalHeaders = [
-            "Authorization": "Bearer \(mcpToken)"
-        ]
-
-        let transport = HTTPClientTransport(
-            endpoint: URL(string: "https://eatneat-mcp.onrender.com/mcp")!,
-            configuration: httpConfig
+        let configuration = OpenAI.Configuration(
+            token: Secrets.openAIApiKey,
+            timeoutInterval: 60
         )
-
-        _ = try await mcpClient.connect(transport: transport)
-        let toolsResponse = try await mcpClient.listTools()
-
-        let enabledToolNames = toolsResponse.tools.map { $0.name }
-
-        // TODO: Does not work because we expect a ChatCompletionTools array
         
-        let matchItemToNeedsTool = ChatQuery.ChatCompletionToolParam(
-            function: .init(
-                name: "matchItemToNeeds",
-                description: "Registers a matching from a pantry item to a foodbank need. All IDs are coded.",
-                parameters: makeMatchItemToNeedsSchema(),
-                strict: false
+        let openAI = OpenAI(configuration: configuration)
+        
+        
+        do {
+            let mcpClient = MCP.Client(name: "EatNeat", version: "1.0.0")
+
+            let mcpToken = "1f027ae8c4cf84ac352e0d6f15cbeb9b10cec553643e28d98fd405690b6565f1" // should maybe be obfuscated in Secrets but not that important
+
+            let httpConfig = URLSessionConfiguration.default
+            httpConfig.httpAdditionalHeaders = [
+                "Authorization": "Bearer \(mcpToken)"
+            ]
+
+            let transport = HTTPClientTransport(
+                endpoint: URL(string: "https://eatneat-mcp.onrender.com/mcp")!,
+                configuration: httpConfig
             )
-        )
 
+            _ = try await mcpClient.connect(transport: transport)
+            let toolsResponse = try await mcpClient.listTools()
+            
+            let matchItemToNeedsTool = ChatQuery.ChatCompletionToolParam(
+                function: .init(
+                    name: "matchItemToNeeds",
+                    description: "Registers a matching from a pantry item to a foodbank need. All IDs are coded.",
+                    parameters: makeMatchItemToNeedsSchema(),
+                    strict: false
+                )
+            )
 
-        // Build chat request
-        let query = ChatQuery(
-            messages: [
-                .user(.init(content: .string("Call the match foodbank MCP function on foodbankID 1, itemID 2 and needID 1."))) // TODO: Make real message
-            ],
-            model: .gpt4_o_mini,
-            tools: [matchItemToNeedsTool]
-        )
+            // Build chat request
+            let query = ChatQuery(
+                messages: [
+                    .user(.init(content: .string("Call the match foodbank MCP function on foodbankID 1, itemID 2 and needID 1."))) // TODO: Make real message
+                ],
+                model: .gpt4_o_mini,
+                tools: [matchItemToNeedsTool]
+            )
 
-        let result = try await openAI.chats(query: query)
+            let result = try await openAI.chats(query: query)
 
-        // We don’t care about the textual reply, this is for debugging:
-        if let message = result.choices.first?.message {
-            print("Model response text:", message.content ?? "<no text>")
-            if let toolCalls = message.toolCalls {
-                print("Model proposed tool calls:", toolCalls)
-            } else {
-                print("No tool calls in this response")
+            // We don’t care about the textual reply, this is for debugging:
+            if let message = result.choices.first?.message {
+                print("Model response text:", message.content ?? "<no text>")
+                if let toolCalls = message.toolCalls {
+                    print("Model proposed tool calls:", toolCalls)
+                } else {
+                    print("No tool calls in this response")
+                }
             }
+        
+        } catch {
+            print("triggerMCPTool error:", error)
         }
-    
     }
     
     // DEV: MacPaw library for some reason doesn't compile it's own code supplied in the README (???)

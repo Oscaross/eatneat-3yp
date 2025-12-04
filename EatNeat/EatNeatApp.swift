@@ -14,7 +14,6 @@ struct EatNeatApp: App {
     @StateObject private var pantryViewModel = PantryViewModel()
     @StateObject private var donationViewModel: DonationViewModel
     @StateObject private var agentViewModel = AgentViewModel()
-    @StateObject var appBridge = AppBridge() // app bridge to expose functionality to MCP server
     
     init() {
         let pantryVM = PantryViewModel()
@@ -32,7 +31,6 @@ struct EatNeatApp: App {
             ContentView()
                 .environmentObject(pantryViewModel)
                 .environmentObject(donationViewModel)
-                .environmentObject(appBridge)
                 .environmentObject(agentViewModel)
         }
     }
