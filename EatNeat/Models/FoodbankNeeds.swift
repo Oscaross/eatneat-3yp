@@ -129,3 +129,21 @@ struct FoodbankNeeds: Decodable, Identifiable {
         isFavourite.toggle()
     }
 }
+
+// Fetch the lat and long of the foodbank to display on a map
+
+extension FoodbankNeeds {
+    var latitude: Double? {
+        guard let latLng = latLng else { return nil }
+        let parts = latLng.split(separator: ",")
+        guard parts.count == 2 else { return nil }
+        return Double(parts[0].trimmingCharacters(in: .whitespaces))
+    }
+
+    var longitude: Double? {
+        guard let latLng = latLng else { return nil }
+        let parts = latLng.split(separator: ",")
+        guard parts.count == 2 else { return nil }
+        return Double(parts[1].trimmingCharacters(in: .whitespaces))
+    }
+}

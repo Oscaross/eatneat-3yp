@@ -10,6 +10,7 @@ import SwiftUI
 struct FoodbankNeedsMatchesView: View {
     var foodbank: FoodbankNeeds
     @State private var selectedNeeds: Set<Int> = []
+    @EnvironmentObject private var donationViewModel: DonationViewModel
 
     private let collapsedLimit = 10
     
@@ -170,8 +171,7 @@ struct FoodbankNeedsMatchesView: View {
 
                             ForEach(items) { item in
                                 PantryItemCardView(item: item) {
-                                    itemToEdit = item
-                                    showingEditor = true
+                                    donationViewModel.registerDonation(foodbank: foodbank, item: item)
                                 }
                             }
                         }

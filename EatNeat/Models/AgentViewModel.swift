@@ -33,7 +33,7 @@ class AgentViewModel : ObservableObject {
             messages: [
                 .user(.init(content: .string(instructions)))
             ],
-            model: .gpt4_o_mini,
+            model: .gpt4_o,
             tools: [try await generateMCPTool(tool: .matchItemToNeeds)]
         )
 
@@ -106,7 +106,6 @@ class AgentViewModel : ObservableObject {
         )
 
         _ = try await mcpClient.connect(transport: transport)
-        let toolsResponse = try await mcpClient.listTools()
         
         switch(tool) {
         case .matchItemToNeeds:

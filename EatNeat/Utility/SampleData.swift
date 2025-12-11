@@ -115,4 +115,8 @@ struct SampleData {
             PantryItem(name: "Cat Food Pouches (12x85g)", category: .petFoodAndSupplies, quantity: 1)
         ]
     }
+    
+    static func matchSampleItems() {
+        
+    }
 }

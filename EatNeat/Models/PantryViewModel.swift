@@ -9,6 +9,7 @@ import Foundation
 
 class PantryViewModel: ObservableObject {
     @Published private(set) var itemsByCategory: [Category: [PantryItem]] = [:] // dictionary mapping categories to the item list that belongs to them
+    @Published var donationCount: Int = 0 // number of items donated by the user
     
     private var saveURL: URL {
         let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -21,12 +22,8 @@ class PantryViewModel: ObservableObject {
         for category in Category.allCases {
             itemsByCategory[category] = []
         }
-
-        // If saved itemsByCategory is already present, then use this instead
-        if let saved = try? SaveManager.shared.load([Category: [PantryItem]].self,
-            forKey: "Pantry") {
-                itemsByCategory = saved
-            }
+        
+        load()
     }
 
     
@@ -123,8 +120,31 @@ class PantryViewModel: ObservableObject {
         return result
     }
     
-    /// Saves the current itemsByCategory to persistent storage.
+    /// Registers in the pantry that a user has donated an item.
+    func markItemDonated(item: PantryItem) {
+        // TODO: Implement proper donation tracking
+        donationCount += 1
+        print("Item donated : \(item.name). Donation count is now \(donationCount)")
+        removeItem(item: item)
+    }
+    
+    /// Saves pantry data for object persistence when the app restarts.
     private func save() {
         try? SaveManager.shared.save(itemsByCategory, forKey: "Pantry")
+        try? SaveManager.shared.save(donationCount, forKey: "DonationCount")
+    }
+    
+    /// Load saved data for object persistence.
+    private func load() {
+        // If saved itemsByCategory is already present, then use this instead
+        if let saved = try? SaveManager.shared.load([Category: [PantryItem]].self,
+            forKey: "Pantry") {
+                itemsByCategory = saved
+            }
+        // If saved donation count is already present, then use this instead
+        if let donationCount = try? SaveManager.shared.load(Int.self,
+            forKey: "DonationCount") {
+                self.donationCount = donationCount
+            }
     }
 }

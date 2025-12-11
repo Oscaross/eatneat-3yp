@@ -14,7 +14,6 @@ struct DonationView: View {
     
     // --- Foodbank Info View ---
     @State private var selectedFoodbank: FoodbankNeeds? = nil
-    @State private var showFoodbankSheet = false
     
     // --- Help Tooltip ---
     @State private var showHelpDialog: Bool = false
@@ -24,7 +23,8 @@ struct DonationView: View {
     
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 16) {
+                // --- Foodbank slider / pager ---
                 if viewModel.foodbanks.isEmpty {
                     Spacer()
                     ProgressView("Loading nearby foodbanks…")
@@ -32,18 +32,19 @@ struct DonationView: View {
                 } else {
                     TabView {
                         ForEach(Array(viewModel.foodbanks.values), id: \.id) { foodbank in
-                            FoodbankCardView(
-                                foodbank: foodbank
-                            )
-                            .padding(.horizontal)
-                            .onTapGesture {
-                                handleFoodbankTap(foodbank)
-                            }
+                            FoodbankCardView(foodbank: foodbank)
+                                .padding(.horizontal)
+                                .onTapGesture {
+                                    handleFoodbankTap(foodbank)
+                                }
                         }
                     }
                     .tabViewStyle(.page)
                     .indexViewStyle(.page(backgroundDisplayMode: .always))
                 }
+                
+                // --- Donation collection area ---
+                donationCollectionSection
             }
             .navigationTitle("Donate")
             .toolbar {
@@ -52,7 +53,6 @@ struct DonationView: View {
                     Button {
                         if !isRefreshing {
                             Task {
-                                // allows us to make the loading sign spin
                                 isRefreshing = true
                                 await viewModel.loadFoodbanks()
                                 isRefreshing = false
@@ -85,24 +85,184 @@ struct DonationView: View {
         }
     }
     
-    private func handleFoodbankTap(_ foodbank: FoodbankNeeds) {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        selectedFoodbank = foodbank
-        showFoodbankSheet = true
+    // MARK: - Donation Collection Section
 
-        Task {
-            try await agentViewModel.triggerMCPTool(
-                tool: .matchItemToNeeds,
-                instructions: MCPInstructions.matchItemToNeedsInstructions(
-                    needs: foodbank,
-                    items: pantryViewModel.getAllItems()
-                ),
-                pantryViewModel: pantryViewModel,
-                donationViewModel: viewModel
+    @ViewBuilder
+    private var donationCollectionSection: some View {
+        
+        if !viewModel.donations.isEmpty {
+            
+            VStack(alignment: .leading, spacing: 8) {
+                
+                // --- Title + Button ---
+                HStack {
+                    Text("Donation Collection")
+                        .font(.headline)
+                    
+                    Spacer()
+                    
+                    Button {
+                        processDonations()
+                        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+                        
+                    } label: {
+                        Text("Mark Donated")
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                    }
+                    .disabled(!viewModel.donations.contains(where: { $0.isSelected }))
+                }
+                
+                .padding(.bottom, 6)
+                
+                // --- Column headers ---
+                HStack {
+                    Text("ITEM")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text("RECIPIENT")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text("") // checkmark column
+                        .frame(width: 30)
+                }
+                
+                Divider()
+                
+                // --- Table Rows ---
+                ScrollView {
+                    VStack(spacing: 4) {
+                        ForEach($viewModel.donations) { $donation in
+                            HStack {
+                                Text(donation.item.name)
+                                    .font(.subheadline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                Text(donation.recipient.name)
+                                    .font(.subheadline)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                
+                                Button {
+                                    donation.isSelected.toggle()
+                                } label: {
+                                    Image(systemName: donation.isSelected
+                                          ? "checkmark.circle.fill"
+                                          : "circle")
+                                        .foregroundColor(AppStyle.primary)
+                                }
+                                .buttonStyle(.plain)
+                                .frame(width: 30)
+                            }
+                            .padding(.vertical, 6)
+                        }
+                    }
+                }
+                .frame(maxHeight: UIScreen.main.bounds.height * 0.25)
+                
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemBackground))
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+            )
+            .padding(.horizontal)
+            
+        } else {
+            
+            // Empty State (unchanged)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Donation Collection")
+                    .font(.headline)
+                
+                Text("Items you plan to donate will appear here once you select matches from foodbanks.")
+                    .font(.footnote)
+                    .foregroundColor(.secondary)
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.systemBackground))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 16)
+                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+            )
+            .padding(.horizontal)
         }
     }
 
+    
+    // MARK: - Logic
+    
+    private func handleFoodbankTap(_ foodbank: FoodbankNeeds) {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        selectedFoodbank = foodbank
+
+        // TODO: MCP is disabled now we know it is working. It will be enabled once the frontend and backend is prepared.
+        
+//        Task {
+//            try await agentViewModel.triggerMCPTool(
+//                tool: .matchItemToNeeds,
+//                instructions: MCPInstructions.matchItemToNeedsInstructions(
+//                    needs: foodbank,
+//                    items: pantryViewModel.getAllItems()
+//                ),
+//                pantryViewModel: pantryViewModel,
+//                donationViewModel: viewModel
+//            )
+//        }
+        
+        // TODO: Remove temporary debug for spawning many items to donate
+        Task {
+            // Get all pantry items
+            let items = pantryViewModel.getAllItems()
+            guard !items.isEmpty else { return }
+
+            // Ensure the foodbank has needs to choose from
+            guard !foodbank.needsList.isEmpty else { return }
+
+            // We must use a var because registerMatch mutates foodbank
+            var fbCopy = foodbank
+
+            // Clear old donations before adding new debug ones
+            viewModel.donations.removeAll()
+
+            for item in items {
+                // Pick a random need
+                if let randomNeed = fbCopy.needsList.randomElement() {
+                    let id = randomNeed.id
+
+                    // Register match on the foodbank object
+                    fbCopy.registerMatch(needId: id, item: item)
+
+                    // Push to UI collection area
+                    let assignment = DonationAssignment(item: item, recipient: fbCopy)
+                    viewModel.donations.append(assignment)
+                }
+            }
+
+            print("[DEBUG] Added \(viewModel.donations.count) fake donation matches.")
+        }
+        
+    }
+    
+    private func processDonations() {
+        let itemsToDonate = viewModel.donations.filter { $0.isSelected }
+        
+        for donation in itemsToDonate {
+            pantryViewModel.markItemDonated(item: donation.item)
+        }
+    }
+
+    // MARK: - Help Sheet
     
     @ViewBuilder
     private var helpSheet: some View {

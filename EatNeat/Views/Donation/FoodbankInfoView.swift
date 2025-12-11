@@ -13,10 +13,26 @@ struct FoodbankInfoView: View {
     var currSelectedNeeds: Set<Int> = []
 
     @State private var isFavourite = false
-    @State private var region = MKCoordinateRegion(
-        center: CLLocationCoordinate2D(latitude: 52.38, longitude: -1.56),
-        span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-    )
+    @State private var position: MapCameraPosition // where is the map centered?
+    
+    init(foodbank: FoodbankNeeds, currSelectedNeeds: Set<Int> = []) {
+        self.foodbank = foodbank
+        self.currSelectedNeeds = currSelectedNeeds
+        // decode lat and long from foodbank
+        let lat = foodbank.latitude ?? 0
+        let lng = foodbank.longitude ?? 0
+        let center = CLLocationCoordinate2D(latitude: lat, longitude: lng)
+
+        // Slightly zoomed out
+        let region = MKCoordinateRegion(
+            center: center,
+            span: MKCoordinateSpan(latitudeDelta: 0.06, longitudeDelta: 0.06)
+        )
+
+        _position = State(initialValue: .region(region))
+    }
+
+
 
     var body: some View {
         NavigationStack {
@@ -110,11 +126,48 @@ struct FoodbankInfoView: View {
                     .font(.subheadline)
                     .padding(.top, -8)
 
-                    // MAP
-                    Map(coordinateRegion: $region)
-                        .frame(height: UIScreen.main.bounds.height * 0.3)
-                        .cornerRadius(12)
-                        .shadow(radius: 3)
+                    // MARK: Interactive map viewer showing dropoff point and user location
+                    
+                    let center = CLLocationCoordinate2D(
+                        latitude: foodbank.latitude ?? 0,
+                        longitude: foodbank.longitude ?? 0
+                    )
+
+                    Map(position: $position) {
+
+                        // Show system user location (blue dot) - native code that iOS handles
+                        UserAnnotation()
+
+                        // Custom foodbank pin
+                        Annotation(foodbank.name, coordinate: center) {
+                            ZStack {
+                                // Pin “stem”
+                                RoundedRectangle(cornerRadius: 6)
+                                    .fill(AppStyle.primary.opacity(0.9))
+                                    .frame(width: 4, height: 14)
+                                    .offset(y: 10)
+
+                                // Circular head with basket icon to indicate foodbank location
+                                ZStack {
+                                    Circle()
+                                        .fill(AppStyle.primary)
+                                        .frame(width: 32, height: 32)
+                                        .shadow(radius: 3)
+
+                                    Image(systemName: "basket.fill")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundColor(.white)
+                                }
+                            }
+                        }
+                    }
+                    .frame(height: UIScreen.main.bounds.height * 0.35)
+                    .cornerRadius(12)
+                    .shadow(radius: 3)
+                    .mapControls {
+                        MapUserLocationButton() // standard floating button to jump to user
+                        MapCompass()
+                    }
 
                     FoodbankNeedsMatchesView(foodbank: foodbank, currSelectedNeeds: currSelectedNeeds)
                 }

@@ -11,7 +11,7 @@ import SwiftUI
 @MainActor
 final class DonationViewModel: ObservableObject {
     @Published var foodbanks: [String: FoodbankNeeds] = [:] // maps foodbank IDs to their needs object
-    @Published var shouldRender: Bool = false // whether the data is ready for the front-end to render it
+    @Published var donations: [DonationAssignment] = []
     let pantryViewModel: PantryViewModel
 
     private let api: LocalFoodbankAPI
@@ -28,13 +28,6 @@ final class DonationViewModel: ObservableObject {
         } catch {
             print("Failed to load foodbanks: \(error)")
         }
-    }
-    
-    /// Triggers a conversation with LLM agent to map pantry items to foodbank needs. Happens asynchronously and after foodbank metadata is loaded.
-    func triggerMapping() async {
-        // TODO: LLM interaction will be implemented once base STDIO functionality is proven
-        print("Triggering LLM mapping of pantry items to foodbank needs...")
-        shouldRender = true
     }
     
     func matchItemToNeed(foodbankID: String, needID: Int, itemID: UUID) {
@@ -78,5 +71,13 @@ final class DonationViewModel: ObservableObject {
         }
 
         return dict
+    }
+    
+    /// Given an item and a foodbank, registers that the user intends to donate it by adding it to the list of donations.
+    func registerDonation(foodbank: FoodbankNeeds, item: PantryItem) {
+        if !donations.contains(where: { $0.item.id == item.id && $0.recipient.id == foodbank.id }) {
+            let donation = DonationAssignment(item: item, recipient: foodbank)
+            donations.append(donation)
+        }
     }
 }
