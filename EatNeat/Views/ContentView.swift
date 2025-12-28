@@ -53,7 +53,7 @@ struct ContentView: View {
         }
 
         .sheet(isPresented: $showingAddItem) {
-            Text("Add Viewer!")
+            ReceiptScannerPageView(viewModel: pantryViewModel)
         }
         .onAppear {
             #if DEBUG
