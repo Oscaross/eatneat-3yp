@@ -204,9 +204,3 @@ extension FoodbankNeeds {
         return try! JSONDecoder().decode(FoodbankNeeds.self, from: json)
     }
 }
-
-#Preview
-{
-    FoodbankInfoView(foodbank: .preview)
-}
-

@@ -10,7 +10,7 @@ import SwiftUI
 struct DonationView: View {
     @ObservedObject var viewModel: DonationViewModel
     @EnvironmentObject var pantryViewModel: PantryViewModel
-    @EnvironmentObject var agentViewModel: AgentViewModel
+    @EnvironmentObject var agentModel: AgentModel
     
     // --- Foodbank Info View ---
     @State private var selectedFoodbank: FoodbankNeeds? = nil
@@ -207,6 +207,8 @@ struct DonationView: View {
         selectedFoodbank = foodbank
 
         // TODO: MCP is disabled now we know it is working. It will be enabled once the frontend and backend is prepared.
+        
+        print(MCPInstructions.matchItemToNeedsInstructions(needs: foodbank, items: pantryViewModel.getAllItems()))
         
 //        Task {
 //            try await agentViewModel.triggerMCPTool(
