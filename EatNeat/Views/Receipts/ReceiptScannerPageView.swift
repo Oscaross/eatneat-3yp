@@ -56,17 +56,10 @@ private struct ReceiptScannerSheet: View {
         ReceiptScannerView { lines in
             Task {
                 isProcessing = true
-                let ctx = AgentContext(pantry: pantryVM, donation: donationVM)
+                let ctx = AgentContext(pantry: pantryVM, donation: donationVM, scannedItems: processedItems)
 
                 do {
-                    let instructions = MCPInstructions.generateItemsFromReceiptInstructions(lines: lines.asReceiptLines())
-                    // MARK: Request sent to agent
-                    try await agent.triggerMCPTool(
-                        handler: RegisterNewItemHandler(),
-                        instructions: instructions,
-                        context: ctx
-                    )
-
+                    try await ReceiptParser(agent: agent, context: ctx).parse(lines: lines)
                     dismiss()
                 } catch {
                     print("Receipt MCP failed:", error)

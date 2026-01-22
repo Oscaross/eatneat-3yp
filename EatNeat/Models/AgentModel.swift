@@ -19,7 +19,8 @@ final class AgentModel: ObservableObject {
     private let openAI = OpenAI(
         configuration: .init(token: Secrets.openAIApiKey, timeoutInterval: 60)
     )
-
+    
+    /// Takes relevant information pertaining to
     func triggerMCPTool<H: MCPToolHandler>(
         handler: H,
         instructions: String,
@@ -52,19 +53,19 @@ final class AgentModel: ObservableObject {
         from handler: H
     ) async throws -> ChatQuery.ChatCompletionToolParam {
 
-        let mcpClient = MCP.Client(name: "EatNeat", version: "1.0.0")
-
-        let httpConfig = URLSessionConfiguration.default
-        httpConfig.httpAdditionalHeaders = [
-            "Authorization": "Bearer \(Secrets.mcpEndpointBearerToken)"
-        ]
-
-        let transport = HTTPClientTransport(
-            endpoint: URL(string: Secrets.mcpEndpoint)!,
-            configuration: httpConfig
-        )
-
-        _ = try await mcpClient.connect(transport: transport)
+//        let mcpClient = MCP.Client(name: "EatNeat", version: "1.0.0")
+//
+//        let httpConfig = URLSessionConfiguration.default
+//        httpConfig.httpAdditionalHeaders = [
+//            "Authorization": "Bearer \(Secrets.mcpEndpointBearerToken)"
+//        ]
+//
+//        let transport = HTTPClientTransport(
+//            endpoint: URL(string: Secrets.mcpEndpoint)!,
+//            configuration: httpConfig
+//        )
+//
+//        _ = try await mcpClient.connect(transport: transport)
 
         return ChatQuery.ChatCompletionToolParam(
             function: .init(

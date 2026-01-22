@@ -25,16 +25,27 @@ public enum MCPSchemas {
     }
     
     static func registerNewItem() -> JSONSchema {
+        let userCategories = Category.allCases.map { $0.rawValue }
+        
+        var categoryDescription = "Category value as an ID. Possible values:\n"
+        
+        var i = 0
+        
+        for category in userCategories {
+            categoryDescription += "\(i)- \(category):)\n"
+            i+=1
+        }
+        
         let raw: [String: Any] = [
             "type": "object",
             "properties": [
                 "itemName": [
                     "type": "string",
-                    "description": "Human-readable name of the product"
+                    "description": "Human-readable name of the product. Limit to around 4 words and remove redundant branding or promotional text, only words that are important to describe the product."
                 ],
                 "category": [
-                    "type": "enum",
-                    "description": "Category enum raw value"
+                    "type": "integer",
+                    "description": "Category value. Possible values: \(userCategories)"
                 ],
                 "quantity": [
                     "type": "integer",

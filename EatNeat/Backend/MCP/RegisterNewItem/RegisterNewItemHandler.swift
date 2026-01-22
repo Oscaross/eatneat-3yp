@@ -19,6 +19,7 @@ struct RegisterNewItemHandler: MCPToolHandler {
         context: AgentContext
     ) throws {
         print("Trying to register a new item!")
+        
         // let unit = args.weightType.flatMap { WeightUnit(rawValue: $0) }
 
         let item = PantryItem(
@@ -32,6 +33,6 @@ struct RegisterNewItemHandler: MCPToolHandler {
             dateAdded: Date()
         )
 
-        context.pantry.addItem(item: item)
+        context.scannedItems!.append(item)
     }
 }
