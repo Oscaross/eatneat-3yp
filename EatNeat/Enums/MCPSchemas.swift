@@ -45,7 +45,7 @@ public enum MCPSchemas {
                 ],
                 "category": [
                     "type": "integer",
-                    "description": "Category value. Possible values: \(userCategories)"
+                    "description": "The ID of the category the item fits under. Possible values: \(userCategories)"
                 ],
                 "quantity": [
                     "type": "integer",
