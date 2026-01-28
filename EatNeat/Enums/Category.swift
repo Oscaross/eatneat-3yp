@@ -29,6 +29,18 @@ enum Category: String, CaseIterable, Identifiable, Codable {
     case householdEssentials = "Household Essentials"
     case petFoodAndSupplies = "Pet Food & Supplies"
 
-    // Misc
     case none = "None"
+}
+
+extension Category {
+
+    /// Stable index used for LLM / wire format
+    var index: Int {
+        CategoryIndex.mapping[self]!
+    }
+
+    /// Construct from a stable index
+    static func from(index: Int) -> Category {
+        CategoryIndex.reverse[index] ?? .none
+    }
 }

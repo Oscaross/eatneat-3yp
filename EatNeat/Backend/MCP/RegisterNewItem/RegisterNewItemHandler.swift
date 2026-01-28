@@ -18,19 +18,27 @@ struct RegisterNewItemHandler: MCPToolHandler {
         args: RegisterNewItemArgs,
         context: AgentContext
     ) throws {
-        print("Trying to register a new item!")
+        print("Trying to register a new item: \(args.itemName)")
         
-        // let unit = args.weightType.flatMap { WeightUnit(rawValue: $0) }
+        let name = args.itemName
+        let category = Category.from(index: args.category)
+        let qty = args.quantity
+        let weightQuantity = args.weight ?? 0.0
+        let weightUnit = (args.weightType != nil) ?  WeightUnit.from(code: args.weightType!) : WeightUnit.none
+        let expiry = args.expiry
+        let cost = args.price
+        let dateAdded = Date() // TODO: Could maybe let the user customise this but is it information overload?
 
         let item = PantryItem(
-            name: args.itemName,
-            category: Category.biscuitsSnacksAndConfectionery, // TODO: Implement this enum in the schema generation
-            quantity: args.quantity,
-            weightUnit: WeightUnit.grams, // TODO: Implement this enum too
+            name: name,
+            category: category, 
+            quantity: qty,
+            weightQuantity: weightQuantity,
+            weightUnit: weightUnit,
             isOpened: false,
-            expiry: args.expiry,
-            cost: args.price,
-            dateAdded: Date()
+            expiry: expiry,
+            cost: cost,
+            dateAdded: dateAdded
         )
 
         context.scannedItems!.append(item)

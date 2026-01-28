@@ -5,6 +5,7 @@
 //  Created by Oscar Horner on 04/12/2025.
 //
 // This class handles the building of detailed instructions objects for agents to use as MCP requests. For each MCP tooling, there is a corresponding request function.
+
 // TODO: Optimise in the future to minimise token cost.
 
 import Foundation
@@ -30,14 +31,14 @@ class MCPInstructions {
     }
     
     /// Given a list of receipt lines scanned, return a detailed instruction set for an MCP agent to follow to extract pantry item data from the receipt.
-    public static func generateItemsFromReceiptInstructions(lines: [OCRLine]) -> String {
+    public static func generateItemsFromReceiptInstructions(lines: [String]) -> String {
         let preamble = "You are an agent tasked with extracting pantry item data from a scanned receipt. Use the MCP tool provided to create pantry items based on the receipt lines. Each line may contain the item name, quantity, weight, and price. Parse each line carefully to extract this information accurately, use inference where neccessary. Product names should not include weight or quantity information, only the item name in its simplest form (without excessive branding or detail)."
         
         var instructions = "\n Receipt lines: "
         
         // iterate over each line to be parsed and send to the agent
         for line in lines {
-            instructions += "\n \(line.text)"
+            instructions += "\n \(line)"
         }
         
         return preamble + instructions

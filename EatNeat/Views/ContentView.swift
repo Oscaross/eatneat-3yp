@@ -34,8 +34,8 @@ struct ContentView: View {
                 .tabItem { Label("Donate", systemImage: "heart.circle.fill") }
                 .tag(3)
 
-            SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+            CustomiseView()
+                .tabItem { Label("Customise", systemImage: "slider.horizontal.3") }
                 .tag(4)
         }
         .onChange(of: selectedTab) { oldValue, newValue in

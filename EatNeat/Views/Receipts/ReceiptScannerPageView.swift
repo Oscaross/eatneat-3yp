@@ -4,6 +4,7 @@
 //
 //  Created by Oscar Horner on 17/12/2025.
 //
+// The view shown when the user clicks the + icon in the middle of the app, handles the logic for the user clicking the scan and starting a scan, as well as redirecting to the correct results/error page after processing is completed.
 
 import SwiftUI
 
@@ -20,14 +21,14 @@ struct ReceiptScannerPageView: View {
     @State private var processedItems: [PantryItem] = []
     @State private var showResults = false
 
-    private let scannerSymbolName = "doc.viewfinder" // placeholder
+    private let scannerSymbolName = "doc.viewfinder" // placeholder - if I have time to make my own scanner SF symbol I will
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 18) {
 
-                    // Scanner button
+                    // MARK: Scanner button
                     Button {
                         guard !isProcessing else { return }
                         processedItems = []
@@ -60,14 +61,13 @@ struct ReceiptScannerPageView: View {
                     .disabled(isProcessing)
                     .opacity(isProcessing ? 0.85 : 1.0)
 
-                    // Description
+                    // MARK: User instructions
                     Text("Scan any receipt-like document using your phone camera.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
 
-                    // Guidance bullets
                     VStack(alignment: .leading, spacing: 10) {
                         bullet("You must have Internet access.")
                         bullet("Ensure the document is in a well-lit area or use the torch.")
@@ -94,6 +94,7 @@ struct ReceiptScannerPageView: View {
             }
             .navigationTitle("Receipt Scanner")
             .navigationBarTitleDisplayMode(.inline)
+            // MARK: Top toolbar with exit and help buttons
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
@@ -112,13 +113,20 @@ struct ReceiptScannerPageView: View {
                 }
             }
 
-            // Results page
+            // MARK: Results page after the scan is completed
             .navigationDestination(isPresented: $showResults) {
-                AfterScanView(scanned: processedItems, vm: pantryVM)
-                    .navigationBarTitleDisplayMode(.inline)
+                AfterScanView(
+                    scanned: processedItems,
+                    vm: pantryVM
+                ) {
+                    // onDone callback - reset state
+                    showResults = false
+                    processedItems = []
+                    dismiss() // need to also dismiss the scanner page to show the user the main app again
+                }
             }
 
-            // Help
+            // MARK: Help sheet FAQs
             .sheet(isPresented: $showHelp) {
                 HelpView(
                     title: "Receipt Scanner",
@@ -144,7 +152,7 @@ struct ReceiptScannerPageView: View {
                 )
             }
 
-            // Scanner sheet
+            // MARK: Scanner object
             .sheet(isPresented: $showScanner) {
                 ReceiptScannerSheet(
                     pantryVM: pantryVM,
@@ -159,7 +167,7 @@ struct ReceiptScannerPageView: View {
         }
     }
 
-    // Bullet helper
+    // MARK: Bullet helper
     private func bullet(_ text: String) -> some View {
         HStack(alignment: .top, spacing: 10) {
             Text("•")

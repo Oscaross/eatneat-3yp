@@ -18,19 +18,21 @@ struct ReceiptParser {
             print("\(line.text)")
         }
         
-        let trimmmedLines = preprocessLines(lines: lines) // pre-process lines to remove junk/token cost
+        let trimmedLines = preprocessLines(lines: lines) // pre-process lines to remove junk/token cost
         
         // generate task & parse lines
-        let taskInstructions = MCPInstructions.generateItemsFromReceiptInstructions(lines: parseRemainingLines(lines: trimmmedLines))
+        let taskInstructions = MCPInstructions.generateItemsFromReceiptInstructions(lines: trimmedLines)
         try await agent.triggerMCPTool(handler: RegisterNewItemHandler(), instructions: taskInstructions, context: context)
     }
     
     /// Trim irrelevant receipt data using regex-based pattern matching.
-    private func preprocessLines(lines: [OCRLine]) -> [OCRLine] {
-        // order lines by ascending y-axis position so that the top of the receipt is read first
-        var lines = lines.sorted { $0.boundingBox.minY < $1.boundingBox.minY }
+    private func preprocessLines(lines: [OCRLine]) -> [String] {
+        let grouped = groupLinesTogether(lines: lines)
+        // MARK: Pre-normalise text before regex
         
-        // MARK: Pre-regex pattern matching
+
+        
+        // MARK: Regex-based trimming, remove all lines that seem to be junk or heavily malformed
         
         // search for supermarket name in the document, if we see known supermarket names then we can infer the receipt came from there
         
@@ -39,52 +41,86 @@ struct ReceiptParser {
         
         // for each line in the scan, check for supermarkets
         for line in lines {
-            let text = line.text.lowercased()
             let candidateMatches = Supermarket.allCases
             
             // for each known supermarket, check if its present in the line
             for c in candidateMatches {
-                let tokens = tokenize(from: line.text)
+                let tokens = tokenize(from: line.text.lowercased())
 
                 for token in tokens {
-                    if let market = Supermarket(rawValue: token) {
-                        supermarketMatches[market, default: 0] += 1
+                    if c.rawValue == token {
+                        // we found the supermarket in the receipt so update the matches map
+                        supermarketMatches[c, default: 0] += 1
                     }
                 }
             }
-
         }
         
-        var cameFrom = determineMatch(matches: supermarketMatches)
+        var regex = ReceiptRegex.rules(for: determineMatch(matches: supermarketMatches)) // get our tailored regex for filtering this receipt
         
-        guard cameFrom != nil else {
-            return generalPatternMatch(lines: lines) // no supermarket detected so just general regex
-        }
+        let cleanedLines = applyRegexRules(
+            to: grouped,
+            using: regex
+        )
         
-        // MARK: Normalisation
+        // MARK: Post-regex normalisation
         
         // normalise text, fixing likely misreads from OCR and trimming unnecessary characters to make the regex process more effective
         
+        // MARK: OCRLine hashing and checking cache for duplicates
         
-        
-        // MARK: Regex pattern matching
-        
-        var regex = SupermarketRegex.getRegex(for: cameFrom!)
-        
-        // TODO: return generalPatternMatch(lines: lines)
-        return lines
+        return cleanedLines
     }
     
-    /// Filter redundant lines that are unlikely to contain product data.
-    private func generalPatternMatch(lines : [OCRLine]) -> [OCRLine] {
-        return []
+    /// Groups lines that are close together vertically into single strings.
+    private func groupLinesTogether(lines: [OCRLine]) -> [String] {
+        guard !lines.isEmpty else { return [] }
+
+        let sorted = lines.sorted {
+            $0.boundingBox.maxY > $1.boundingBox.maxY
+        }
+
+        let tolerance = medianHeight(of: sorted) * 0.6 // how close lines need to be vertically to be grouped
+
+        var groups: [[OCRLine]] = []
+
+        for line in sorted {
+            let midY = line.boundingBox.midY
+
+            if let lastGroup = groups.last,
+               abs(midY - lastGroup[0].boundingBox.midY) <= tolerance {
+                groups[groups.count - 1].append(line)
+            } else {
+                groups.append([line])
+            }
+        }
+
+        // Merge text within each group
+        return groups.map { group in
+            group
+                .sorted { $0.boundingBox.minX < $1.boundingBox.minX }
+                .map { $0.text.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .joined(separator: " ")
+        }
     }
-    
-    /// Normalise lines to fix common OCR misreads and junk data.
-    private func normalise(lines: [OCRLine]) -> [OCRLine] {
-        return []
+
+    /// Computes median line height a set of OCR lines
+    func medianHeight(of lines: [OCRLine]) -> CGFloat {
+        let heights = lines
+            .map { $0.boundingBox.height }
+            .sorted()
+
+        guard !heights.isEmpty else { return 0 }
+
+        let mid = heights.count / 2
+
+        if heights.count % 2 == 0 {
+            return (heights[mid - 1] + heights[mid]) / 2
+        } else {
+            return heights[mid]
+        }
     }
-    
+
     /// Determines whether a supermarket match can be made from the detected matches.
     private func determineMatch(matches : [Supermarket : Int]) -> Supermarket? {
         // case i. only one supermarket detected, just return that supermarket
@@ -111,12 +147,6 @@ struct ReceiptParser {
         
         return topMarket
     }
-    
-    /// Given pre-processed lines, normalises lines and then checks to see if they have been processed by MCP before in the caching database. Returns only lines that the system needs help to process.
-    private func parseRemainingLines(lines: [OCRLine]) -> [OCRLine] {
-        // TODO: Naive parser that just takes all lines and converts to text, can be optimised later
-        return lines
-    }
 }
 
 extension ReceiptParser {
@@ -126,5 +156,43 @@ extension ReceiptParser {
             .lowercased()
             .split { !$0.isLetter }
             .map(String.init)
+    }
+    
+    /// Applies regex-based rules to filter OCR lines.
+    func applyRegexRules(
+        to lines: [String],
+        using rules: ReceiptRules
+    ) -> [String] {
+
+        var result: [String] = []
+
+        for line in lines {
+
+            // stopping rules, parsing halts here
+            if rules.stopAfter.contains(where: { $0.matches(line) }) {
+                break
+            }
+
+            // removal via blacklist
+            if rules.blacklist.contains(where: { $0.matches(line) }) {
+                continue
+            }
+
+            // keep line if it got this far
+            result.append(line)
+        }
+
+        return result
+        
+    }
+}
+
+extension NSRegularExpression {
+    func matches(_ text: String) -> Bool {
+        firstMatch(
+            in: text,
+            options: [],
+            range: NSRange(text.startIndex..., in: text)
+        ) != nil
     }
 }
