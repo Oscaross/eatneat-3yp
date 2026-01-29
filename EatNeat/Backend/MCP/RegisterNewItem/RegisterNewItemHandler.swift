@@ -27,6 +27,7 @@ struct RegisterNewItemHandler: MCPToolHandler {
         let weightUnit = (args.weightType != nil) ?  WeightUnit.from(code: args.weightType!) : WeightUnit.none
         let expiry = args.expiry
         let cost = args.price
+        let isPerishable = args.isPerishable
         let dateAdded = Date() // TODO: Could maybe let the user customise this but is it information overload?
 
         let item = PantryItem(
@@ -36,6 +37,7 @@ struct RegisterNewItemHandler: MCPToolHandler {
             weightQuantity: weightQuantity,
             weightUnit: weightUnit,
             isOpened: false,
+            isPerishable: isPerishable,
             expiry: expiry,
             cost: cost,
             dateAdded: dateAdded

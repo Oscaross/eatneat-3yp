@@ -34,6 +34,7 @@ class PantryViewModel: ObservableObject {
         quantity: Int = 1,
         weightQuantity: Double? = nil,
         weightUnit: WeightUnit? = nil,
+        isPerishable: Bool = false,
         isOpened: Bool = false,
         expiry: Date? = nil,
         cost: Double? = nil
@@ -45,6 +46,7 @@ class PantryViewModel: ObservableObject {
             weightQuantity: weightQuantity,
             weightUnit: weightUnit,
             isOpened: isOpened,
+            isPerishable: isPerishable,
             expiry: expiry,
             cost: cost
         )
@@ -72,10 +74,14 @@ class PantryViewModel: ObservableObject {
     }
     
     func updateItem(itemID: UUID, updatedItem: PantryItem) {
-        print("Trying to update item")
+        for (category, items) in itemsByCategory {
+            if let index = items.firstIndex(where: { $0.id == itemID }) {
+                itemsByCategory[category]?[index] = updatedItem
+                return
+            }
+        }
     }
     
-    /// Clears pantry
     func clearPantry() {
         for category in Category.allCases {
             itemsByCategory[category] = []

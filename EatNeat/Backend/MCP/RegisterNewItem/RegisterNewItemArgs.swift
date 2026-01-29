@@ -14,6 +14,7 @@ struct RegisterNewItemArgs: Decodable {
     let quantity: Int
     let weight: Double?
     let weightType: Int?
+    let isPerishable: Bool
     let price: Double?
     let expiry: Date?
 }

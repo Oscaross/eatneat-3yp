@@ -62,7 +62,7 @@ struct ReceiptScannerPageView: View {
                     .opacity(isProcessing ? 0.85 : 1.0)
 
                     // MARK: User instructions
-                    Text("Scan any receipt-like document using your phone camera.")
+                    Text("Scan any receipt-like document using your phone camera. The scanner will extract item information and automatically record it within your pantry.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -73,6 +73,7 @@ struct ReceiptScannerPageView: View {
                         bullet("Ensure the document is in a well-lit area or use the torch.")
                         bullet("Ensure the whole document is scanned, not just part.")
                         bullet("Ensure your camera is unobscured and clean.")
+                        bullet("Ensure the receipt is as flat and uncrumpled as possible.")
                     }
                     .padding()
                     .frame(maxWidth: 520, alignment: .leading)

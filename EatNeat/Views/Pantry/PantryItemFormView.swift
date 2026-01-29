@@ -4,6 +4,7 @@
 //
 //  Created by Oscar Horner on 28/12/2025.
 //
+// Allows users to edit and view stored pantry item properties. Works on new instances (no data) or existing instances (eg. from scanner).
 
 import SwiftUI
 
@@ -14,20 +15,53 @@ struct PantryItemFormView: View {
     
     var body: some View {
 
-        // DETAILS
+        // MARK: Details section
         Section(header: Text("Details")) {
-            TextField("Item Name", text: $item.name)
-
-            Picker("Category", selection: $item.category) {
-                ForEach(Category.allCases, id: \.self) { category in
-                    Text(category.rawValue).tag(category)
+            HStack {
+                TextField("Item Name", text: $item.name)
+                Spacer()
+                
+                if let label = item.label {
+                    CapsuleView(text: label.name, color: label.color) { }
+                } else {
+                    CapsuleView(text: "...", color: .gray) { }
                 }
             }
 
-            Toggle("Opened", isOn: $item.isOpened.animation())
+            HStack {
+                Menu {
+                    ForEach(Category.allCases) { category in
+                        Button(category.rawValue) {
+                            item.category = category
+                        }
+                    }
+                } label: {
+                    Text(item.category.rawValue)
+                }
+            }
+                
+            HStack {
+                CapsuleToggleView(
+                    value: $item.isPerishable,
+                    trueLabel: "Perishable",
+                    falseLabel: "Non-perishable",
+                    color: .gray
+                )
+                .padding(.all, 4)
+                
+                Spacer()
+
+                CapsuleToggleView(
+                    value: $item.isOpened,
+                    trueLabel: "Opened",
+                    falseLabel: "Unopened",
+                    color: .gray
+                )
+                .padding(.all, 4)
+            }
         }
 
-        // STOCK
+        // MARK: Stock section
         Section(header: Text("Stock")) {
             HStack(alignment: .center, spacing: 16) {
 
@@ -93,10 +127,9 @@ struct PantryItemFormView: View {
             .frame(height: UIScreen.main.bounds.height * 0.05)
         }
 
-        // OTHER
+        // MARK: Other section eg. cost, expiry
         Section(header: Text("Other")) {
 
-            // EXPIRY
             HStack {
                 Text("Expiry")
                 Spacer()
@@ -112,7 +145,6 @@ struct PantryItemFormView: View {
                 .datePickerStyle(.compact)
             }
 
-            // COST
             HStack {
                 Text("Cost")
                 Spacer()

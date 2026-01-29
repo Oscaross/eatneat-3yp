@@ -39,19 +39,14 @@ struct ReceiptParser {
         // a map of each known supermarket and the number of times it shows up in the receipt
         var supermarketMatches: [Supermarket : Int] = [:] // ie "Tesco" -> 4 means "Tesco" was found four times in receipt
         
-        // for each line in the scan, check for supermarkets
         for line in lines {
-            let candidateMatches = Supermarket.allCases
-            
-            // for each known supermarket, check if its present in the line
-            for c in candidateMatches {
-                let tokens = tokenize(from: line.text.lowercased())
+            let tokens = tokenize(from: line.text.lowercased())
 
-                for token in tokens {
-                    if c.rawValue == token {
-                        // we found the supermarket in the receipt so update the matches map
-                        supermarketMatches[c, default: 0] += 1
-                    }
+            for supermarket in Supermarket.allCases {
+                let name = supermarket.rawValue.lowercased()
+
+                if tokens.contains(name) {
+                    supermarketMatches[supermarket, default: 0] += 1
                 }
             }
         }

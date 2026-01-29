@@ -56,6 +56,7 @@ struct PantryItemView: View {
                 weightQuantity: nil,
                 weightUnit: .grams,
                 isOpened: false,
+                isPerishable: false,
                 expiry: nil,
                 cost: nil
             ))

@@ -75,20 +75,9 @@ struct FoodbankNeedsMatchesView: View {
             Spacer()
 
             if !selectedNeeds.isEmpty {
-                Button {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        selectedNeeds.removeAll()
-                    }
+                CapsuleView(text: "Clear", color: Color.red, action: {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                } label: {
-                    Text("Clear")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.red)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.red.opacity(0.1)))
-                }
-                .buttonStyle(.plain)
+                })
             }
         }
     }

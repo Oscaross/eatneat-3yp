@@ -19,10 +19,13 @@ struct PantryItem: Identifiable, Hashable, Codable {
     var weightQuantity: Double? // the absolute value of whatever quantity was given (ie. 500 for 500ml of soap)
 
     var isOpened: Bool
+    var isPerishable : Bool // perishable goods go off typically in less than 2 weeks
     var expiry: Date?
     var cost: Double?
     
     var dateAdded: Date
+    
+    var label: ItemLabel?
     
     init(
         id: UUID = UUID(),
@@ -32,6 +35,7 @@ struct PantryItem: Identifiable, Hashable, Codable {
         weightQuantity: Double? = nil,
         weightUnit: WeightUnit? = nil,
         isOpened: Bool = false,
+        isPerishable: Bool,
         expiry: Date? = nil,
         cost: Double? = nil,
         dateAdded: Date = Date()
@@ -45,6 +49,7 @@ struct PantryItem: Identifiable, Hashable, Codable {
         self.weightUnit = weightUnit
         
         self.isOpened = isOpened
+        self.isPerishable = isPerishable
         self.expiry = expiry
         self.cost = cost
         

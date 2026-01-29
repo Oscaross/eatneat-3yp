@@ -25,16 +25,20 @@ public enum MCPSchemas {
     }
     
     static func registerNewItem() -> JSONSchema {
-        let userCategories = Category.allCases.map { $0.rawValue }
-        
         var categoryDescription = "Category value as an ID. Possible values:\n"
         
-        var i = 0
         
-        for category in userCategories {
-            categoryDescription += "\(i)- \(category):)\n"
-            i+=1
+        // print categoryIndices to stable mapping
+        for (c, i) in CategoryIndex.mapping {
+            categoryDescription += "\(i): \(c.rawValue)\n "
         }
+        
+        var weightUnitDescription = "Weight unit as an ID. Possible values:\n"
+        
+        for unit in WeightUnit.allCases {
+            weightUnitDescription += "\(unit.code): \(unit.rawValue) \n "
+        }
+        
         
         let raw: [String: Any] = [
             "type": "object",
@@ -45,7 +49,7 @@ public enum MCPSchemas {
                 ],
                 "category": [
                     "type": "integer",
-                    "description": "The ID of the category the item fits under. Possible values: \(userCategories)"
+                    "description": categoryDescription
                 ],
                 "quantity": [
                     "type": "integer",
@@ -57,11 +61,15 @@ public enum MCPSchemas {
                 ],
                 "weightType": [
                     "type": "integer",
-                    "description": "WeightUnit enum raw value"
+                    "description": weightUnitDescription
                 ],
                 "price": [
                     "type": "number",
                     "description": "Price paid for the item"
+                ],
+                "isPerishable": [
+                    "type": "boolean",
+                    "description": "Whether the item is perishable or not"
                 ],
                 "expiry": [
                     "type": "string",
@@ -69,7 +77,7 @@ public enum MCPSchemas {
                     "description": "Expiry date in ISO-8601 format"
                 ]
             ],
-            "required": ["itemName", "category", "quantity"]
+            "required": ["itemName", "category", "quantity", "isPerishable"]
         ]
 
         let data = try! JSONSerialization.data(withJSONObject: raw, options: [])
