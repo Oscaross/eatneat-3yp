@@ -26,7 +26,7 @@ public enum MCPSchemas {
     
     static func registerNewItem() -> JSONSchema {
         var categoryDescription = "Category value as an ID. Possible values:\n"
-        
+        // "stable mappings" use minimal codes to allow the LLM to refer to them without ambiguity, codes are minimal to reduce token cost
         
         // print categoryIndices to stable mapping
         for (c, i) in CategoryIndex.mapping {
@@ -35,6 +35,7 @@ public enum MCPSchemas {
         
         var weightUnitDescription = "Weight unit as an ID. Possible values:\n"
         
+        // print weight unit codes to stable mapping
         for unit in WeightUnit.allCases {
             weightUnitDescription += "\(unit.code): \(unit.rawValue) \n "
         }

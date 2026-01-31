@@ -10,6 +10,7 @@ import Foundation
 class PantryViewModel: ObservableObject {
     @Published private(set) var itemsByCategory: [Category: [PantryItem]] = [:] // dictionary mapping categories to the item list that belongs to them
     @Published var donationCount: Int = 0 // number of items donated by the user
+    @Published var userLabels: [ItemLabel] = [] // custom labels created by the user
     
     private var saveURL: URL {
         let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -24,6 +25,8 @@ class PantryViewModel: ObservableObject {
         }
         
         load()
+        
+        userLabels = SampleData.generateSampleLabels() // TODO: Make labels non-sample and configured by user
     }
 
     
@@ -138,6 +141,7 @@ class PantryViewModel: ObservableObject {
     private func save() {
         try? SaveManager.shared.save(itemsByCategory, forKey: "Pantry")
         try? SaveManager.shared.save(donationCount, forKey: "DonationCount")
+        try? SaveManager.shared.save(userLabels, forKey: "UserLabels")
     }
     
     /// Load saved data for object persistence.
@@ -152,5 +156,10 @@ class PantryViewModel: ObservableObject {
             forKey: "DonationCount") {
                 self.donationCount = donationCount
             }
+        
+        if let savedLabels = try? SaveManager.shared.load([ItemLabel].self,
+                                                          forKey: "UserLabels") {
+            self.userLabels = savedLabels
+        }
     }
 }

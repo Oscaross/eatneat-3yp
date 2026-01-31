@@ -11,6 +11,7 @@ import SwiftUI
 struct CapsuleView: View {
     let text: String
     let color: Color
+    let heavy: Bool // "heavy" capsules have a more opaque background and bolder text, they indicate selected or important capsules
     let action: () -> Void
 
     private let cornerRadius: CGFloat = 8
@@ -20,13 +21,13 @@ struct CapsuleView: View {
             action()
         } label: {
             Text(text)
-                .font(.system(size: 13, weight: .semibold))
+                .font(.system(size: 13, weight: (heavy) ? .bold : .semibold))
                 .foregroundColor(color)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
                 .background(
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(color.opacity(0.1))
+                        .fill((heavy) ? color.opacity(0.16) : color.opacity(0.08))
                 )
         }
         .buttonStyle(.plain)

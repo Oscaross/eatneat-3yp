@@ -18,7 +18,8 @@ struct CapsuleToggleView: View {
     var body: some View {
         CapsuleView(
             text: value ? trueLabel : falseLabel,
-            color: color
+            color: color,
+            heavy: value
         ) {
             toggle()
         }

@@ -128,4 +128,14 @@ struct SampleData {
                        weightQuantity: 2000, weightUnit: .grams, isPerishable: false)
         ]
     }
+    
+    static func generateSampleLabels() -> [ItemLabel] {
+        return [
+            ItemLabel(name: "New", color: .green),
+            ItemLabel(name: "Use", color: .blue),
+            ItemLabel(name: "Half", color: .purple),
+            ItemLabel(name: "Stale", color: .red),
+            ItemLabel(name: "Clear", color: .yellow)
+            ]
+    }
 }

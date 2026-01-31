@@ -10,36 +10,36 @@ import SwiftUI
 
 struct PantryItemFormView: View {
     @Binding var item: PantryItem
-    
+
     @FocusState private var qtyFieldFocused: Bool
-    
+
+    let availableLabels: [ItemLabel]
+    @State private var selectedLabels: Set<ItemLabel> = []
+
     var body: some View {
 
-        // MARK: Details section
+        // DETAILS
         Section(header: Text("Details")) {
+
+            // Name + label capsule
             HStack {
                 TextField("Item Name", text: $item.name)
-                Spacer()
-                
-                if let label = item.label {
-                    CapsuleView(text: label.name, color: label.color) { }
-                } else {
-                    CapsuleView(text: "...", color: .gray) { }
-                }
             }
 
+            // CATEGORY — manual row (left-aligned)
             HStack {
-                Menu {
-                    ForEach(Category.allCases) { category in
-                        Button(category.rawValue) {
-                            item.category = category
-                        }
+                Picker("", selection: $item.category) {
+                    ForEach(Category.allCases, id: \.self) { category in
+                        Text(category.rawValue).tag(category)
                     }
-                } label: {
-                    Text(item.category.rawValue)
                 }
+                .labelsHidden()
+                .pickerStyle(.menu)
+
+                Spacer()
             }
-                
+            .contentShape(Rectangle()) // full-row tap
+            
             HStack {
                 CapsuleToggleView(
                     value: $item.isPerishable,
@@ -47,8 +47,7 @@ struct PantryItemFormView: View {
                     falseLabel: "Non-perishable",
                     color: .gray
                 )
-                .padding(.all, 4)
-                
+
                 Spacer()
 
                 CapsuleToggleView(
@@ -57,22 +56,22 @@ struct PantryItemFormView: View {
                     falseLabel: "Unopened",
                     color: .gray
                 )
-                .padding(.all, 4)
             }
         }
 
-        // MARK: Stock section
+        // STOCK
         Section(header: Text("Stock")) {
             HStack(alignment: .center, spacing: 16) {
 
-                // LEFT: Weight + Unit
+                // Weight + unit
                 HStack {
-                    TextField("0.0",
-                              value: Binding(
-                                get: { item.weightQuantity },
-                                set: { item.weightQuantity = $0 }
-                              ),
-                              format: .number
+                    TextField(
+                        "0.0",
+                        value: Binding(
+                            get: { item.weightQuantity },
+                            set: { item.weightQuantity = $0 }
+                        ),
+                        format: .number
                     )
                     .keyboardType(.decimalPad)
                     .frame(width: 70)
@@ -92,13 +91,13 @@ struct PantryItemFormView: View {
 
                 Spacer()
 
-                // RIGHT: Quantity
+                // Quantity
                 HStack(spacing: UIScreen.main.bounds.width * 0.04) {
-
                     if qtyFieldFocused {
-                        TextField("",
-                                  value: $item.quantity,
-                                  format: .number
+                        TextField(
+                            "",
+                            value: $item.quantity,
+                            format: .number
                         )
                         .keyboardType(.numberPad)
                         .frame(width: 40)
@@ -108,7 +107,6 @@ struct PantryItemFormView: View {
                         .onChange(of: item.quantity) { _ in
                             item.quantity = min(max(item.quantity, 1), 99)
                         }
-
                     } else {
                         Text("\(item.quantity)")
                             .fontWeight(.medium)
@@ -117,19 +115,16 @@ struct PantryItemFormView: View {
                             }
                     }
 
-                    Stepper("",
-                            value: $item.quantity,
-                            in: 1...99
-                    )
-                    .labelsHidden()
+                    Stepper("", value: $item.quantity, in: 1...99)
+                        .labelsHidden()
                 }
             }
-            .frame(height: UIScreen.main.bounds.height * 0.05)
         }
 
-        // MARK: Other section eg. cost, expiry
+        // OTHER
         Section(header: Text("Other")) {
 
+            // Expiry
             HStack {
                 Text("Expiry")
                 Spacer()
@@ -145,6 +140,7 @@ struct PantryItemFormView: View {
                 .datePickerStyle(.compact)
             }
 
+            // Cost
             HStack {
                 Text("Cost")
                 Spacer()
@@ -165,6 +161,17 @@ struct PantryItemFormView: View {
                     .multilineTextAlignment(.trailing)
                     .frame(width: 70)
                 }
+            }
+        }
+        
+        Section(header: Text("Labels")) {
+            LabelBarView(
+                availableLabels: availableLabels,
+                selectedLabels: $selectedLabels,
+                allowsMultipleSelection: false
+            )
+            .onChange(of: selectedLabels) { newValue in
+                item.label = newValue.first
             }
         }
     }

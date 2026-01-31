@@ -35,7 +35,7 @@ struct AfterScanView: View {
                 TabView(selection: $selection) {
                     ForEach(scannedItems.indices, id: \.self) { i in
                         Form {
-                            PantryItemFormView(item: $scannedItems[i])
+                            PantryItemFormView(item: $scannedItems[i], availableLabels: pantryViewModel.userLabels)
                         }
                         .tag(i)
                     }

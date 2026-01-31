@@ -3,18 +3,18 @@ import CoreHaptics
 
 struct PantryView: View {
     @ObservedObject var viewModel: PantryViewModel
-    @State private var showAddItem = false
-    // -- Search --
-    @State private var searchTerm = ""
-    // -- Viewer --
+    
+    @State private var searchTerm = "" // search bar
+    
     @State private var gridView = true // if false then pantry items rendered as lists
     @State private var categoriesHidden: Set<Category> = [] // categories that are hidden by the user
-    // -- Sorting --
+    
     @State private var showSortOptions = false
     @State private var sortingMode : SortingMode = .alphabetical // default to alphabetical sorting
-    // -- Tapping Items --
-    @State private var itemToEdit: PantryItem?
-    @State private var showingEditor = false
+    
+    @State private var showManagePantry = false // show the swiping to organise view
+    
+    @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
 
     var body: some View {
         NavigationStack {
@@ -60,8 +60,7 @@ struct PantryView: View {
                                             LazyHStack(spacing: 16) {
                                                 ForEach(items) { item in
                                                     PantryItemCardView(item: item) {
-                                                        itemToEdit = item
-                                                        showingEditor = true
+                                                        editorSheet = .edit(item)
                                                     }
                                                 }
                                             }
@@ -104,12 +103,20 @@ struct PantryView: View {
                             }
                             Button("Cancel", role: .cancel) {}
                         }
+                        
+                        // Organisation view toggle
+                        Button {
+                            showManagePantry = true
+                        } label: {
+                            Image(systemName: "rectangle.stack")
+                                .font(.system(size: 18, weight: .medium))
+                        }
                     }
                 }
 
                 // --- Add Button ---
                 Button(action: {
-                    showAddItem = true
+                    editorSheet = .add
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 24, weight: .bold))
@@ -126,12 +133,16 @@ struct PantryView: View {
                 .padding(.trailing, 24)
             }
             .navigationTitle("My Pantry")
-            .sheet(isPresented: $showAddItem) {
-                PantryItemView(mode: .add, viewModel: viewModel)
+            .sheet(item: $editorSheet) { sheet in
+                PantryItemEditorSheet(
+                    sheet: sheet,
+                    pantryVM: viewModel
+                )
             }
-            .sheet(item: $itemToEdit) { item in
-                PantryItemView(mode: .edit(existing: item), viewModel: viewModel)
+            .sheet(isPresented: $showManagePantry) {
+                PantryOrganiseView(items: viewModel.getAllItems(), pantryVM: viewModel)
             }
+
         }
     }
 
