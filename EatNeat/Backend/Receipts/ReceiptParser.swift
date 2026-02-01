@@ -51,7 +51,7 @@ struct ReceiptParser {
             }
         }
         
-        var regex = ReceiptRegex.rules(for: determineMatch(matches: supermarketMatches)) // get our tailored regex for filtering this receipt
+        let regex = ReceiptRegex.rules(for: determineMatch(matches: supermarketMatches)) // get our tailored regex for filtering this receipt
         
         let cleanedLines = applyRegexRules(
             to: grouped,

@@ -34,13 +34,13 @@ enum Category: String, CaseIterable, Identifiable, Codable {
 
 extension Category {
 
-    /// Stable index used for LLM / wire format
+    static let orderedCases = allCases
+
     var index: Int {
-        CategoryIndex.mapping[self]!
+        Self.orderedCases.firstIndex(of: self)!
     }
 
-    /// Construct from a stable index
-    static func from(index: Int) -> Category {
-        CategoryIndex.reverse[index] ?? .none
+    static func from(index: Int) -> Category? {
+        orderedCases.indices.contains(index) ? orderedCases[index] : nil
     }
 }

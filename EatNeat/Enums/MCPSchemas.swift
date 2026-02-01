@@ -29,8 +29,8 @@ public enum MCPSchemas {
         // "stable mappings" use minimal codes to allow the LLM to refer to them without ambiguity, codes are minimal to reduce token cost
         
         // print categoryIndices to stable mapping
-        for (c, i) in CategoryIndex.mapping {
-            categoryDescription += "\(i): \(c.rawValue)\n "
+        for (index, category) in Category.orderedCases.enumerated() {
+            categoryDescription += "\(index): \(category.rawValue)\n "
         }
         
         var weightUnitDescription = "Weight unit as an ID. Possible values:\n"

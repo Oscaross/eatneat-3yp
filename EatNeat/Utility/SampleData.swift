@@ -135,7 +135,8 @@ struct SampleData {
             ItemLabel(name: "Use", color: .blue),
             ItemLabel(name: "Half", color: .purple),
             ItemLabel(name: "Stale", color: .red),
-            ItemLabel(name: "Clear", color: .yellow)
+            ItemLabel(name: "Going Off", color: .teal),
+            ItemLabel(name: "Xmas", color: .orange)
             ]
     }
 }

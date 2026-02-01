@@ -26,7 +26,12 @@ struct PantryOrganiseView: View {
     // Tunables
     private let swipeThresholdX: CGFloat = 120
     private let swipeThresholdY: CGFloat = 120
+    private let maxDragX: CGFloat = 160
+    private let maxDragDown: CGFloat = 180
     private let maxRotationDegrees: Double = 14
+    
+    @State private var activeAction: SwipeAction?
+    @State private var feedbackTriggered = false
 
     init(items: [PantryItem], pantryVM: PantryViewModel) {
         _items = State(initialValue: items)
@@ -38,31 +43,33 @@ struct PantryOrganiseView: View {
             VStack(spacing: 16) {
                 ZStack {
                     if let currentItemBinding = topItemBinding {
+
                         PantryItemView(
                             item: currentItemBinding,
                             availableLabels: pantryVM.userLabels,
                             mode: .edit
                         )
-                        .padding(16)
-                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .scrollContentBackground(.hidden)
+                        .background(
+                            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                .fill(Color.gray.opacity(0.06))
+                        )
                         .overlay(
                             RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                .strokeBorder(.primary.opacity(0.12), lineWidth: 1)
+                                .stroke(Color.primary.opacity(0.08), lineWidth: 1)
                         )
-                        
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+
                     } else {
                         emptyState
                     }
                 }
-                .frame(maxWidth: .infinity)
-                .frame(height: 420)
-                .padding(.horizontal, 16)
                 .offset(dragOffset)
                 .rotationEffect(.degrees(cardRotation), anchor: .bottom)
                 .gesture(dragGesture)
                 .animation(.spring(response: 0.28, dampingFraction: 0.85), value: dragOffset)
                 .animation(.spring(response: 0.28, dampingFraction: 0.85), value: cardRotation)
-
                 // Bottom controls
                 bottomControls
             }
@@ -96,36 +103,95 @@ private extension PantryOrganiseView {
     var dragGesture: some Gesture {
         DragGesture()
             .onChanged { value in
-                dragOffset = value.translation
-                let normalizedX = max(-1, min(1, value.translation.width / 220))
-                cardRotation = Double(normalizedX) * maxRotationDegrees
+                let rawX = value.translation.width
+                let rawY = value.translation.height
+
+                // Clamp horizontal
+                let clampedX = max(-maxDragX, min(maxDragX, rawX))
+
+                // Only allow downward drag (no up)
+                let clampedY = max(0, min(maxDragDown, rawY))
+
+                dragOffset = CGSize(width: clampedX, height: clampedY)
+
+                // Rotation tied to horizontal %
+                let xProgress = clampedX / maxDragX
+                cardRotation = Double(xProgress) * maxRotationDegrees
+
+                updateActionFeedback(xProgress: xProgress, yProgress: clampedY / maxDragDown)
             }
             .onEnded { value in
                 handleDragEnded(value.translation)
             }
     }
+    
+    /// Given some normalised swipe gesture , returns the requested action by the user and updates UI accordingly.
+    func updateActionFeedback(xProgress: CGFloat, yProgress: CGFloat) {
+
+        let newAction: SwipeAction? = {
+            if yProgress > 0.9 { return .dismiss }
+            if xProgress > 0.9 { return .approve }
+            if xProgress < -0.9 { return .delete }
+            return nil
+        }()
+
+        if newAction != activeAction {
+            activeAction = newAction
+            feedbackTriggered = false
+        }
+
+        if let _ = activeAction, !feedbackTriggered {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            feedbackTriggered = true
+        }
+    }
 
     var bottomControls: some View {
         HStack {
             Button { deleteCurrent(animated: true) } label: {
-                controlIcon(systemName: "trash", color: .red)
+                controlIcon(
+                    systemName: "trash",
+                    color: .red,
+                    isActive: activeAction == .delete
+                )
             }
 
             Spacer()
 
             Button { resetCard() } label: {
-                controlIcon(systemName: "arrow.clockwise", color: .gray)
+                controlIcon(
+                    systemName: "arrow.clockwise",
+                    color: .gray,
+                    isActive: false
+                )
             }
 
             Spacer()
 
             Button { approveCurrent(animated: true) } label: {
-                controlIcon(systemName: "hand.thumbsup.fill", color: .green)
+                controlIcon(
+                    systemName: "hand.thumbsup.fill",
+                    color: .green,
+                    isActive: activeAction == .approve
+                )
             }
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
     }
+    
+    private var likeProgress: CGFloat {
+        max(0, dragOffset.width / swipeThresholdX)
+    }
+
+    private var deleteProgress: CGFloat {
+        max(0, -dragOffset.width / swipeThresholdX)
+    }
+
+    private var dismissProgress: CGFloat {
+        max(0, dragOffset.height / swipeThresholdY)
+    }
+
 }
 
 private extension PantryOrganiseView {
@@ -152,6 +218,9 @@ private extension PantryOrganiseView {
     func popCurrent(animated: Bool = false) {
         guard let item = items.last else { return }
         lastRemovedItem = item
+        
+        activeAction = nil
+        feedbackTriggered = false
 
         if animated {
             animateCardOffscreen(direction: .down)
@@ -179,6 +248,9 @@ private extension PantryOrganiseView {
     }
 
     func resetCard() {
+        activeAction = nil
+        feedbackTriggered = false
+        
         withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
             dragOffset = .zero
             cardRotation = 0
@@ -208,20 +280,31 @@ private extension PantryOrganiseView {
         }
     }
 
-    func controlIcon(systemName: String, color: Color) -> some View {
+    func controlIcon(
+        systemName: String,
+        color: Color,
+        isActive: Bool
+    ) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 18, weight: .semibold))
             .foregroundColor(color)
             .frame(width: 46, height: 46)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(color.opacity(0.12))
+                    .fill(color.opacity(isActive ? 0.28 : 0.12))
             )
+            .scaleEffect(isActive ? 1.08 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.8), value: isActive)
     }
-
+    
     var emptyState: some View {
         Text("All items organised")
             .foregroundStyle(.secondary)
             .font(.headline)
     }
+}
+
+/// Private enum to allow users to interact with certain swipe actions
+enum SwipeAction {
+    case approve, delete, dismiss
 }

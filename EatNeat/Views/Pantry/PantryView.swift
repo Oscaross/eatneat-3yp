@@ -19,40 +19,18 @@ struct PantryView: View {
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottomTrailing) {
-                // --- Main scroll content ---
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 20) {
                         ForEach(Category.allCases, id: \.self) { category in
                             if let items = getItemsToRender(category: category), !items.isEmpty {
                                 VStack(alignment: .leading, spacing: 10) {
                                     
-                                    // Category header
-                                    HStack {
-                                        Text(category.rawValue)
-                                            .font(AppStyle.Text.sectionHeader)
-                                            .foregroundColor(Color.blue.opacity(0.8))
-                                            .padding(.leading) // leading padding only
-
-                                        Spacer()
-
-                                        // Hide/show category button
-                                        Button {
-                                            if categoriesHidden.contains(category) {
-                                                categoriesHidden.remove(category)
-                                            } else {
-                                                categoriesHidden.insert(category)
-                                            }
-                                        } label: {
-                                            Image(systemName: categoriesHidden.contains(category) ? "eye.slash" : "eye")
-                                                .font(.system(size: 18, weight: .medium))
-                                                .foregroundColor(Color.blue.opacity(0.8))
-                                                .padding(.trailing, 12)
-                                        }
-                                    }
-                                    .padding(.vertical, 6)
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue.opacity(0.08))
-                                    .cornerRadius(6)
+                                    // MARK: Category header
+                                    
+                                    Text(category.rawValue + " (\(items.count))")
+                                        .font(AppStyle.Text.sectionHeader)
+                                        .foregroundColor(Color.blue.opacity(0.8))
+                                        .padding(.leading) // leading padding only
 
                                     // Grid-based view
                                     if gridView {

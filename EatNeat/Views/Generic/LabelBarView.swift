@@ -32,7 +32,10 @@ struct LabelBarView: View {
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-
+                if availableLabels.isEmpty {
+                    Text("No labels yet! Create labels in the Customise window.")
+                }
+                
                 ForEach(availableLabels) { label in
                     CapsuleView(
                         text: label.name,
@@ -40,19 +43,6 @@ struct LabelBarView: View {
                         heavy: isSelected(label)
                     ) {
                         toggle(label)
-                    }
-                }
-
-                // Clear / none action
-                if !selectedLabels.isEmpty {
-                    CapsuleView(
-                        text: "Clear",
-                        color: .gray,
-                        heavy: true
-                    ) {
-                        selectedLabels.removeAll()
-                        UIImpactFeedbackGenerator(style: .light)
-                            .impactOccurred()
                     }
                 }
             }

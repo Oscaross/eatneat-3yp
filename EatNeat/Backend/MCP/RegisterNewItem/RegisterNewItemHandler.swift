@@ -21,7 +21,7 @@ struct RegisterNewItemHandler: MCPToolHandler {
         print("Trying to register a new item: \(args.itemName)")
         
         let name = args.itemName
-        let category = Category.from(index: args.category)
+        guard let category = Category.from(index: args.category) else { return } // if the category is invalid this item can't be registered
         let qty = args.quantity
         let weightQuantity = args.weight ?? 0.0
         let weightUnit = (args.weightType != nil) ?  WeightUnit.from(code: args.weightType!) : WeightUnit.none

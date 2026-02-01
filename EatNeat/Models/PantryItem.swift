@@ -25,7 +25,7 @@ struct PantryItem: Identifiable, Hashable, Codable {
     
     var dateAdded: Date
     
-    var label: ItemLabel?
+    var labels: [ItemLabel]
     
     init(
         id: UUID = UUID(),
@@ -38,7 +38,8 @@ struct PantryItem: Identifiable, Hashable, Codable {
         isPerishable: Bool,
         expiry: Date? = nil,
         cost: Double? = nil,
-        dateAdded: Date = Date()
+        dateAdded: Date = Date(),
+        labels: [ItemLabel] = []
     ) {
         self.id = id
         self.name = name
@@ -54,5 +55,19 @@ struct PantryItem: Identifiable, Hashable, Codable {
         self.cost = cost
         
         self.dateAdded = dateAdded
+        self.labels = labels
+    }
+    
+    mutating func clearLabels() {
+        labels.removeAll()
+    }
+    
+    /// Given a label, either deselects or selects it based on whether the item had it.
+    mutating func toggleLabel(_ label: ItemLabel) {
+        if labels.contains(label) {
+            labels.removeAll { $0 == label }
+        } else {
+            labels.append(label)
+        }
     }
 }

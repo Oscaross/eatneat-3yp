@@ -104,7 +104,7 @@ struct PantryItemFormView: View {
                         .multilineTextAlignment(.center)
                         .textFieldStyle(.roundedBorder)
                         .focused($qtyFieldFocused)
-                        .onChange(of: item.quantity) { _ in
+                        .onChange(of: item.quantity) { _, _ in
                             item.quantity = min(max(item.quantity, 1), 99)
                         }
                     } else {
@@ -164,14 +164,30 @@ struct PantryItemFormView: View {
             }
         }
         
-        Section(header: Text("Labels")) {
+        Section(
+            header: HStack {
+                Text(
+                    selectedLabels.isEmpty
+                    ? "LABELS"
+                    : "LABELS (\(selectedLabels.count))"
+                )
+                Spacer()
+
+                if !selectedLabels.isEmpty {
+                    ClearButtonView(action: { selectedLabels.removeAll() })
+                }
+            }
+            .textCase(nil) // prevent clear button being all caps
+        ) {
             LabelBarView(
                 availableLabels: availableLabels,
                 selectedLabels: $selectedLabels,
-                allowsMultipleSelection: false
+                allowsMultipleSelection: true
             )
-            .onChange(of: selectedLabels) { newValue in
-                item.label = newValue.first
+            .onChange(of: selectedLabels) { _, newValue in
+                for label in newValue {
+                    item.toggleLabel(_: label)
+                }
             }
         }
     }
