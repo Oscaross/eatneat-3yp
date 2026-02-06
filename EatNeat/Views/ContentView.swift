@@ -3,7 +3,7 @@ import SwiftUI
 struct ContentView: View {
     @EnvironmentObject var pantryViewModel: PantryViewModel
     @EnvironmentObject var donationViewModel : DonationViewModel
-    @EnvironmentObject var agentViewModel: AgentViewModel
+    @EnvironmentObject var agentModel: AgentModel
 
     @State private var loadedSampleItems = false
     @State private var showingAddItem = false
@@ -22,7 +22,7 @@ struct ContentView: View {
                 .tabItem { Label("Pantry", systemImage: "basket.fill") }
                 .tag(1)
 
-            // ----- Middle Action Button -----
+            // MARK: Middle action button
             Color.clear
                 .tabItem {
                     Image(systemName: "plus.circle.fill")
@@ -34,8 +34,8 @@ struct ContentView: View {
                 .tabItem { Label("Donate", systemImage: "heart.circle.fill") }
                 .tag(3)
 
-            SettingsView()
-                .tabItem { Label("Settings", systemImage: "gearshape.fill") }
+            CustomiseView()
+                .tabItem { Label("Customise", systemImage: "slider.horizontal.3") }
                 .tag(4)
         }
         .onChange(of: selectedTab) { oldValue, newValue in
@@ -53,7 +53,7 @@ struct ContentView: View {
         }
 
         .sheet(isPresented: $showingAddItem) {
-            Text("Add Viewer!")
+            ReceiptScannerPageView()
         }
         .onAppear {
             #if DEBUG

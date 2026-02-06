@@ -19,10 +19,13 @@ struct PantryItem: Identifiable, Hashable, Codable {
     var weightQuantity: Double? // the absolute value of whatever quantity was given (ie. 500 for 500ml of soap)
 
     var isOpened: Bool
+    var isPerishable : Bool // perishable goods go off typically in less than 2 weeks
     var expiry: Date?
     var cost: Double?
     
     var dateAdded: Date
+    
+    var labels: [ItemLabel]
     
     init(
         id: UUID = UUID(),
@@ -32,9 +35,11 @@ struct PantryItem: Identifiable, Hashable, Codable {
         weightQuantity: Double? = nil,
         weightUnit: WeightUnit? = nil,
         isOpened: Bool = false,
+        isPerishable: Bool,
         expiry: Date? = nil,
         cost: Double? = nil,
-        dateAdded: Date = Date()
+        dateAdded: Date = Date(),
+        labels: [ItemLabel] = []
     ) {
         self.id = id
         self.name = name
@@ -45,9 +50,24 @@ struct PantryItem: Identifiable, Hashable, Codable {
         self.weightUnit = weightUnit
         
         self.isOpened = isOpened
+        self.isPerishable = isPerishable
         self.expiry = expiry
         self.cost = cost
         
         self.dateAdded = dateAdded
+        self.labels = labels
+    }
+    
+    mutating func clearLabels() {
+        labels.removeAll()
+    }
+    
+    /// Given a label, either deselects or selects it based on whether the item had it.
+    mutating func toggleLabel(_ label: ItemLabel) {
+        if labels.contains(label) {
+            labels.removeAll { $0 == label }
+        } else {
+            labels.append(label)
+        }
     }
 }

@@ -6,10 +6,14 @@
 //
 
 import Foundation
+import SwiftUI
 
 class PantryViewModel: ObservableObject {
     @Published private(set) var itemsByCategory: [Category: [PantryItem]] = [:] // dictionary mapping categories to the item list that belongs to them
     @Published var donationCount: Int = 0 // number of items donated by the user
+    @Published var userLabels: [ItemLabel] = [] // custom labels created by the user
+    
+    private var lastRemovedItem: PantryItem? // store the last deleted item for undo functionality
     
     private var saveURL: URL {
         let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -24,6 +28,8 @@ class PantryViewModel: ObservableObject {
         }
         
         load()
+        
+        userLabels = SampleData.generateSampleLabels() // TODO: Make labels non-sample and configured by user
     }
 
     
@@ -34,6 +40,7 @@ class PantryViewModel: ObservableObject {
         quantity: Int = 1,
         weightQuantity: Double? = nil,
         weightUnit: WeightUnit? = nil,
+        isPerishable: Bool = false,
         isOpened: Bool = false,
         expiry: Date? = nil,
         cost: Double? = nil
@@ -45,6 +52,7 @@ class PantryViewModel: ObservableObject {
             weightQuantity: weightQuantity,
             weightUnit: weightUnit,
             isOpened: isOpened,
+            isPerishable: isPerishable,
             expiry: expiry,
             cost: cost
         )
@@ -52,7 +60,6 @@ class PantryViewModel: ObservableObject {
         itemsByCategory[category, default: []].append(newItem)
         save()
     }
-
     
     /// Adds a concrete PantryItem instance
     func addItem(item: PantryItem) {
@@ -63,19 +70,46 @@ class PantryViewModel: ObservableObject {
     /// Removes  a concrete PantryItem instance
     func removeItem(item: PantryItem) {
         for category in Category.allCases {
-            if let index = itemsByCategory[category]?.firstIndex(of: item) {
-                itemsByCategory[category]?.remove(at: index)
+            if let idx = itemsByCategory[category]?.firstIndex(of: item) {
+                lastRemovedItem = itemsByCategory[category]?[idx]
+                itemsByCategory[category]?.remove(at: idx)
                 save()
                 return
             }
         }
     }
     
-    func updateItem(itemID: UUID, updatedItem: PantryItem) {
-        print("Trying to update item")
+    /// Removes a PantryItem instance by its unique ID
+    func removeItem(itemID: UUID) {
+        for category in Category.allCases {
+            if let idx = itemsByCategory[category]?.firstIndex(where: { $0.id == itemID }) {
+                lastRemovedItem = itemsByCategory[category]?[idx]
+                itemsByCategory[category]?.remove(at: idx)
+                save()
+            }
+        }
     }
     
-    /// Clears pantry
+    /// If possible, undoes the last removal that occured.
+    func undoLastRemoval() {
+        if let item = lastRemovedItem {
+            addItem(item: item)
+            lastRemovedItem = nil
+        }
+    }
+    
+    /// Updates a PantryItem by its unique ID
+    func updateItem(itemID: UUID, updatedItem: PantryItem) {
+        for (category, items) in itemsByCategory {
+            if let index = items.firstIndex(where: { $0.id == itemID }) {
+                itemsByCategory[category]?[index] = updatedItem
+                save()
+                return
+            }
+        }
+    }
+    
+    /// Remove all items in the pantry
     func clearPantry() {
         for category in Category.allCases {
             itemsByCategory[category] = []
@@ -106,6 +140,17 @@ class PantryViewModel: ObservableObject {
         return allItems
     }
     
+    /// Returns all items that match the FilterOptions criteria listed.
+    func getItemsByFilter(filteredBy options: FilterOptions?) -> [PantryItem] {
+        guard let options = options else {
+            return getAllItems()
+        }
+        
+        let filtered = getAllItems().filter { options.matches($0) }
+        
+        return filtered
+    }
+    
     
     /// Prints all entries to the pantry as a comma-separated string including their UUIDs.
     func printAllPantryEntries() -> String {
@@ -132,6 +177,7 @@ class PantryViewModel: ObservableObject {
     private func save() {
         try? SaveManager.shared.save(itemsByCategory, forKey: "Pantry")
         try? SaveManager.shared.save(donationCount, forKey: "DonationCount")
+        try? SaveManager.shared.save(userLabels, forKey: "UserLabels")
     }
     
     /// Load saved data for object persistence.
@@ -146,5 +192,10 @@ class PantryViewModel: ObservableObject {
             forKey: "DonationCount") {
                 self.donationCount = donationCount
             }
+        
+        if let savedLabels = try? SaveManager.shared.load([ItemLabel].self,
+                                                          forKey: "UserLabels") {
+            self.userLabels = savedLabels
+        }
     }
 }

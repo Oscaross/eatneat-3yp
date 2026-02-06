@@ -13,7 +13,7 @@ import MCP
 struct EatNeatApp: App {
     @StateObject private var pantryViewModel = PantryViewModel()
     @StateObject private var donationViewModel: DonationViewModel
-    @StateObject private var agentViewModel = AgentViewModel()
+    @StateObject private var agentModel = AgentModel()
     
     init() {
         let pantryVM = PantryViewModel()
@@ -31,7 +31,7 @@ struct EatNeatApp: App {
             ContentView()
                 .environmentObject(pantryViewModel)
                 .environmentObject(donationViewModel)
-                .environmentObject(agentViewModel)
+                .environmentObject(agentModel)
         }
     }
 }

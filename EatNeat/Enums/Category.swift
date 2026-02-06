@@ -29,6 +29,18 @@ enum Category: String, CaseIterable, Identifiable, Codable {
     case householdEssentials = "Household Essentials"
     case petFoodAndSupplies = "Pet Food & Supplies"
 
-    // Misc
     case none = "None"
+}
+
+extension Category {
+
+    static let orderedCases = allCases
+
+    var index: Int {
+        Self.orderedCases.firstIndex(of: self)!
+    }
+
+    static func from(index: Int) -> Category? {
+        orderedCases.indices.contains(index) ? orderedCases[index] : nil
+    }
 }
