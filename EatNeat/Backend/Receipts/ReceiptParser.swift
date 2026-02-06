@@ -64,7 +64,7 @@ struct ReceiptParser {
         
         // MARK: OCRLine hashing and checking cache for duplicates
         
-        return cleanedLines
+        return grouped
     }
     
     /// Groups lines that are close together vertically into single strings.

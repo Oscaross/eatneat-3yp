@@ -10,50 +10,18 @@ import SwiftUI
 
 struct CustomiseView: View {
     @State private var showAddLabelSheet = false
-
-    // Sample data only
-    @State private var labels: [(name: String, color: Color)] = [
-        ("Priority", .red),
-        ("Half Eaten", .orange),
-        ("Low Stock", .blue),
-        ("For Donation", .green)
-    ]
+    
+    @EnvironmentObject var pantryVM: PantryViewModel
 
     var body: some View {
         NavigationStack {
             List {
                 Section {
-                    ForEach(labels.indices, id: \.self) { index in
-                        HStack(spacing: 12) {
-                            // Colour indicator (pill-style, no icons)
-                            RoundedRectangle(cornerRadius: 4)
-                                .fill(labels[index].color)
-                                .frame(width: 8, height: 32)
-
-                            Text(labels[index].name)
-                                .font(.body)
-
-                            Spacer()
-
-                            Image(systemName: "chevron.right")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                        }
-                        .contentShape(Rectangle())
-                    }
-                    .onDelete { offsets in
-                        labels.remove(atOffsets: offsets)
-                    }
-
-                    Button {
-                        showAddLabelSheet = true
-                    } label: {
-                        Label("Add Label", systemImage: "plus")
-                    }
+                    LabelBarView(availableLabels: pantryVM.userLabels)
                 } header: {
-                    Text("Custom Labels")
+                    Text("Labels (\(pantryVM.userLabels.count))")
                 } footer: {
-                    Text("Labels can be applied to items such as “Priority”, “Half Eaten”, or “Low Stock”.")
+                    Text("Labels are custom tags that you can apply to your products to help filter, organise and keep track of them.")
                 }
             }
             .navigationTitle("Customise")

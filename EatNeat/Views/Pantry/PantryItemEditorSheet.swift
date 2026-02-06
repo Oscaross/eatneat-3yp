@@ -11,6 +11,8 @@ import SwiftUI
 struct PantryItemEditorSheet: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var pantryVM: PantryViewModel
+    
+    @State private var banner: ActivityBanner?
 
     let sheet: PantryEditorSheet
 
@@ -44,8 +46,24 @@ struct PantryItemEditorSheet: View {
             PantryItemView(
                 item: $draft,
                 availableLabels: pantryVM.userLabels,
-                mode: sheetMode
+                mode: sheetMode,
+                onDelete: {
+                    pantryVM.removeItem(itemID: draft.id)
+                    
+                    withAnimation {
+                        banner = ActivityBanner(
+                            message: "Deleted \(draft.name) from pantry",
+                            actionTitle: "Undo",
+                            action: {
+                                undoLastAction()
+                                banner = nil
+                            }
+                        )
+                    }
+                    dismiss()
+                }
             )
+            .activityBanner($banner)
             .navigationTitle(title)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -97,5 +115,9 @@ struct PantryItemEditorSheet: View {
         }
 
         dismiss()
+    }
+    
+    private func undoLastAction() {
+        pantryVM.addItem(item: draft)
     }
 }

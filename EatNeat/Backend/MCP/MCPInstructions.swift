@@ -32,7 +32,7 @@ class MCPInstructions {
     
     /// Given a list of receipt lines scanned, return a detailed instruction set for an MCP agent to follow to extract pantry item data from the receipt.
     public static func generateItemsFromReceiptInstructions(lines: [String]) -> String {
-        let preamble = "You are an agent tasked with extracting pantry item data from a scanned receipt. Use the MCP tool provided to create pantry items based on the receipt lines. Each line may contain the item name, quantity, weight, and price. Parse each line carefully to extract this information accurately, use inference where neccessary. Product names should not include weight or quantity information, only the item name in its simplest form (without excessive branding or detail)."
+        let preamble = "You are an agent tasked with extracting pantry item data from a scanned receipt. Use the MCP tool provided to create pantry items based on the receipt lines. Each line may contain the item name, quantity, weight, and price. Parse each line carefully to extract this information accurately, use inference where neccessary, some product names might be abbreviated heavily, use the context to infer them if possible."
         
         var instructions = "\n Receipt lines: "
         

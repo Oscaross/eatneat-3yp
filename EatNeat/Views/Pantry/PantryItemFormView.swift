@@ -78,7 +78,7 @@ struct PantryItemFormView: View {
                     .textFieldStyle(.roundedBorder)
 
                     Picker("", selection: Binding(
-                        get: { item.weightUnit ?? .grams },
+                        get: { item.weightUnit ?? WeightUnit.none },
                         set: { item.weightUnit = $0 }
                     )) {
                         ForEach(WeightUnit.allCases, id: \.self) { unit in

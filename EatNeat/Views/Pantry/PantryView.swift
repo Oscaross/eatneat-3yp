@@ -118,7 +118,7 @@ struct PantryView: View {
                 )
             }
             .sheet(isPresented: $showManagePantry) {
-                PantryOrganiseView(items: viewModel.getAllItems(), pantryVM: viewModel)
+                PantryOrganiseView(pantryVM: viewModel)
             }
 
         }
