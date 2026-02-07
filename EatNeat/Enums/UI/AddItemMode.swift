@@ -10,6 +10,7 @@ enum AddItemMode: Identifiable {
     case receipt
     case barcode
     case manual
+    case organise
 
     var id: Self { self }
 }

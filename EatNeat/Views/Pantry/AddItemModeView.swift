@@ -13,42 +13,45 @@ struct AddItemModeView: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 20) {
-
-            Text("Add Item")
-                .font(.headline)
-                .padding(.top)
-
-            VStack(spacing: 12) {
-                pickerRow(
-                    icon: "doc.text.viewfinder",
-                    title: "Scan receipt",
-                    subtitle: "Add multiple items at once"
-                ) {
-                    select(.receipt)
-                }
-
-                pickerRow(
-                    icon: "barcode.viewfinder",
-                    title: "Scan barcode",
-                    subtitle: "Quick single-item scan"
-                ) {
-                    select(.barcode)
-                }
-
-                pickerRow(
-                    icon: "pencil",
-                    title: "Add manually",
-                    subtitle: "Enter item details yourself"
-                ) {
-                    select(.manual)
-                }
+        VStack(spacing: 12) {
+            Spacer(minLength: 8)
+            
+            pickerRow(
+                icon: "doc.text.viewfinder",
+                title: "Scan receipt",
+                subtitle: "Add multiple items at once"
+            ) {
+                select(.receipt)
             }
 
+            pickerRow(
+                icon: "barcode.viewfinder",
+                title: "Scan barcode",
+                subtitle: "Quick single-item scan"
+            ) {
+                select(.barcode)
+            }
+
+            pickerRow(
+                icon: "pencil",
+                title: "Add manually",
+                subtitle: "Enter item details yourself"
+            ) {
+                select(.manual)
+            }
+            
+            pickerRow(
+                icon: "rectangle.stack",
+                title: "Organise items",
+                subtitle: "Clear out or update existing items"
+            ) {
+                select(.organise)
+            }
+            
             Spacer(minLength: 8)
         }
         .padding(.horizontal)
-        .presentationDetents([.height(320)])
+        .presentationDetents([.height(UIScreen.main.bounds.height * 0.4)])
         .presentationDragIndicator(.visible)
     }
 

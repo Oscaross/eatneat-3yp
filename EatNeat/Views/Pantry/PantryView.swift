@@ -11,8 +11,6 @@ struct PantryView: View {
     @State private var showSortOptions = false
     @State private var sortingMode : SortingMode = .alphabetical // default to alphabetical sorting
     
-    @State private var showManagePantry = false // show the swiping to organise view
-    
     @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
 
     var body: some View {
@@ -69,12 +67,6 @@ struct PantryView: View {
                         }
                         Button("Cancel", role: .cancel) {}
                     }
-
-                    Button {
-                        showManagePantry = true
-                    } label: {
-                        Image(systemName: "rectangle.stack")
-                    }
                 }
             }
             .sheet(item: $editorSheet) { sheet in
@@ -82,9 +74,6 @@ struct PantryView: View {
                     sheet: sheet,
                     pantryVM: viewModel
                 )
-            }
-            .sheet(isPresented: $showManagePantry) {
-                PantryOrganiseView(pantryVM: viewModel)
             }
         }
     }

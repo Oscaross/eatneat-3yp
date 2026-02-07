@@ -24,9 +24,9 @@ struct CustomiseView: View {
                 
                 // MARK: Label management
                 Section {
-                    LabelBarView(availableLabels: pantryVM.userLabels)
+                    LabelBarView(availableLabels: pantryVM.getUserLabels())
                 } header: {
-                    Text("Labels (\(pantryVM.userLabels.count))")
+                    Text("Labels (\(pantryVM.getUserLabels().count))")
                 } footer: {
                     Text("Labels are custom tags that you can apply to your products to help filter, organise and keep track of them.")
                 }

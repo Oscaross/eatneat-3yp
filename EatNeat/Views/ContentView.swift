@@ -62,7 +62,7 @@ struct ContentView: View {
         .sheet(item: $addMode) { mode in
             switch mode {
             case .receipt:
-                ReceiptScannerPageView()
+                ReceiptScanFlowView(agent: agentModel, agentContext: AgentContext(pantry: pantryViewModel, donation: donationViewModel))
             case .barcode:
                 EmptyView()
             case .manual:
@@ -70,6 +70,8 @@ struct ContentView: View {
                     sheet: .add,
                     pantryVM: pantryViewModel
                 )
+            case .organise:
+                PantryOrganiseView(pantryVM: pantryViewModel)
             }
         }
         .onAppear {

@@ -45,7 +45,7 @@ struct PantryOrganiseView: View {
                                 get: { draftItem! },
                                 set: { draftItem = $0 }
                             ),
-                            availableLabels: pantryVM.userLabels,
+                            availableLabels: pantryVM.getUserLabels(),
                             mode: .editNoDelete
                         )
                         .cardStyle()
@@ -54,7 +54,7 @@ struct PantryOrganiseView: View {
                         // non-top cards: read-only rendering (no binding)
                         PantryItemView(
                             item: .constant(item),
-                            availableLabels: pantryVM.userLabels,
+                            availableLabels: pantryVM.getUserLabels(),
                             mode: .editNoDelete
                         )
                         .cardStyle()

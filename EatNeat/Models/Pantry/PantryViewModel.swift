@@ -11,7 +11,7 @@ import SwiftUI
 class PantryViewModel: ObservableObject {
     @Published private(set) var itemsByCategory: [Category: [PantryItem]] = [:] // dictionary mapping categories to the item list that belongs to them
     @Published var donationCount: Int = 0 // number of items donated by the user
-    @Published var userLabels: [ItemLabel] = [] // custom labels created by the user
+    @Published private var userLabels: [ItemLabel] = [] // custom labels created by the user
     
     private var lastRemovedItem: PantryItem? // store the last deleted item for undo functionality
     
@@ -95,6 +95,7 @@ class PantryViewModel: ObservableObject {
         if let item = lastRemovedItem {
             addItem(item: item)
             lastRemovedItem = nil
+            save()
         }
     }
     
@@ -149,6 +150,11 @@ class PantryViewModel: ObservableObject {
         let filtered = getAllItems().filter { options.matches($0) }
         
         return filtered
+    }
+    
+    /// Returns an ordered collection of the users' labels
+    func getUserLabels() -> [ItemLabel] {
+        return userLabels.sorted(by: { $0.name < $1.name })
     }
     
     
