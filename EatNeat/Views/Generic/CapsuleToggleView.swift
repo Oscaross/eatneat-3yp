@@ -11,20 +11,20 @@ import SwiftUI
 struct CapsuleToggleView: View {
     @Binding var value: Bool
 
-    let trueLabel: String
-    let falseLabel: String
-    let color: Color 
+    let trueLabel: CapsuleContent
+    let falseLabel: CapsuleContent
+    let color: Color
 
     var body: some View {
         CapsuleView(
-            text: value ? trueLabel : falseLabel,
+            content: value ? trueLabel : falseLabel,
             color: color,
             heavy: value
         ) {
             toggle()
         }
         .animation(.easeInOut(duration: 0.25), value: value)
-        .accessibilityValue(value ? trueLabel : falseLabel)
+        .accessibilityValue(value ? trueLabel.accessibilityLabel : falseLabel.accessibilityLabel)
     }
 
     private func toggle() {

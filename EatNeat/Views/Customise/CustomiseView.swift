@@ -12,10 +12,17 @@ struct CustomiseView: View {
     @State private var showAddLabelSheet = false
     
     @EnvironmentObject var pantryVM: PantryViewModel
+    
+    @AppStorage("enableHaptics") private var enableHaptics = true
+    @AppStorage("autoDonateSuggestions") private var autoDonateSuggestions = true
 
     var body: some View {
         NavigationStack {
             List {
+                // MARK: Preferences
+                preferences
+                
+                // MARK: Label management
                 Section {
                     LabelBarView(availableLabels: pantryVM.userLabels)
                 } header: {
@@ -28,6 +35,19 @@ struct CustomiseView: View {
             .sheet(isPresented: $showAddLabelSheet) {
                 AddLabelSheet()
             }
+        }
+    }
+    
+    var preferences: some View {
+        return Section {
+            Toggle("Haptic Feedback", isOn: $enableHaptics)
+            
+            Toggle("Donation Suggestions", isOn: $autoDonateSuggestions)
+        }
+        header: {
+            Text("Settings")
+        } footer: {
+            Text("Personalise the app to your own needs.")
         }
     }
 }

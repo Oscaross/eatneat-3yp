@@ -1,5 +1,4 @@
 import SwiftUI
-import CoreHaptics
 
 struct PantryView: View {
     @ObservedObject var viewModel: PantryViewModel
@@ -18,99 +17,66 @@ struct PantryView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .bottomTrailing) {
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 20) {
-                        ForEach(Category.allCases, id: \.self) { category in
-                            if let items = getItemsToRender(category: category), !items.isEmpty {
-                                VStack(alignment: .leading, spacing: 10) {
-                                    
-                                    // MARK: Category header
-                                    
-                                    Text(category.rawValue + " (\(items.count))")
-                                        .font(AppStyle.Text.sectionHeader)
-                                        .foregroundColor(Color.blue.opacity(0.8))
-                                        .padding(.leading) // leading padding only
+            List {
+                ForEach(Category.allCases, id: \.self) { category in
+                    if let items = getItemsToRender(category: category),
+                       !items.isEmpty {
 
-                                    // Grid-based view
-                                    if gridView {
-                                        ScrollView(.horizontal, showsIndicators: false) {
-                                            LazyHStack(spacing: 16) {
-                                                ForEach(items) { item in
-                                                    PantryItemCardView(item: item) {
-                                                        editorSheet = .edit(item)
-                                                    }
-                                                }
-                                            }
-                                            .padding(.horizontal)
-                                        }
-                                    }
-                                    // List-based view
-                                    else {
-                                        PantryTableSection(items: items)
-                                    }
-                                }
+                        Section {
+                            categoryHeader(category, count: items.count)
+                                .listRowInsets(EdgeInsets())
+                                .listRowSeparator(.hidden)
+
+                            if gridView {
+                                gridSection(items: items)
+                            } else {
+                                PantryTableSection(items: items)
+                                    .listRowInsets(EdgeInsets())
+                                    .listRowSeparator(.hidden)
                             }
                         }
                     }
-                    .padding(.top)
                 }
-                .searchable(text: $searchTerm, prompt: "Search...")
-                .toolbar {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
-                        // Grid toggle button
-                        Button {
-                            gridView.toggle()
-                        } label: {
-                            Image(systemName: gridView ? "square.grid.2x2" : "list.bullet")
-                                .font(.system(size: 18, weight: .medium))
-                        }
-
-                        // Sorting button
-                        Button {
-                            showSortOptions = true
-                        } label: {
-                            Image(systemName: "arrow.up.arrow.down")
-                                .font(.system(size: 18, weight: .medium))
-                        }
-                        .confirmationDialog("Sort Items", isPresented: $showSortOptions, titleVisibility: .visible) {
-                            ForEach(SortingMode.allCases, id: \.self) { mode in
-                                Button(mode.rawValue) {
-                                    sortingMode = mode
-                                }
-                            }
-                            Button("Cancel", role: .cancel) {}
-                        }
-                        
-                        // Organisation view toggle
-                        Button {
-                            showManagePantry = true
-                        } label: {
-                            Image(systemName: "rectangle.stack")
-                                .font(.system(size: 18, weight: .medium))
-                        }
-                    }
-                }
-
-                // --- Add Button ---
-                Button(action: {
-                    editorSheet = .add
-                }) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(.white)
-                        .frame(
-                            width: min(UIScreen.main.bounds.width * 0.15, 70),
-                            height: min(UIScreen.main.bounds.width * 0.15, 70)
-                        )
-                        .background(AppStyle.primary)
-                        .clipShape(Circle())
-                        .shadow(radius: 4)
-                }
-                .padding(.bottom, 24)
-                .padding(.trailing, 24)
             }
+            .scrollIndicators(.hidden)
+            .listStyle(.plain)
             .navigationTitle("My Pantry")
+            .navigationBarTitleDisplayMode(.large)
+            .searchable(text: $searchTerm, prompt: "Search...")
+            .toolbar {
+                ToolbarItemGroup(placement: .topBarTrailing) {
+
+                    Button {
+                        gridView.toggle()
+                    } label: {
+                        Image(systemName: gridView ? "square.grid.2x2" : "list.bullet")
+                    }
+
+                    Button {
+                        showSortOptions = true
+                    } label: {
+                        Image(systemName: "arrow.up.arrow.down")
+                    }
+                    .confirmationDialog(
+                        "Sort Items",
+                        isPresented: $showSortOptions,
+                        titleVisibility: .visible
+                    ) {
+                        ForEach(SortingMode.allCases, id: \.self) { mode in
+                            Button(mode.rawValue) {
+                                sortingMode = mode
+                            }
+                        }
+                        Button("Cancel", role: .cancel) {}
+                    }
+
+                    Button {
+                        showManagePantry = true
+                    } label: {
+                        Image(systemName: "rectangle.stack")
+                    }
+                }
+            }
             .sheet(item: $editorSheet) { sheet in
                 PantryItemEditorSheet(
                     sheet: sheet,
@@ -120,7 +86,6 @@ struct PantryView: View {
             .sheet(isPresented: $showManagePantry) {
                 PantryOrganiseView(pantryVM: viewModel)
             }
-
         }
     }
 
@@ -153,6 +118,47 @@ struct PantryView: View {
     }
 }
 
+private extension PantryView {
+
+    func categoryHeader(_ category: Category, count: Int) -> some View {
+        HStack {
+            Text("\(category.rawValue) (\(count))")
+                .font(AppStyle.Text.sectionHeader)
+                .foregroundStyle(.blue.opacity(0.85))
+                .textCase(nil)
+            Spacer()
+            CapsuleView(content: .icon(systemName: "magnifyingglass"), color: .blue, heavy: true, action: {print("Expand")})
+        }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+            .padding(.vertical, 6)
+            .background(
+                Color.blue.opacity(0.08)
+            )
+    }
+}
+
+private extension PantryView {
+
+    func gridSection(items: [PantryItem]) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 16) {
+                ForEach(items) { item in
+                    PantryItemCardView(item: item) {
+                        editorSheet = .edit(item)
+                    }
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+        }
+        .listRowInsets(EdgeInsets()) // full-width row
+        .listRowSeparator(.hidden)
+    }
+}
+
+
+
 struct PantryTableSection: View {
     let items: [PantryItem]
 
@@ -174,7 +180,7 @@ struct PantryTableSection: View {
             .padding(.horizontal)
             .padding(.vertical, 6)
             .background(AppStyle.containerGray)
-
+            
             Divider()
 
             // ROWS
@@ -183,7 +189,9 @@ struct PantryTableSection: View {
                     PantryItemRowView(item: item)
                 }
             }
+            .listRowSeparator(.hidden)
         }
         .cardStyle(padding: 8, cornerRadius: 4)
+        
     }
 }

@@ -9,54 +9,79 @@
 import SwiftUI
 
 struct LabelBarView: View {
-
-    /// All available labels the user can choose from
+    
     let availableLabels: [ItemLabel]
+    private let interaction: LabelBarInteraction
+    private let onAddLabel: (() -> Void)?
 
-    /// Currently selected labels
-    @Binding var selectedLabels: Set<ItemLabel>
+    @Binding private var selectedLabels: Set<ItemLabel>
 
-    /// Whether multiple labels can be selected
-    let allowsMultipleSelection: Bool
-
+    /// Interactable constructor
     init(
         availableLabels: [ItemLabel],
         selectedLabels: Binding<Set<ItemLabel>>,
-        allowsMultipleSelection: Bool = true
+        allowsMultipleSelection: Bool = true,
+        onAddLabel: (() -> Void)? = nil
     ) {
         self.availableLabels = availableLabels
         self._selectedLabels = selectedLabels
-        self.allowsMultipleSelection = allowsMultipleSelection
+        self.interaction = .selectable(allowsMultiple: allowsMultipleSelection)
+        self.onAddLabel = onAddLabel
     }
-
+    
+    /// View only constructor - no selected labels
+    init(
+        availableLabels: [ItemLabel],
+        onAddLabel: (() -> Void)? = nil
+    ) {
+        self.availableLabels = availableLabels
+        self._selectedLabels = .constant([])
+        self.interaction = .viewOnly
+        self.onAddLabel = onAddLabel
+    }
+    
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                if availableLabels.isEmpty {
-                    Text("No labels yet! Create labels in the Customise window.")
-                }
-                
+
                 ForEach(availableLabels) { label in
                     CapsuleView(
-                        text: label.name,
+                        content: .text(label.name),
                         color: label.color,
                         heavy: isSelected(label)
                     ) {
-                        toggle(label)
+                        handleTap(label)
                     }
+                    .opacity(isSelectable ? 1.0 : 0.6)
                 }
+
+                addButton
             }
             .padding(.vertical, 4)
         }
     }
 
+
     // MARK: - Selection logic
 
-    private func toggle(_ label: ItemLabel) {
+    private func isSelected(_ label: ItemLabel) -> Bool {
+        selectedLabels.contains(label)
+    }
+    
+    private var isSelectable: Bool {
+        if case .selectable = interaction { return true }
+        return false
+    }
+
+    private func handleTap(_ label: ItemLabel) {
+        guard case .selectable(let allowsMultiple) = interaction else {
+            return
+        }
+
         if selectedLabels.contains(label) {
             selectedLabels.remove(label)
         } else {
-            if !allowsMultipleSelection {
+            if !allowsMultiple {
                 selectedLabels.removeAll()
             }
             selectedLabels.insert(label)
@@ -64,8 +89,17 @@ struct LabelBarView: View {
 
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
-
-    private func isSelected(_ label: ItemLabel) -> Bool {
-        selectedLabels.contains(label)
+    
+    private var addButton: some View {
+        CapsuleView(content: .icon(systemName: "plus"), color: .gray, heavy: false) {
+            onAddLabel?()
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        }
+        .padding(.leading, 4)
     }
+}
+
+enum LabelBarInteraction {
+    case selectable(allowsMultiple: Bool)
+    case viewOnly
 }

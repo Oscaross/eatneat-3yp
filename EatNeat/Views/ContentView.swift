@@ -6,7 +6,9 @@ struct ContentView: View {
     @EnvironmentObject var agentModel: AgentModel
 
     @State private var loadedSampleItems = false
-    @State private var showingAddItem = false
+    
+    @State private var showingAddView = false // can we see the adder page?
+    @State private var addMode: AddItemMode? // are we using receipt scanner, barcode scanner or manual add?
     
     @State private var selectedTab: Int = 0
     @State private var lastNonMiddleTab: Int = 0
@@ -25,8 +27,7 @@ struct ContentView: View {
             // MARK: Middle action button
             Color.clear
                 .tabItem {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: 30))
+                    Label("Add", systemImage: "plus.circle.fill")
                 }
                 .tag(2)
 
@@ -43,7 +44,7 @@ struct ContentView: View {
                 // Middle tab tapped
                 UIImpactFeedbackGenerator(style: .medium).impactOccurred()
 
-                showingAddItem = true
+                showingAddView = true
 
                 // Return to previous tab
                 selectedTab = lastNonMiddleTab
@@ -52,8 +53,24 @@ struct ContentView: View {
             }
         }
 
-        .sheet(isPresented: $showingAddItem) {
-            ReceiptScannerPageView()
+        .sheet(isPresented: $showingAddView) {
+            AddItemModeView { mode in
+                addMode = mode
+            }
+        }
+        // after we've picked the item entry mode show the relevant adder page
+        .sheet(item: $addMode) { mode in
+            switch mode {
+            case .receipt:
+                ReceiptScannerPageView()
+            case .barcode:
+                EmptyView()
+            case .manual:
+                PantryItemEditorSheet(
+                    sheet: .add,
+                    pantryVM: pantryViewModel
+                )
+            }
         }
         .onAppear {
             #if DEBUG

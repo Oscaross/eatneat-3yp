@@ -9,19 +9,17 @@
 import SwiftUI
 
 struct CapsuleView: View {
-    let text: String
+    let content: CapsuleContent
     let color: Color
-    let heavy: Bool // "heavy" capsules have a more opaque background and bolder text, they indicate selected or important capsules
+    let heavy: Bool
     let action: () -> Void
 
     private let cornerRadius: CGFloat = 8
 
     var body: some View {
-        Button {
-            action()
-        } label: {
-            Text(text)
-                .font(.system(size: 13, weight: (heavy) ? .bold : .semibold))
+        Button(action: action) {
+            capsuleLabel
+                .font(.system(size: 13, weight: heavy ? .bold : .semibold))
                 .foregroundColor(color)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
@@ -31,10 +29,33 @@ struct CapsuleView: View {
                 )
                 .overlay(
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(color.opacity(heavy ? 0.6 : 0.0), lineWidth: heavy ? 1.6 : 0)
+                        .stroke(
+                            color.opacity(heavy ? 0.5 : 0.0),
+                            lineWidth: heavy ? 1.2 : 0
+                        )
                 )
-                .animation(.easeInOut(duration: 0.18), value: heavy) // smoothly animate changes to heavy state
+                .animation(.easeInOut(duration: 0.18), value: heavy)
         }
         .buttonStyle(.plain)
+    }
+}
+
+private extension CapsuleView {
+
+    @ViewBuilder
+    var capsuleLabel: some View {
+        switch content {
+        case .text(let text):
+            Text(text)
+
+        case .icon(let systemName):
+            Image(systemName: systemName)
+
+        case .textAndIcon(let text, let systemName):
+            HStack(spacing: 4) {
+                Image(systemName: systemName)
+                Text(text)
+            }
+        }
     }
 }

@@ -18,7 +18,7 @@ struct ClearButtonView: View {
     }
     
     var body: some View {
-        CapsuleView(text: "Clear", color: .red, heavy: false, action: {
+        CapsuleView(content: .textAndIcon(text: "Clear", systemName: "xmark"), color: .red, heavy: false, action: {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             action()
         })

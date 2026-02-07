@@ -43,8 +43,8 @@ struct PantryItemFormView: View {
             HStack {
                 CapsuleToggleView(
                     value: $item.isPerishable,
-                    trueLabel: "Perishable",
-                    falseLabel: "Non-perishable",
+                    trueLabel: .textAndIcon(text: "Perishable", systemName: "chevron.right"),
+                    falseLabel: .textAndIcon(text: "Non-perishable", systemName: "chevron.right"),
                     color: .gray
                 )
 
@@ -52,8 +52,8 @@ struct PantryItemFormView: View {
 
                 CapsuleToggleView(
                     value: $item.isOpened,
-                    trueLabel: "Opened",
-                    falseLabel: "Unopened",
+                    trueLabel: .textAndIcon(text: "Opened", systemName: "chevron.right"),
+                    falseLabel: .textAndIcon(text: "Unopened", systemName: "chevron.right"),
                     color: .gray
                 )
             }

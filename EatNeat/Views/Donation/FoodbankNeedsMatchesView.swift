@@ -75,7 +75,7 @@ struct FoodbankNeedsMatchesView: View {
             Spacer()
 
             if !selectedNeeds.isEmpty {
-                CapsuleView(text: "Clear", color: Color.red, heavy: true, action: {
+                ClearButtonView(action: {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     selectedNeeds.removeAll()
                 })
