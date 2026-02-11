@@ -186,6 +186,6 @@ private extension PantryOrganiseView {
 
     func commitDraft(id: PantryItem.ID) {
         guard let draftItem else { return }
-        pantryVM.updateItem(itemID: id, updatedItem: draftItem)
+        pantryVM.updateItem(updatedItem: draftItem)
     }
 }

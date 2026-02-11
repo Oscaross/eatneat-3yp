@@ -25,6 +25,9 @@ struct PantryItem: Identifiable, Hashable, Codable {
     
     var dateAdded: Date
     
+    var imageURL: URL? // a pointer on OpenFoodFacts to an image of the product, if it doesnt exist, a fallback is rendered
+    var imageSearchState: ImageSearchState = .notAttempted // has our model tried to find a URL -> prevents duplicated attempts to call the API
+    
     var labels: [ItemLabel]
     
     init(
@@ -39,7 +42,8 @@ struct PantryItem: Identifiable, Hashable, Codable {
         expiry: Date? = nil,
         cost: Double? = nil,
         dateAdded: Date = Date(),
-        labels: [ItemLabel] = []
+        labels: [ItemLabel] = [],
+        imageURL: URL? = nil
     ) {
         self.id = id
         self.name = name
@@ -56,6 +60,11 @@ struct PantryItem: Identifiable, Hashable, Codable {
         
         self.dateAdded = dateAdded
         self.labels = labels
+        self.imageURL = imageURL
+        
+        if self.imageURL != nil {
+            self.imageSearchState = .done // we've got the image URL now so don't bother looking again
+        }
     }
     
     mutating func clearLabels() {
@@ -69,5 +78,10 @@ struct PantryItem: Identifiable, Hashable, Codable {
         } else {
             labels.append(label)
         }
+    }
+    
+    /// Mark an image on an item as the required state to prevent race conditions & duplicate API calls to OFF.
+    mutating func reportImageSearchState(state: ImageSearchState) {
+        self.imageSearchState = state
     }
 }

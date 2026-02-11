@@ -4,7 +4,6 @@
 //
 //  Created by Oscar Horner on 09/11/2025.
 //
-
 // If the user is using a vertical list view
 
 import SwiftUI
@@ -41,7 +40,7 @@ struct PantryItemRowView: View {
 
         // weight (if available)
         if let weightValue = item.weightQuantity,
-           let unit = item.weightUnit {
+           let unit = item.weightUnit?.rawValue {
             parts.append("\(weightValue)\(unit)")
         }
 

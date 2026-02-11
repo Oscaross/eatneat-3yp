@@ -64,7 +64,7 @@ struct ContentView: View {
             case .receipt:
                 ReceiptScanFlowView(agent: agentModel, agentContext: AgentContext(pantry: pantryViewModel, donation: donationViewModel))
             case .barcode:
-                EmptyView()
+                BarcodeScanFlowView(agent: agentModel, agentContext: AgentContext(pantry: pantryViewModel, donation: donationViewModel))
             case .manual:
                 PantryItemEditorSheet(
                     sheet: .add,

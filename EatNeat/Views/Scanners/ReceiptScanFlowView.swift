@@ -17,12 +17,7 @@ struct ReceiptScanFlowView: View {
             title: "Scan Receipt",
             description: "Scan a receipt-type document to automatically add items to your pantry.",
             icon: "doc.viewfinder",
-            instructions: [
-                "You must have Internet access.",
-                "Ensure good lighting or use the device flashlight.",
-                "Scan the entire receipt, from directly above.",
-                "Keep the document flat and minimise crumpling."
-            ],
+            instructions: UserInstructions.receiptInstructions(),
             skipPreferenceKey: "pref.scanning.skipReceiptLanding",
             makeScanner: { onScan in
                 ReceiptScannerView(onLinesExtracted: onScan)

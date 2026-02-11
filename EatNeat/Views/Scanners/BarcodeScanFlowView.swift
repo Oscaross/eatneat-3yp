@@ -6,24 +6,29 @@
 //
 // Uses the ScanFlow abstraction to build the barcode scanner flow
 
-//import SwiftUI
-//
-//struct BarcodeScanFlowView: View {
-//    var body: some View {
-//        ScanFlowView(
-//            title: "Barcode Scanner",
-//            description: "Scan a product barcode to add a single item.",
-//            icon: "barcode.viewfinder",
-//            instructions: [
-//                "Ensure the barcode is clearly visible.",
-//                "Hold the phone steady.",
-//                "Avoid glare or reflections."
-//            ],
-//            skipPreferenceKey: "pref.scanning.skipBarcodeLanding"
-//        ) { isProcessing, onComplete in
-//            EmptyView()
-//        }
-//    }
-//
-//    @EnvironmentObject var pantryVM: PantryViewModel
-//}
+import SwiftUI
+
+struct BarcodeScanFlowView: View {
+    let agent: AgentModel
+    @ObservedObject var agentContext: AgentContext
+    
+    var body: some View {
+        ScanFlowView<String, BarcodeScannerView>(
+            title: "Scan Barcode",
+            description: "Scan a barcode to add the item to your pantry.",
+            icon: "barcode.viewfinder",
+            instructions: UserInstructions.barcodeInstructions(),
+            skipPreferenceKey: "pref.scanning.skipBarcodeLanding",
+            makeScanner: { onScan in
+                BarcodeScannerView(onScan: onScan)
+            },
+            parseIntoContext: { barcode, ctx in
+                try await BarcodeScanner(agent: agent, context: ctx).scan(barcode: barcode)
+            },
+            agent: agent,
+            agentContext: agentContext
+        )
+    }
+
+    @EnvironmentObject var pantryVM: PantryViewModel
+}

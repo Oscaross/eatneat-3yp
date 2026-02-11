@@ -4,6 +4,7 @@
 //
 //  Created by Oscar Horner on 17/12/2025.
 //
+// Responsible for leveraging Apple's native OCR to scan a receipt document and extract text lines with bounding boxes and confidence to send to the receipt parser and generate product data.
 
 import SwiftUI
 import VisionKit

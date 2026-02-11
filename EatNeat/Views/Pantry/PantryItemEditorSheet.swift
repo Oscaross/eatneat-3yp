@@ -109,7 +109,6 @@ struct PantryItemEditorSheet: View {
 
         case .edit(let original):
             pantryVM.updateItem(
-                itemID: original.id,
                 updatedItem: draft
             )
         }

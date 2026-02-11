@@ -4,10 +4,12 @@
 //
 //  Created by Oscar Horner on 17/10/2025.
 //
+// Model that maintains, saves, loads and organises members of the users' pantry. 
 
 import Foundation
 import SwiftUI
 
+@MainActor
 class PantryViewModel: ObservableObject {
     @Published private(set) var itemsByCategory: [Category: [PantryItem]] = [:] // dictionary mapping categories to the item list that belongs to them
     @Published var donationCount: Int = 0 // number of items donated by the user
@@ -57,14 +59,18 @@ class PantryViewModel: ObservableObject {
             cost: cost
         )
 
-        itemsByCategory[category, default: []].append(newItem)
-        save()
+        addItem(item: newItem)
     }
     
     /// Adds a concrete PantryItem instance
     func addItem(item: PantryItem) {
         itemsByCategory[item.category, default: []].append(item)
         save()
+        
+        let id = item.id
+        Task { [weak self] in
+            await self?.addImageForItem(for: id)
+        }
     }
     
     /// Removes  a concrete PantryItem instance
@@ -99,15 +105,10 @@ class PantryViewModel: ObservableObject {
         }
     }
     
-    /// Updates a PantryItem by its unique ID
-    func updateItem(itemID: UUID, updatedItem: PantryItem) {
-        for (category, items) in itemsByCategory {
-            if let index = items.firstIndex(where: { $0.id == itemID }) {
-                itemsByCategory[category]?[index] = updatedItem
-                save()
-                return
-            }
-        }
+    /// Updates a PantryItem to the new draft
+    func updateItem(updatedItem: PantryItem) {
+        upsert(updatedItem)
+        save()
     }
     
     /// Remove all items in the pantry
@@ -178,6 +179,50 @@ class PantryViewModel: ObservableObject {
         print("Item donated : \(item.name). Donation count is now \(donationCount)")
         removeItem(item: item)
     }
+    
+    private func upsert(_ updated: PantryItem) {
+        // Replace if found anywhere (even if category changed)
+        for category in Category.allCases {
+            if let idx = itemsByCategory[category]?.firstIndex(where: { $0.id == updated.id }) {
+                itemsByCategory[category]?.remove(at: idx)
+                break
+            }
+        }
+        // Insert into its (possibly new) category
+        itemsByCategory[updated.category, default: []].append(updated)
+    }
+    
+    @MainActor
+    private func addImageForItem(for id: UUID) async {
+        guard var item = getItemByID(itemID: id)else { return }
+
+        // Only attempt when needed
+        guard item.imageURL == nil else { return }
+        guard item.imageSearchState == .notAttempted else { return }
+
+        // Mark in-progress
+        item.imageSearchState = .inProgress
+        upsert(item)
+        save()
+
+        do {
+            // This should ideally return URL? (nil if no confident match)
+            let url = try await ItemImageAPI.getProductImageURL(productName: item.name)
+
+            guard var latest = getItemByID(itemID: id) else { return }
+            latest.imageURL = url
+            latest.imageSearchState = .done
+            upsert(latest)
+            save()
+        } catch {
+            guard var latest = getItemByID(itemID: id) else { return }
+            latest.imageSearchState = .failed
+            upsert(latest)
+            save()
+        }
+    }
+
+
     
     /// Saves pantry data for object persistence when the app restarts.
     private func save() {

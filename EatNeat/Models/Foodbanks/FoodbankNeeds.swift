@@ -1,3 +1,11 @@
+//
+//  FoodbankNeeds.swift
+//  EatNeat
+//
+//  Created by Oscar Horner on 09/11/2025.
+//
+// Model representing the response from the Give Food API which returns infromation about the needs of local food banks.
+
 import Foundation
 
 struct Need: Identifiable, Codable, Hashable {

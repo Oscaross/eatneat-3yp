@@ -5,6 +5,7 @@
 //  Created by Oscar Horner on 07/02/2026.
 //
 // Defines a generic template for the flow of scanning items into the pantry, can apply to both a barcode scanner and a receipt scanner.
+// ScanOutput is the data type our scanner yields (ie. a collection of lines with bounding boxes or a simple barcode string), Scanner is the template for our scanner and parser class that is responsible for pre-processing and then efficiently sending scans to target sources (either an AI agent or a cache)
 
 import SwiftUI
 
@@ -14,6 +15,8 @@ struct ScanFlowView<ScanOutput, Scanner: View>: View {
     let icon: String
     let instructions: [String]
     let skipPreferenceKey: String
+    
+    @State private var scanError: ScannerError = .generic
 
     let makeScanner: (@escaping (ScanOutput) -> Void) -> Scanner
     let parseIntoContext: (ScanOutput, AgentContext) async throws -> Void
@@ -27,6 +30,7 @@ struct ScanFlowView<ScanOutput, Scanner: View>: View {
 
     @State private var showScanner = false
     @State private var showResults = false
+    @State private var showFailed = false
     @State private var isProcessing = false
 
 
@@ -82,6 +86,18 @@ struct ScanFlowView<ScanOutput, Scanner: View>: View {
                     dismiss()
                 }
             }
+            .navigationDestination(isPresented: $showFailed) {
+                ScanFailedView(
+                    error: scanError,
+                    onTryAgain: {
+                        showFailed = false
+                        showScanner = true
+                    },
+                    onDismiss: {
+                        showFailed = false
+                    }
+                )
+            }
         }
     }
 
@@ -103,7 +119,10 @@ struct ScanFlowView<ScanOutput, Scanner: View>: View {
                     showScanner = false
                     showResults = true
                 } catch {
-                    print("Parse failed:", error)
+                    let scannerError = (error as? ScannerError) ?? .generic // fetch the error that parseIntoContext threw, generic if we don't recognise it
+                    scanError = scannerError // ScanFailedView knows now what the error was and it will fetch information from that
+
+                    showFailed = true
                     showScanner = false
                 }
 
