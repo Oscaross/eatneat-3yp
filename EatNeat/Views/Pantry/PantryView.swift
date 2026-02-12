@@ -130,21 +130,46 @@ private extension PantryView {
 private extension PantryView {
 
     func gridSection(items: [PantryItem]) -> some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 16) {
-                ForEach(items) { item in
-                    PantryItemCardView(item: item) {
-                        editorSheet = .edit(item)
+
+        let cardHeight = min(UIScreen.main.bounds.width * 0.32, 132)
+
+        return ScrollView(.horizontal, showsIndicators: false) {
+
+            if items.count <= 6 {
+
+                // Original 1-high layout
+                LazyHStack(spacing: 16) {
+                    ForEach(items) { item in
+                        PantryItemCardView(item: item) {
+                            editorSheet = .edit(item)
+                        }
+                    }
+                }
+
+            } else {
+
+                // 2-high infinite grid
+                let rows = [
+                    GridItem(.fixed(cardHeight), spacing: 16),
+                    GridItem(.fixed(cardHeight), spacing: 16)
+                ]
+
+                LazyHGrid(rows: rows, spacing: 16) {
+                    ForEach(items) { item in
+                        PantryItemCardView(item: item) {
+                            editorSheet = .edit(item)
+                        }
                     }
                 }
             }
-            .padding(.horizontal)
-            .padding(.vertical, 8)
         }
-        .listRowInsets(EdgeInsets()) // full-width row
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .listRowInsets(EdgeInsets())
         .listRowSeparator(.hidden)
     }
 }
+
 
 
 

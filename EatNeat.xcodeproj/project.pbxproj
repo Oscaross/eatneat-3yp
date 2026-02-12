@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5589F6652F3D492200C845C7 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 5589F6642F3D492200C845C7 /* Kingfisher */; };
 		55B424142EB40B95009BF8F0 /* SwiftMCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55B424132EB40B95009BF8F0 /* SwiftMCP */; };
 		55C37B342ECC8E85007163D1 /* SwiftMCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55C37B332ECC8E85007163D1 /* SwiftMCP */; };
 		55C37B362ECC8E88007163D1 /* MCP in Frameworks */ = {isa = PBXBuildFile; productRef = 55C37B352ECC8E88007163D1 /* MCP */; };
@@ -96,6 +97,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5589F6652F3D492200C845C7 /* Kingfisher in Frameworks */,
 				55D024F22EAE35F500E75A5C /* MCP in Frameworks */,
 				55F792A82EDA577000131B11 /* OpenAI in Frameworks */,
 				55B424142EB40B95009BF8F0 /* SwiftMCP in Frameworks */,
@@ -183,6 +185,7 @@
 				55D024F12EAE35F500E75A5C /* MCP */,
 				55B424132EB40B95009BF8F0 /* SwiftMCP */,
 				55F792A72EDA577000131B11 /* OpenAI */,
+				5589F6642F3D492200C845C7 /* Kingfisher */,
 			);
 			productName = EatNeat;
 			productReference = 554E9E392E82EDDF00CF8429 /* EatNeat.app */;
@@ -297,6 +300,7 @@
 				55D024F02EAE35F500E75A5C /* XCRemoteSwiftPackageReference "swift-sdk" */,
 				55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */,
 				55F792A62EDA577000131B11 /* XCRemoteSwiftPackageReference "OpenAI" */,
+				5589F6632F3D492200C845C7 /* XCRemoteSwiftPackageReference "Kingfisher" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 554E9E3A2E82EDDF00CF8429 /* Products */;
@@ -720,6 +724,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5589F6632F3D492200C845C7 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.6.2;
+			};
+		};
 		55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Cocoanetics/SwiftMCP.git";
@@ -747,6 +759,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5589F6642F3D492200C845C7 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5589F6632F3D492200C845C7 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
 		55B424132EB40B95009BF8F0 /* SwiftMCP */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 55B424122EB40B95009BF8F0 /* XCRemoteSwiftPackageReference "SwiftMCP" */;

@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "Kingfisher",
+        "repositoryURL": "https://github.com/onevcat/Kingfisher",
+        "state": {
+          "branch": null,
+          "revision": "d30a5fad881137e2267f96a8e3fc35c58999bb94",
+          "version": "8.6.2"
+        }
+      },
+      {
         "package": "OpenAI",
         "repositoryURL": "https://github.com/MacPaw/OpenAI.git",
         "state": {

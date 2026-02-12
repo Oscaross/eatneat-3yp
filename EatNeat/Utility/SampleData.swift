@@ -1,3 +1,5 @@
+import Foundation
+
 struct SampleData {
     static func generateSampleItems() -> [PantryItem] {
         return [
@@ -11,7 +13,7 @@ struct SampleData {
             PantryItem(name: "Tesco Corn Flakes 500g", category: .cerealsAndBreakfast, quantity: 1,
                        weightQuantity: 500, weightUnit: .grams, isPerishable: false),
             PantryItem(name: "Tesco Honey Nut Corn Flakes 500g", category: .cerealsAndBreakfast, quantity: 1,
-                       weightQuantity: 500, weightUnit: .grams, isPerishable: false),
+                       weightQuantity: 500, weightUnit: .grams, isPerishable: false, imageURL: URL(string: "https://digitalcontent.api.tesco.com/v2/media/ghs/934ab7aa-01c7-4d8a-aa8a-03590e30db23/44888c13-6a84-4d6f-bafb-4fd95899bdf5_172205422.jpeg?h=960&w=960")),
             PantryItem(name: "Kellogg's Corn Flakes 500g", category: .cerealsAndBreakfast, quantity: 1,
                        weightQuantity: 500, weightUnit: .grams, isPerishable: false),
 
