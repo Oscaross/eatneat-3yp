@@ -14,12 +14,21 @@ struct CapsuleToggleView: View {
     let trueLabel: CapsuleContent
     let falseLabel: CapsuleContent
     let color: Color
+    let shouldChangeAppearanceOnToggle: Bool
+    
+    init(value: Binding<Bool>, trueLabel: CapsuleContent, falseLabel: CapsuleContent, color: Color, shouldChangeAppearanceOnToggle: Bool = true) {
+        self._value = value
+        self.trueLabel = trueLabel
+        self.falseLabel = falseLabel
+        self.color = color
+        self.shouldChangeAppearanceOnToggle = shouldChangeAppearanceOnToggle
+    }
 
     var body: some View {
         CapsuleView(
             content: value ? trueLabel : falseLabel,
             color: color,
-            heavy: value
+            heavy: value && shouldChangeAppearanceOnToggle
         ) {
             toggle()
         }

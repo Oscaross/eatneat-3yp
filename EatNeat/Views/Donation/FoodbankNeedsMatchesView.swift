@@ -89,8 +89,11 @@ struct FoodbankNeedsMatchesView: View {
             HStack(spacing: 8) {
                 ForEach(foodbank.needsList, id: \.id) { need in
                     let isSelected = selectedNeeds.contains(need.id)
-
-                    Button {
+                    PillView(
+                        text: need.name.capitalized,
+                        color: AppStyle.accentBlue,
+                        isSelected: isSelected
+                    ) {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             if isSelected {
                                 selectedNeeds.remove(need.id)
@@ -99,22 +102,7 @@ struct FoodbankNeedsMatchesView: View {
                             }
                         }
                         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    } label: {
-                        Text(need.name.capitalized)
-                            .font(.system(size: 13, weight: .semibold))
-                            .lineLimit(1)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(
-                                Capsule()
-                                    .fill(isSelected ? AppStyle.accentBlue : Color.clear)
-                            )
-                            .foregroundColor(isSelected ? .white : AppStyle.accentBlue)
-                            .overlay(
-                                Capsule().stroke(AppStyle.accentBlue, lineWidth: 1.4)
-                            )
                     }
-                    .buttonStyle(.plain)
                 }
             }
             .padding(.vertical, 4)

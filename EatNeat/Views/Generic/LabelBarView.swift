@@ -55,7 +55,10 @@ struct LabelBarView: View {
                     .opacity(isSelectable ? 1.0 : 0.6)
                 }
 
-                addButton
+                AddButtonView(
+                    color: .gray,
+                    action: {}
+                )
             }
             .padding(.vertical, 4)
         }
@@ -88,14 +91,6 @@ struct LabelBarView: View {
         }
 
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-    }
-    
-    private var addButton: some View {
-        CapsuleView(content: .icon(systemName: "plus"), color: .gray, heavy: false) {
-            onAddLabel?()
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        }
-        .padding(.leading, 4)
     }
 }
 

@@ -12,6 +12,9 @@ struct PantryView: View {
     @State private var sortingMode : SortingMode = .alphabetical // default to alphabetical sorting
     
     @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
+    
+    @State var showFilterOptions: Bool = false
+    @State var filters: [PantryFilter] = [] 
 
     var body: some View {
         NavigationStack {
@@ -43,30 +46,7 @@ struct PantryView: View {
             .searchable(text: $searchTerm, prompt: "Search...")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-
-                    Button {
-                        gridView.toggle()
-                    } label: {
-                        Image(systemName: gridView ? "square.grid.2x2" : "list.bullet")
-                    }
-
-                    Button {
-                        showSortOptions = true
-                    } label: {
-                        Image(systemName: "arrow.up.arrow.down")
-                    }
-                    .confirmationDialog(
-                        "Sort Items",
-                        isPresented: $showSortOptions,
-                        titleVisibility: .visible
-                    ) {
-                        ForEach(SortingMode.allCases, id: \.self) { mode in
-                            Button(mode.rawValue) {
-                                sortingMode = mode
-                            }
-                        }
-                        Button("Cancel", role: .cancel) {}
-                    }
+                    FilterButtonView { showFilterOptions = true }
                 }
             }
             .sheet(item: $editorSheet) { sheet in
@@ -75,20 +55,32 @@ struct PantryView: View {
                     pantryVM: viewModel
                 )
             }
+            .sheet(isPresented: $showFilterOptions) {
+                FilterSheetView(
+                    filters: filters,
+                    onApply: { newFilters in
+                        filters = newFilters
+                        showFilterOptions = false
+                    },
+                    onCancel: {
+                        showFilterOptions = false
+                    }
+                )
+            }
         }
     }
 
     /// Filters PantryItem instances by Category and a search term, if non-empty. Search is case-insensitive.
     private func getItemsToRender(category: Category) -> [PantryItem]? {
         guard let items = viewModel.itemsByCategory[category] else { return nil }
-
+        
         if searchTerm.isEmpty {
-            return sortItems(by: sortingMode, items: items)
+            return viewModel.applyFilters(_: filters,to: items)
         }
-
-        return sortItems(
-            by: sortingMode,
-            items: items.filter { $0.name.lowercased().contains(searchTerm.lowercased()) }
+        
+        return viewModel.applyFilters(
+            _: filters,
+            to: items.filter { $0.name.lowercased().contains(searchTerm.lowercased())}
         )
     }
 

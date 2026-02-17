@@ -21,15 +21,15 @@ struct PantryOrganiseView: View {
     @State private var draftID: PantryItem.ID?
 
     // Optional filter applied once at session start
-    private let filter: FilterOptions?
+    private let filters: [PantryFilter]
 
-    init(pantryVM: PantryViewModel, filter: FilterOptions? = nil) {
+    init(pantryVM: PantryViewModel, filters: [PantryFilter] = []) {
         self.pantryVM = pantryVM
-        self.filter = filter
+        self.filters = filters
 
         _queue = State(
             initialValue: pantryVM
-                .getItemsByFilter(filteredBy: filter)
+                .applyFilters(filters, to: []) // TODO: Map the users current item queue to the filter system
                 .map { PantryQueueItem(id: $0.id) }
         )
     }

@@ -142,15 +142,11 @@ class PantryViewModel: ObservableObject {
         return allItems
     }
     
-    /// Returns all items that match the FilterOptions criteria listed.
-    func getItemsByFilter(filteredBy options: FilterOptions?) -> [PantryItem] {
-        guard let options = options else {
-            return getAllItems()
+    /// Returns all items that satisfy all of the filters provided
+    func applyFilters(_ filters: [PantryFilter], to items: [PantryItem]) -> [PantryItem] {
+        items.filter { item in
+            filters.allSatisfy { $0.matches(item) }
         }
-        
-        let filtered = getAllItems().filter { options.matches($0) }
-        
-        return filtered
     }
     
     /// Returns an ordered collection of the users' labels

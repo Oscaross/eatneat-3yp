@@ -20,7 +20,7 @@ final class AgentModel: ObservableObject {
         configuration: .init(token: Secrets.openAIApiKey, timeoutInterval: 60)
     )
     
-    /// Takes relevant information pertaining to
+    /// Takes relevant information pertaining to required MCP call and requests the operation from the agent.
     func triggerMCPTool<H: MCPToolHandler>(
         handler: H,
         instructions: String,
