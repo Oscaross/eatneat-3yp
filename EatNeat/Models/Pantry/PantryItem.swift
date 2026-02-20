@@ -28,7 +28,7 @@ struct PantryItem: Identifiable, Hashable, Codable {
     var imageURL: URL? // a pointer on OpenFoodFacts to an image of the product, if it doesnt exist, a fallback is rendered
     var imageSearchState: ImageSearchState = .notAttempted // has our model tried to find a URL -> prevents duplicated attempts to call the API
     
-    var labels: [ItemLabel]
+    var labels: Set<ItemLabel>
     
     init(
         id: UUID = UUID(),
@@ -42,7 +42,7 @@ struct PantryItem: Identifiable, Hashable, Codable {
         expiry: Date? = nil,
         cost: Double? = nil,
         dateAdded: Date = Date(),
-        labels: [ItemLabel] = [],
+        labels: Set<ItemLabel> = [],
         imageURL: URL? = nil
     ) {
         self.id = id
@@ -74,9 +74,9 @@ struct PantryItem: Identifiable, Hashable, Codable {
     /// Given a label, either deselects or selects it based on whether the item had it.
     mutating func toggleLabel(_ label: ItemLabel) {
         if labels.contains(label) {
-            labels.removeAll { $0 == label }
+            labels.remove(_: label)
         } else {
-            labels.append(label)
+            labels.insert(_: label)
         }
     }
     

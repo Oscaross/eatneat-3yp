@@ -9,28 +9,36 @@
 import SwiftUI
 
 struct EmptyPantryView: View {
+
+    /// Optional explanatory text shown under the title
+    let tooltip: String?
+
+    /// Optional custom icon (defaults to archivebox)
+    var systemImage: String = "archivebox"
+
     var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "tray")
-                .font(.system(size: 52, weight: .semibold))
+        VStack(spacing: 16) {
+
+            Image(systemName: systemImage)
+                .font(.system(size: 64, weight: .regular))
+                .foregroundStyle(.secondary)
                 .symbolRenderingMode(.hierarchical)
-                .foregroundStyle(.secondary)
 
-            Text("No items to show!")
-                .font(.title3.weight(.semibold))
+            VStack(spacing: 6) {
+                Text("Empty Pantry")
+                    .font(.title3)
+                    .fontWeight(.semibold)
 
-            Text("Scan items into your pantry or add them manually.")
-                .font(.body)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+                if let tooltip, !tooltip.isEmpty {
+                    Text(tooltip)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+                }
+            }
         }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 18)
-        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-                .strokeBorder(.separator.opacity(0.35), lineWidth: 1)
-        )
-        .padding(.horizontal, 20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
     }
 }

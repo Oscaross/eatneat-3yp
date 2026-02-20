@@ -14,6 +14,7 @@ class PantryViewModel: ObservableObject {
     @Published private(set) var itemsByCategory: [Category: [PantryItem]] = [:] // dictionary mapping categories to the item list that belongs to them
     @Published var donationCount: Int = 0 // number of items donated by the user
     @Published private var userLabels: [ItemLabel] = [] // custom labels created by the user
+    @Published var filter: PantryFilterSet // the current filter that the user has active
     
     private var lastRemovedItem: PantryItem? // store the last deleted item for undo functionality
     
@@ -24,6 +25,8 @@ class PantryViewModel: ObservableObject {
     
     
     init() {
+        filter = PantryFilterSet()
+        
         // Create empty categories on first launch
         for category in Category.allCases {
             itemsByCategory[category] = []
@@ -33,7 +36,10 @@ class PantryViewModel: ObservableObject {
         
         userLabels = SampleData.generateSampleLabels() // TODO: Make labels non-sample and configured by user
     }
-
+    
+    var filteredItems: [PantryItem] {
+        getAllItems().filter { filter.matches($0) }
+    }
     
     /// Adds a PantryItem instance according to primitive required data
     func addItem(
@@ -140,13 +146,6 @@ class PantryViewModel: ObservableObject {
         }
             
         return allItems
-    }
-    
-    /// Returns all items that satisfy all of the filters provided
-    func applyFilters(_ filters: [PantryFilter], to items: [PantryItem]) -> [PantryItem] {
-        items.filter { item in
-            filters.allSatisfy { $0.matches(item) }
-        }
     }
     
     /// Returns an ordered collection of the users' labels

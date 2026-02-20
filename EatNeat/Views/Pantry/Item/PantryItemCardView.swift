@@ -83,14 +83,22 @@ struct PantryItemCardView: View {
     // MARK: Top Banner (Qty / Weight)
 
     private var topBanner: some View {
-        HStack {
+        HStack(spacing: 6) {
+            
             Text(subtitleText)
                 .font(.caption)
                 .fontWeight(.medium)
                 .lineLimit(1)
                 .foregroundColor(.primary)
-
+            
             Spacer()
+
+            // Render up to 3 label colour dots
+            ForEach(Array(item.labels.prefix(2)), id: \.self) { label in
+                Circle()
+                    .fill(label.color.opacity(0.8))
+                    .frame(width: 8, height: 8)
+            }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 6)

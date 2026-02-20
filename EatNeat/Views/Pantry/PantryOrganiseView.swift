@@ -19,6 +19,8 @@ struct PantryOrganiseView: View {
     @State private var queue: [PantryQueueItem] // stack-type data structure that is initialized from the pantry model and manipulated in this view
     @State private var draftItem: PantryItem?
     @State private var draftID: PantryItem.ID?
+    
+    @State private var showFilterOptions: Bool = false
 
     // Optional filter applied once at session start
     private let filters: [PantryFilter]
@@ -28,8 +30,7 @@ struct PantryOrganiseView: View {
         self.filters = filters
 
         _queue = State(
-            initialValue: pantryVM
-                .applyFilters(filters, to: []) // TODO: Map the users current item queue to the filter system
+            initialValue: pantryVM.filteredItems
                 .map { PantryQueueItem(id: $0.id) }
         )
     }
@@ -60,7 +61,9 @@ struct PantryOrganiseView: View {
                         .cardStyle()
                         .padding(.horizontal, 10)
                     } else {
-                        EmptyPantryView()
+                        EmptyPantryView(
+                            tooltip: "No items to show here! Try adding items manually or through the scanner, or relax your filtering constraints."
+                        )
                     }
                 }
 
@@ -74,7 +77,30 @@ struct PantryOrganiseView: View {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Close") { dismiss() }
                 }
+                ToolbarItem(placement: .topBarTrailing) {
+                    FilterButtonView(
+                        action: {
+                            showFilterOptions = true
+                        },
+                        filter: pantryVM.filter
+                    )
+                }
             }
+        }
+        .sheet(isPresented: $showFilterOptions) {
+            FilterSheetView(
+                pantryVM: pantryVM,
+                filter: pantryVM.filter,
+                onApply: { newFilter in
+                    pantryVM.filter = newFilter
+                    // TODO: We need to reset the queue to take the remaining items and apply the required filters to them
+                    showFilterOptions = false
+                },
+                onCancel: {
+                    pantryVM.filter = .init()
+                    showFilterOptions = false
+                }
+            )
         }
         .activityBanner($banner)
     }

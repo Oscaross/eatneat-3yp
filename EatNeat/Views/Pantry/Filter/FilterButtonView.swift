@@ -10,11 +10,12 @@ import SwiftUI
 
 struct FilterButtonView: View {
     let action: () -> Void
+    let filter: PantryFilterSet
 
     var body: some View {
         CapsuleView(
             content: .textAndIcon(
-                text: "Filter",
+                text: "Filter \(filter.count() == 0 ? "" : "(\(filter.count()))")", // poor code readability is a price we pay for good user readability
                 systemName: "line.3.horizontal.decrease.circle"
             ),
             color: AppStyle.primary,

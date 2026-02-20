@@ -6,23 +6,24 @@ struct PantryView: View {
     @State private var searchTerm = "" // search bar
     
     @State private var gridView = true // if false then pantry items rendered as lists
-    @State private var categoriesHidden: Set<Category> = [] // categories that are hidden by the user
-    
-    @State private var showSortOptions = false
-    @State private var sortingMode : SortingMode = .alphabetical // default to alphabetical sorting
     
     @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
     
     @State var showFilterOptions: Bool = false
-    @State var filters: [PantryFilter] = [] 
 
     var body: some View {
         NavigationStack {
+            
+            if viewModel.filteredItems.isEmpty {
+                EmptyPantryView(
+                    tooltip: "No items to show here! Try adding items manually or through the scanner, or relax your filtering constraints."
+                )
+            }
+            
             List {
                 ForEach(Category.allCases, id: \.self) { category in
                     if let items = getItemsToRender(category: category),
                        !items.isEmpty {
-
                         Section {
                             categoryHeader(category, count: items.count)
                                 .listRowInsets(EdgeInsets())
@@ -46,7 +47,10 @@ struct PantryView: View {
             .searchable(text: $searchTerm, prompt: "Search...")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    FilterButtonView { showFilterOptions = true }
+                    FilterButtonView(
+                        action: { showFilterOptions = true },
+                        filter: viewModel.filter
+                    )
                 }
             }
             .sheet(item: $editorSheet) { sheet in
@@ -57,45 +61,21 @@ struct PantryView: View {
             }
             .sheet(isPresented: $showFilterOptions) {
                 FilterSheetView(
-                    filters: filters,
-                    onApply: { newFilters in
-                        filters = newFilters
+                    pantryVM: viewModel,
+                    filter: viewModel.filter,
+                    onApply: { newFilter in
+                        viewModel.filter = newFilter
                         showFilterOptions = false
                     },
-                    onCancel: {
-                        showFilterOptions = false
-                    }
+                    onCancel: { showFilterOptions = false }
                 )
             }
         }
     }
 
-    /// Filters PantryItem instances by Category and a search term, if non-empty. Search is case-insensitive.
     private func getItemsToRender(category: Category) -> [PantryItem]? {
-        guard let items = viewModel.itemsByCategory[category] else { return nil }
-        
-        if searchTerm.isEmpty {
-            return viewModel.applyFilters(_: filters,to: items)
-        }
-        
-        return viewModel.applyFilters(
-            _: filters,
-            to: items.filter { $0.name.lowercased().contains(searchTerm.lowercased())}
-        )
-    }
-
-    
-    private func sortItems(by mode: SortingMode, items: [PantryItem]) -> [PantryItem] {
-        switch mode {
-        case .dateAddedNewest:
-            return items.sorted { $0.dateAdded > $1.dateAdded }
-        case .dateAddedOldest:
-            return items.sorted { $0.dateAdded < $1.dateAdded }
-        case .quantity:
-            return items.sorted { $0.quantity > $1.quantity }
-        case .alphabetical:
-            return items.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-        }
+        return viewModel.filteredItems
+            .filter { $0.category == category }
     }
 }
 
@@ -108,7 +88,7 @@ private extension PantryView {
                 .foregroundStyle(.blue.opacity(0.85))
                 .textCase(nil)
             Spacer()
-            CapsuleView(content: .icon(systemName: "magnifyingglass"), color: .blue, heavy: true, action: {print("Expand")})
+            // CapsuleView(content: .icon(systemName: "magnifyingglass"), color: .blue, heavy: true, action: {print("Expand")})
         }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal)

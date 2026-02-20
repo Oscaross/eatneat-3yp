@@ -12,6 +12,7 @@ final class ItemImageAPI {
     
     /// Searches the OpenFoodFacts API and returns a matching image of the product from a front-view angle
     public static func getProductImageURL(productName: String) async throws -> URL? {
+        return nil
         print("Trying to get the product image URL for \(productName)")
 
         var components = URLComponents(string: "https://world.openfoodfacts.org/cgi/search.pl")!

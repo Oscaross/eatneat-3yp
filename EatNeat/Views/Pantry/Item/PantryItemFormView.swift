@@ -14,7 +14,6 @@ struct PantryItemFormView: View {
     @FocusState private var qtyFieldFocused: Bool
 
     let availableLabels: [ItemLabel]
-    @State private var selectedLabels: Set<ItemLabel> = []
 
     var body: some View {
 
@@ -167,28 +166,29 @@ struct PantryItemFormView: View {
         Section(
             header: HStack {
                 Text(
-                    selectedLabels.isEmpty
+                    item.labels.isEmpty
                     ? "LABELS"
-                    : "LABELS (\(selectedLabels.count))"
+                    : "LABELS (\(item.labels.count))"
                 )
                 Spacer()
 
-                if !selectedLabels.isEmpty {
-                    ClearButtonView(action: { selectedLabels.removeAll() })
+                if !item.labels.isEmpty {
+                    ClearButtonView {
+                        item.labels.removeAll()
+                    }
                 }
             }
-            .textCase(nil) // prevent clear button being all caps
+            .textCase(nil)
         ) {
             LabelBarView(
                 availableLabels: availableLabels,
-                selectedLabels: $selectedLabels,
+                selectedLabels: Binding(
+                    get: { item.labels },
+                    set: { item.labels = $0 }
+                ),
                 allowsMultipleSelection: true
             )
-            .onChange(of: selectedLabels) { _, newValue in
-                for label in newValue {
-                    item.toggleLabel(_: label)
-                }
-            }
         }
+
     }
 }

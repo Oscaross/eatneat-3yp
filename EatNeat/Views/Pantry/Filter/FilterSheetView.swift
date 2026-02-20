@@ -9,31 +9,46 @@
 import SwiftUI
 
 struct FilterSheetView: View {
-    @EnvironmentObject var pantryVM: PantryViewModel
-    
-    
-    // MARK: Label state
-    @State private var selectedLabels: Set<ItemLabel> = []
-    
-    // MARK: Category state
-    @State private var lastSelectedCategory: Category = Category.homeBaking
-    @State private var selectedCategories: [Category] = []
-    @State private var shouldIncludeCategories: Bool = true // false = EXCLUDE categories
+    let pantryVM: PantryViewModel
 
-    // MARK: Attribute State
+    // Local editable copy
+    @State private var filter: PantryFilterSet
+
+    // Label state
+    @State private var selectedLabels: Set<ItemLabel>
+
+    // Category state
+    @State private var lastSelectedCategory: Category
+    @State private var selectedCategories: [Category]
+    @State private var shouldIncludeCategories: Bool
+
+    // Attribute state
     @State private var selectedFilters: [PantryFilter]
     @State private var showAddAttributeSheet: Bool = false
-    
 
-    let onApply: ([PantryFilter]) -> Void
+    let onApply: (PantryFilterSet) -> Void
     let onCancel: () -> Void
 
-    init(filters: [PantryFilter],
-         onApply: @escaping ([PantryFilter]) -> Void,
-         onCancel: @escaping () -> Void) {
+    init(
+        pantryVM: PantryViewModel,
+        filter: PantryFilterSet,
+        onApply: @escaping (PantryFilterSet) -> Void,
+        onCancel: @escaping () -> Void
+    ) {
+        self.pantryVM = pantryVM
         self.onApply = onApply
         self.onCancel = onCancel
-        self.selectedFilters = filters
+
+        _filter = State(initialValue: filter)
+
+        _selectedFilters = State(initialValue: filter.attributeFilters)
+        _selectedLabels = State(initialValue: Set(filter.labelFilters))
+
+        _shouldIncludeCategories = State(initialValue: filter.includeCategories)
+        _selectedCategories = State(initialValue: filter.categoryFilters)
+
+        // choose a sensible default that won't look "random"
+        _lastSelectedCategory = State(initialValue: filter.categoryFilters.first ?? .homeBaking)
     }
 
     var body: some View {
@@ -54,33 +69,24 @@ struct FilterSheetView: View {
                     CapsuleMenu(
                         title: "Category",
                         selection: $lastSelectedCategory,
-                        options: Category.allCases.filter {
-                            !selectedCategories.contains($0) // only render categories that haven't been added to the filter
-                        },
+                        options: Category.allCases.filter { !selectedCategories.contains($0) },
                         display: { $0.rawValue },
                         onConfirm: { category in
                             selectedCategories.append(category)
                         },
                         color: .gray,
                         label: {
-                            AddButtonView(
-                                action: {
-                                    
-                                }
-                            )
+                            AddButtonView(action: {})
                         }
                     )
-                    
-                    ForEach(selectedCategories) { category in
-                        PillView(
-                            text: category.rawValue
-                        )
+
+                    ForEach(selectedCategories, id: \.self) { category in
+                        PillView(text: category.rawValue)
                     }
                 } header: {
                     HStack {
                         Text("CATEGORIES")
                         Spacer()
-                        // Include-exclude button
                         CapsuleToggleView(
                             value: $shouldIncludeCategories,
                             trueLabel: .text("Include"),
@@ -89,31 +95,23 @@ struct FilterSheetView: View {
                             shouldChangeAppearanceOnToggle: false
                         )
                     }
-                    .textCase(nil) // stop include/exclude from being auto capitalised
+                    .textCase(nil)
                 }
 
                 Section("ATTRIBUTES") {
-                    
-                    // MARK: Render all active filters
                     ForEach(selectedFilters.indices, id: \.self) { index in
-                        let filter = selectedFilters[index]
-
+                        let f = selectedFilters[index]
                         CapsuleView(
-                            content: .text(filter.displayText),
+                            content: .text(f.displayText),
                             color: AppStyle.primary,
                             heavy: false,
-                            action: {
-                                selectedFilters.remove(at: index) // if user taps a filter then we remove it
-                            }
+                            action: { selectedFilters.remove(at: index) }
                         )
                     }
-                    
-                    // MARK: Add filter route
+
                     AddButtonView(
                         color: .gray,
-                        action: {
-                            showAddAttributeSheet = true
-                        }
+                        action: { showAddAttributeSheet = true }
                     )
                 }
             }
@@ -121,22 +119,36 @@ struct FilterSheetView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { onCancel() }
+                    Button("Clear") {
+                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        // reset the filter to a default state
+                        pantryVM.filter = .init()
+                        onCancel()
+                    }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") { onApply(selectedFilters) }
+                    Button("Apply") {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+
+                        var updated = filter
+                        updated.attributeFilters = selectedFilters
+                        updated.categoryFilters = selectedCategories
+                        updated.includeCategories = shouldIncludeCategories
+                        updated.labelFilters = selectedLabels
+                        updated.includeLabels = true
+
+                        onApply(updated)
+                    }
                 }
             }
             .sheet(isPresented: $showAddAttributeSheet) {
                 CreateFilterSheetView(
-                    onCreate: { filter in
-                        selectedFilters.append(filter)
+                    onCreate: { f in
+                        selectedFilters.append(f)
                         showAddAttributeSheet = false
                         UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                     },
-                    onDismiss: {
-                        showAddAttributeSheet = false
-                    }
+                    onDismiss: { showAddAttributeSheet = false }
                 )
             }
         }
