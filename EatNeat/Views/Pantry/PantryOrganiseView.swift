@@ -14,6 +14,7 @@ struct PantryOrganiseView: View {
 
     // UI-only state
     @State private var banner: ActivityBanner?
+    @State private var initialQueueCount: Int = 0
     
     
     @State private var queue: [PantryQueueItem] // stack-type data structure that is initialized from the pantry model and manipulated in this view
@@ -29,47 +30,49 @@ struct PantryOrganiseView: View {
         self.pantryVM = pantryVM
         self.filters = filters
 
-        _queue = State(
-            initialValue: pantryVM.filteredItems
-                .map { PantryQueueItem(id: $0.id) }
-        )
+        let initial = pantryVM.filteredItems.map { PantryQueueItem(id: $0.id) }
+        _queue = State(initialValue: initial)
+        _initialQueueCount = State(initialValue: initial.count)
     }
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
+            Group {
+                if queue.isEmpty {
+                    EmptyOrganiseView()
+                } else {
+                    VStack(spacing: 16) {
+                        queueCounter
+                        
+                        SwipeCardStackView(items: queue, onAction: handleSwipe) { card in
+                            if draftID == card.id, draftItem != nil {
+                                PantryItemView(
+                                    item: Binding(
+                                        get: { draftItem! },
+                                        set: { draftItem = $0 }
+                                    ),
+                                    pantryVM: pantryVM,
+                                    mode: .editNoDelete
+                                )
+                                .cardStyle()
+                                .padding(.horizontal, 10)
+                            } else if let item = pantryVM.getItemByID(itemID: card.id) {
+                                PantryItemView(
+                                    item: .constant(item),
+                                    pantryVM: pantryVM,
+                                    mode: .editNoDelete
+                                )
+                                .cardStyle()
+                                .padding(.horizontal, 10)
+                            } else {
+                                EmptyView()
+                            }
+                        }
 
-                SwipeCardStackView(items: queue, onAction: handleSwipe) { card in
-                    if draftID == card.id, draftItem != nil {
-                        PantryItemView(
-                            item: Binding(
-                                get: { draftItem! },
-                                set: { draftItem = $0 }
-                            ),
-                            pantryVM: pantryVM,
-                            mode: .editNoDelete
-                        )
-                        .cardStyle()
-                        .padding(.horizontal, 10)
-                    } else if let item = pantryVM.getItemByID(itemID: card.id) {
-                        // non-top cards: read-only rendering (no binding)
-                        PantryItemView(
-                            item: .constant(item),
-                            pantryVM: pantryVM,
-                            mode: .editNoDelete
-                        )
-                        .cardStyle()
-                        .padding(.horizontal, 10)
-                    } else {
-                        EmptyPantryView(
-                            tooltip: "No items to show here! Try adding items manually or through the scanner, or relax your filtering constraints."
-                        )
+                        bottomControls
+                        Spacer()
                     }
                 }
-
-
-                bottomControls
-                Spacer()
             }
             .navigationTitle("Manage Pantry")
             .navigationBarTitleDisplayMode(.inline)
@@ -79,9 +82,7 @@ struct PantryOrganiseView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     FilterButtonView(
-                        action: {
-                            showFilterOptions = true
-                        },
+                        action: { showFilterOptions = true },
                         filter: pantryVM.filter
                     )
                 }
@@ -93,7 +94,6 @@ struct PantryOrganiseView: View {
                 filter: pantryVM.filter,
                 onApply: { newFilter in
                     pantryVM.filter = newFilter
-                    // TODO: We need to reset the queue to take the remaining items and apply the required filters to them
                     showFilterOptions = false
                 },
                 onCancel: {
@@ -104,8 +104,22 @@ struct PantryOrganiseView: View {
         }
         .activityBanner($banner)
         .onAppear {
-            // ensure that the draftID is present so we can find our item and process it when the card appears
             loadDraftForTopCard()
+        }
+    }
+    
+    var queueCounter: some View {
+        let total = max(initialQueueCount, 1)
+        let currentIndex = total - queue.count + 1
+        let clampedIndex = min(max(currentIndex, 1), total)
+
+        return HStack(spacing: 10) {
+            Text("\(clampedIndex) of \(total)")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            ProgressView(value: Double(total - queue.count), total: Double(total))
+                .frame(maxWidth: 140)
         }
     }
 }

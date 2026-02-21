@@ -16,7 +16,7 @@ struct AddLabelSheetView: View {
     private var onDismiss: () -> Void
 
     private let availableColors = AppStyle.labelColors
-    private let maxChars = 8
+    private let maxChars = 10 // max name length for a label
 
     init(
         onAdd: @escaping (String, Color) -> Void,
