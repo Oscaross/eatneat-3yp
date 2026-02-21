@@ -27,6 +27,19 @@ enum AppStyle {
         static let body = Font.system(.body)
     }
     
+    // MARK: Labels
+    /// The list of all colors the user is allowed to apply to an item label - red, blue and gray are reserved as these are label colors we use in app functionality buttons.
+    static let labelColors : [Color] = [
+        .mint,
+        .green,
+        .teal,
+        .cyan,
+        .orange,
+        .brown,
+        .pink,
+        .purple
+    ]
+    
     // MARK: Card styling
     
     /// Centralised card styling

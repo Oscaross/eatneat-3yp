@@ -45,7 +45,7 @@ struct PantryItemEditorSheet: View {
         NavigationStack {
             PantryItemView(
                 item: $draft,
-                availableLabels: pantryVM.getUserLabels(),
+                pantryVM: pantryVM,
                 mode: sheetMode,
                 onDelete: {
                     pantryVM.removeItem(itemID: draft.id)

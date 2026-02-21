@@ -11,14 +11,14 @@ import SwiftUI
 struct CapsuleMenu<Option: Hashable>: View {
 
     let title: String
-    @Binding var selection: Option
+    private let selection: Binding<Option>? // selection is ONLY required if customLabel is not supplied because customLabel means the parent view doesn't care about the last selected value as it is rendering those values as some collection elsewhere
     let options: [Option]
     let display: (Option) -> String
     let onConfirm: ((Option) -> Void)?
     let color: Color
     private let customLabel: AnyView?
 
-    // MARK: - Default Capsule Initialiser
+    // MARK: - Stateful Initialiser (requires selection)
 
     init(
         title: String,
@@ -29,7 +29,7 @@ struct CapsuleMenu<Option: Hashable>: View {
         color: Color? = nil
     ) {
         self.title = title
-        self._selection = selection
+        self.selection = selection
         self.options = options
         self.display = display
         self.onConfirm = onConfirm
@@ -37,11 +37,10 @@ struct CapsuleMenu<Option: Hashable>: View {
         self.customLabel = nil
     }
 
-    // MARK: - Custom Label Initialiser
+    // MARK: - Action-Only Initialiser (no selection required)
 
     init<Label: View>(
         title: String,
-        selection: Binding<Option>,
         options: [Option],
         display: @escaping (Option) -> String,
         onConfirm: ((Option) -> Void)? = nil,
@@ -49,7 +48,7 @@ struct CapsuleMenu<Option: Hashable>: View {
         @ViewBuilder label: () -> Label
     ) {
         self.title = title
-        self._selection = selection
+        self.selection = nil                     // no binding stored
         self.options = options
         self.display = display
         self.onConfirm = onConfirm
@@ -61,7 +60,7 @@ struct CapsuleMenu<Option: Hashable>: View {
         Menu {
             ForEach(options, id: \.self) { option in
                 Button {
-                    selection = option
+                    selection?.wrappedValue = option   // only update if binding exists
                     onConfirm?(option)
                 } label: {
                     Text(display(option))
@@ -70,9 +69,16 @@ struct CapsuleMenu<Option: Hashable>: View {
         } label: {
             if let customLabel {
                 customLabel
+            } else if let selection {
+                CapsuleView(
+                    content: .text(display(selection.wrappedValue)),
+                    color: color,
+                    heavy: false,
+                    action: {}
+                )
             } else {
                 CapsuleView(
-                    content: .text(display(selection)),
+                    content: .text(title),
                     color: color,
                     heavy: false,
                     action: {}

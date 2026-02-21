@@ -40,13 +40,13 @@ struct PantryOrganiseView: View {
             VStack(spacing: 16) {
 
                 SwipeCardStackView(items: queue, onAction: handleSwipe) { card in
-                    if draftID == card.id, let _ = draftItem {
+                    if draftID == card.id, draftItem != nil {
                         PantryItemView(
                             item: Binding(
                                 get: { draftItem! },
                                 set: { draftItem = $0 }
                             ),
-                            availableLabels: pantryVM.getUserLabels(),
+                            pantryVM: pantryVM,
                             mode: .editNoDelete
                         )
                         .cardStyle()
@@ -55,7 +55,7 @@ struct PantryOrganiseView: View {
                         // non-top cards: read-only rendering (no binding)
                         PantryItemView(
                             item: .constant(item),
-                            availableLabels: pantryVM.getUserLabels(),
+                            pantryVM: pantryVM,
                             mode: .editNoDelete
                         )
                         .cardStyle()
@@ -103,6 +103,10 @@ struct PantryOrganiseView: View {
             )
         }
         .activityBanner($banner)
+        .onAppear {
+            // ensure that the draftID is present so we can find our item and process it when the card appears
+            loadDraftForTopCard()
+        }
     }
 }
 
@@ -117,30 +121,33 @@ private extension PantryOrganiseView {
             commitDraft(id: id)
             queue.removeLast()
             loadDraftForTopCard()
+            
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
         case .delete:
-            print("Trying to delete")
-            if let name = draftItem?.name {
-                pantryVM.removeItem(itemID: id)
-                showDeleteBanner(itemName: name)
-            } else {
-                pantryVM.removeItem(itemID: id)
-            }
-            queue.removeLast()
-            loadDraftForTopCard()
+            let name = draftItem?.name
 
-        case .dismiss:
-            queue.removeLast()
-            loadDraftForTopCard()
+            withTransaction(Transaction(animation: nil)) {
+                queue.removeLast()
+                loadDraftForTopCard()
+            }
+
+            pantryVM.removeItem(itemID: id)
+
+            if let name {
+                showDeleteBanner(itemName: name)
+            }
+            
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
     }
 }
 
 private extension PantryOrganiseView {
-
-    func showDeleteBanner(itemName: String) {
-        withAnimation {
-            banner = ActivityBanner(
+    
+    private func showDeleteBanner(itemName: String) {
+        presentBanner(
+            ActivityBanner(
                 message: "Deleted \(itemName) from pantry",
                 actionTitle: "Undo",
                 action: {
@@ -148,6 +155,18 @@ private extension PantryOrganiseView {
                     banner = nil
                 }
             )
+        )
+    }
+
+    private func presentBanner(_ newBanner: ActivityBanner) {
+        // Immediately clear any existing banner
+        banner = nil
+        
+        // Small delay ensures SwiftUI processes the removal first
+        DispatchQueue.main.async {
+            withAnimation {
+                banner = newBanner
+            }
         }
     }
 }
@@ -167,7 +186,7 @@ private extension PantryOrganiseView {
             Button {
                 handleSwipe(.approve)
             } label: {
-                controlIcon(systemName: "hand.thumbsup.fill", color: .green)
+                controlIcon(systemName: "checkmark", color: AppStyle.primary)
             }
         }
         .padding(.horizontal, 24)

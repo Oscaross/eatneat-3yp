@@ -11,12 +11,23 @@ struct PantryItemView: View {
 
     /// Draft item owned by the parent (sheet, organiser, etc.)
     @Binding var item: PantryItem
-
-    let availableLabels: [ItemLabel]
+    private var pantryVM: PantryViewModel
 
     /// Editing context (purely for UI differences)
     let mode: Mode
     var onDelete: (() -> Void)? = nil
+    
+    init(
+        item: Binding<PantryItem>,
+        pantryVM: PantryViewModel,
+        mode: Mode,
+        onDelete: (() -> Void)? = nil
+    ) {
+        self._item = item 
+        self.pantryVM = pantryVM
+        self.mode = mode
+        self.onDelete = onDelete
+    }
 
     enum Mode {
         case add
@@ -26,7 +37,7 @@ struct PantryItemView: View {
 
     var body: some View {
         Form {
-            PantryItemFormView(item: $item, availableLabels: availableLabels)
+            PantryItemFormView(item: $item, pantryVM: pantryVM)
 
             if mode == .edit {
                 Section {

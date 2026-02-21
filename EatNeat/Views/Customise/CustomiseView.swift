@@ -24,7 +24,7 @@ struct CustomiseView: View {
                 
                 // MARK: Label management
                 Section {
-                    LabelBarView(availableLabels: pantryVM.getUserLabels())
+                    LabelBarView(pantryVM: pantryVM)
                 } header: {
                     Text("Labels (\(pantryVM.getUserLabels().count))")
                 } footer: {

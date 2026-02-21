@@ -10,20 +10,24 @@ import SwiftUI
 
 struct LabelBarView: View {
     
-    let availableLabels: [ItemLabel]
+    @ObservedObject var pantryVM: PantryViewModel
     private let interaction: LabelBarInteraction
     private let onAddLabel: (() -> Void)?
 
     @Binding private var selectedLabels: Set<ItemLabel>
+    
+    @State private var showAddLabelSheet: Bool = false
+    
+    @State private var isDeleting: Bool = false // make labels wiggle + allow taps to delete them
 
     /// Interactable constructor
     init(
-        availableLabels: [ItemLabel],
+        pantryVM: PantryViewModel,
         selectedLabels: Binding<Set<ItemLabel>>,
         allowsMultipleSelection: Bool = true,
         onAddLabel: (() -> Void)? = nil
     ) {
-        self.availableLabels = availableLabels
+        self.pantryVM = pantryVM
         self._selectedLabels = selectedLabels
         self.interaction = .selectable(allowsMultiple: allowsMultipleSelection)
         self.onAddLabel = onAddLabel
@@ -31,36 +35,116 @@ struct LabelBarView: View {
     
     /// View only constructor - no selected labels
     init(
-        availableLabels: [ItemLabel],
+        pantryVM: PantryViewModel,
         onAddLabel: (() -> Void)? = nil
     ) {
-        self.availableLabels = availableLabels
+        self.pantryVM = pantryVM
         self._selectedLabels = .constant([])
         self.interaction = .viewOnly
         self.onAddLabel = onAddLabel
     }
     
     var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-
-                ForEach(availableLabels) { label in
-                    CapsuleView(
-                        content: .text(label.name),
-                        color: label.color,
-                        heavy: isSelected(label)
-                    ) {
-                        handleTap(label)
+        VStack(alignment: .leading, spacing: 9) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    
+                    if isSelectable {
+                        CapsuleMenu<ItemLabel>(
+                            title: "Label",
+                            options: pantryVM.getUserLabels().filter { !selectedLabels.contains($0) },
+                            display: { $0.name },
+                            onConfirm: { label in
+                                selectedLabels.insert(label)
+                            },
+                            color: .gray,
+                            label: {
+                                CapsuleView(
+                                    content: .icon(systemName: "tag"),
+                                    color: .gray,
+                                    heavy: false,
+                                    action: {}
+                                )
+                            }
+                        )
                     }
-                    .opacity(isSelectable ? 1.0 : 0.6)
+                    
+                    // Edit button in viewOnly mode
+                    if !isSelectable {
+                        CapsuleView(
+                            content: .icon(systemName: isDeleting ? "checkmark" : "pencil"),
+                            color: isDeleting ? AppStyle.primary : .gray,
+                            heavy: false
+                        ) {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isDeleting.toggle()
+                            }
+                        }
+                    }
+                    
+                    AddButtonView(color: .gray) {
+                        showAddLabelSheet = true
+                    }
                 }
-
-                AddButtonView(
-                    color: .gray,
-                    action: {}
-                )
+                .padding(.vertical, 4)
             }
-            .padding(.vertical, 4)
+            
+            // MARK: Bottom Row – Labels
+            if isSelectable && !selectedLabels.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(selectedLabels), id: \.self) { label in
+                            CapsuleView(
+                                content: .text(label.name),
+                                color: label.color,
+                                heavy: false
+                            ) {
+                                handleTap(label)
+                            }
+                        }
+                    }
+                    .padding(.vertical, 2)
+                }
+            }
+            
+            if !isSelectable {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Array(pantryVM.getUserLabels()), id: \.self) { label in
+                            CapsuleView(
+                                content: .text(label.name),
+                                color: label.color,
+                                heavy: false
+                            ) {
+                                if isDeleting {
+                                    pantryVM.removeLabel(label: label)
+                                    UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                                }
+                            }
+                            .modifier(
+                                WiggleEffect(animatableData: isDeleting ? 1 : 0)
+                            )
+                            .animation(
+                                isDeleting
+                                ? .linear(duration: 0.3).repeatForever(autoreverses: true)
+                                : .default,
+                                value: isDeleting
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showAddLabelSheet) {
+            AddLabelSheetView(
+                onAdd: { name, color in
+                    pantryVM.addLabel(name: name, color: color)
+                },
+                onDismiss: {
+                    showAddLabelSheet = false
+                }
+            )
         }
     }
 
@@ -97,4 +181,17 @@ struct LabelBarView: View {
 enum LabelBarInteraction {
     case selectable(allowsMultiple: Bool)
     case viewOnly
+}
+
+struct WiggleEffect: GeometryEffect {
+    var angle: Double = 2 // rotation max in degrees
+    var shakesPerUnit: Double = 2 // speed
+    var animatableData: Double
+
+    func effectValue(size: CGSize) -> ProjectionTransform {
+        let rotation = angle * sin(animatableData * .pi * shakesPerUnit)
+        return ProjectionTransform(
+            CGAffineTransform(rotationAngle: CGFloat(rotation * .pi / 180))
+        )
+    }
 }

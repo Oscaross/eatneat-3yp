@@ -10,13 +10,21 @@ import SwiftUI
 
 struct PantryItemFormView: View {
     @Binding var item: PantryItem
-
+    let pantryVM: PantryViewModel
+    let availableLabels: [ItemLabel]
+    
     @FocusState private var qtyFieldFocused: Bool
 
-    let availableLabels: [ItemLabel]
+    init(
+        item: Binding<PantryItem>,
+        pantryVM: PantryViewModel
+    ) {
+        self._item = item
+        self.availableLabels = pantryVM.getUserLabels()
+        self.pantryVM = pantryVM
+    }
 
-    var body: some View {
-
+var body: some View {
         // DETAILS
         Section(header: Text("Details")) {
 
@@ -181,7 +189,7 @@ struct PantryItemFormView: View {
             .textCase(nil)
         ) {
             LabelBarView(
-                availableLabels: availableLabels,
+                pantryVM: pantryVM,
                 selectedLabels: Binding(
                     get: { item.labels },
                     set: { item.labels = $0 }
@@ -189,6 +197,5 @@ struct PantryItemFormView: View {
                 allowsMultipleSelection: true
             )
         }
-
     }
 }

@@ -94,10 +94,10 @@ enum BooleanFilterOption: CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .opened:         return "Opened"
-        case .unopened:       return "Unopened"
-        case .perishable:     return "Perishable"
-        case .nonPerishable:  return "Non-Perishable"
+        case .opened: return "Opened"
+        case .unopened: return "Unopened"
+        case .perishable: return "Perishable"
+        case .nonPerishable: return "Non-Perishable"
         }
     }
 

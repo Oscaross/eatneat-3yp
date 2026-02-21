@@ -56,7 +56,7 @@ struct FilterSheetView: View {
             Form {
                 Section("LABELS") {
                     LabelBarView(
-                        availableLabels: pantryVM.getUserLabels(),
+                        pantryVM: pantryVM,
                         selectedLabels: $selectedLabels,
                         allowsMultipleSelection: true,
                         onAddLabel: {
@@ -68,7 +68,6 @@ struct FilterSheetView: View {
                 Section {
                     CapsuleMenu(
                         title: "Category",
-                        selection: $lastSelectedCategory,
                         options: Category.allCases.filter { !selectedCategories.contains($0) },
                         display: { $0.rawValue },
                         onConfirm: { category in

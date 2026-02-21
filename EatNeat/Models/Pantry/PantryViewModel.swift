@@ -79,6 +79,18 @@ class PantryViewModel: ObservableObject {
         }
     }
     
+    /// Adds a ItemLabel instance according to primitive required data.
+    func addLabel(name: String, color: Color) {
+        userLabels.append(_: ItemLabel(name: name, color: color))
+        save()
+    }
+    
+    /// Removes an ItemLabel instance
+    func removeLabel(label: ItemLabel) {
+        userLabels.removeAll { $0.id == label.id }
+    }
+    
+    
     /// Removes  a concrete PantryItem instance
     func removeItem(item: PantryItem) {
         for category in Category.allCases {
