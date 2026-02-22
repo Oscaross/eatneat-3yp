@@ -10,11 +10,12 @@ import SwiftUI
 
 struct PantryView: View {
     @ObservedObject var viewModel: PantryViewModel
-    @State private var gridView = true // if false then pantry items rendered as lists
+    @EnvironmentObject var settingsModel: SettingsModel
     
     @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
     
     @State var showFilterOptions: Bool = false
+    @State var showOrganiseView: Bool = false
 
     var body: some View {
         NavigationStack {
@@ -34,12 +35,12 @@ struct PantryView: View {
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)
 
-                            if gridView {
-                                gridSection(items: items)
-                            } else {
+                            if settingsModel.compactPantryView {
                                 PantryTableSection(items: items)
                                     .listRowInsets(EdgeInsets())
                                     .listRowSeparator(.hidden)
+                            } else {
+                                gridSection(items: items)
                             }
                         }
                     }
@@ -48,13 +49,24 @@ struct PantryView: View {
             .scrollIndicators(.hidden)
             .listStyle(.plain)
             .navigationTitle("My Pantry")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.searchTerm, prompt: "Search...")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     FilterButtonView(
                         action: { showFilterOptions = true },
                         filter: viewModel.filter
+                    )
+                }
+                
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    CapsuleView(
+                        content: .textAndIcon(text: "Review", systemName: "rectangle.stack"),
+                        color: AppStyle.primary,
+                        heavy: false,
+                        action: {
+                            showOrganiseView = true
+                        }
                     )
                 }
             }
@@ -74,6 +86,9 @@ struct PantryView: View {
                     },
                     onCancel: { showFilterOptions = false }
                 )
+            }
+            .sheet(isPresented: $showOrganiseView) {
+                PantryOrganiseView(pantryVM: viewModel)
             }
         }
     }
@@ -101,20 +116,21 @@ private extension PantryView {
             .background(
                 Color.blue.opacity(0.08)
             )
+            .listRowBackground(Color.clear)
+            .contentMargins(.horizontal, 0, for: .scrollContent)
     }
 }
 
 private extension PantryView {
 
     func gridSection(items: [PantryItem]) -> some View {
-
+        
         let cardHeight = min(UIScreen.main.bounds.width * 0.32, 132)
-
+        
         return ScrollView(.horizontal, showsIndicators: false) {
-
+            
             if items.count <= 6 {
-
-                // Original 1-high layout
+                
                 LazyHStack(spacing: 16) {
                     ForEach(items) { item in
                         PantryItemCardView(item: item) {
@@ -122,15 +138,15 @@ private extension PantryView {
                         }
                     }
                 }
-
+                .padding(.horizontal, 8)
+                
             } else {
-
-                // 2-high infinite grid
+                
                 let rows = [
                     GridItem(.fixed(cardHeight), spacing: 16),
                     GridItem(.fixed(cardHeight), spacing: 16)
                 ]
-
+                
                 LazyHGrid(rows: rows, spacing: 16) {
                     ForEach(items) { item in
                         PantryItemCardView(item: item) {
@@ -138,12 +154,14 @@ private extension PantryView {
                         }
                     }
                 }
+                .padding(.horizontal, 8)
             }
         }
-        .padding(.horizontal)
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
         .listRowInsets(EdgeInsets())
         .listRowSeparator(.hidden)
+        .listRowBackground(Color.clear)
+        .contentMargins(.horizontal, 0, for: .scrollContent)
     }
 }
 

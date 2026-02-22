@@ -22,28 +22,12 @@ struct PantryItemRowView: View {
 
             Spacer()
 
-            // STOCK (qty + weight if present)
-            Text(stockDescription)
+            Text(item.subtitleText)
                 .foregroundColor(.secondary)
                 .font(.body)
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
         .background(Color.clear)
-    }
-
-    private var stockDescription: String {
-        var parts: [String] = []
-
-        // qty
-        parts.append("\(Int(item.quantity)) ×")
-
-        // weight (if available)
-        if let weightValue = item.weightQuantity,
-           let unit = item.weightUnit?.rawValue {
-            parts.append("\(weightValue)\(unit)")
-        }
-
-        return parts.joined(separator: " ")
     }
 }

@@ -40,14 +40,6 @@ struct AddItemModeView: View {
                 select(.manual)
             }
             
-            pickerRow(
-                icon: "rectangle.stack",
-                title: "Organise items",
-                subtitle: "Clear out or update existing items"
-            ) {
-                select(.organise)
-            }
-            
             Spacer(minLength: 8)
         }
         .padding(.horizontal)

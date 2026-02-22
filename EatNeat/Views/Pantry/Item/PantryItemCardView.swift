@@ -14,27 +14,6 @@ struct PantryItemCardView: View {
     
     let material = AnyShapeStyle(.ultraThinMaterial.opacity(0.74))
 
-    private var weightText: String? {
-        guard let qty = item.weightQuantity,
-              let unit = item.weightUnit else { return nil }
-
-        let valueString: String
-        if qty == floor(qty) {
-            valueString = String(format: "%.0f", qty)
-        } else {
-            valueString = String(format: "%.2f", qty)
-        }
-
-        return "\(valueString) \(unit.rawValue)"
-    }
-
-    private var subtitleText: String {
-        if let weightText = weightText {
-            return "\(item.quantity)x • \(weightText)"
-        }
-        return "\(item.quantity)x"
-    }
-
     var body: some View {
         let cardWidth  = min(UIScreen.main.bounds.width * 0.35, 140)
         let cardHeight = min(UIScreen.main.bounds.width * 0.32, 132)
@@ -85,7 +64,7 @@ struct PantryItemCardView: View {
     private var topBanner: some View {
         HStack(spacing: 6) {
             
-            Text(subtitleText)
+            Text(item.subtitleText)
                 .font(.caption)
                 .fontWeight(.medium)
                 .lineLimit(1)

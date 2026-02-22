@@ -85,3 +85,29 @@ struct PantryItem: Identifiable, Hashable, Codable {
         self.imageSearchState = state
     }
 }
+
+extension PantryItem {
+    /// A human-readable representation of the weight, weight unit and quantity (depending on data presence) for an item.
+    var subtitleText: String {
+        var components: [String] = []
+        
+        if quantity > 0 {
+            components.append("\(quantity)x")
+        }
+        
+        if let weightQuantity,
+           let weightUnit {
+            
+            let valueString: String
+            if weightQuantity == floor(weightQuantity) {
+                valueString = String(format: "%.0f", weightQuantity)
+            } else {
+                valueString = String(format: "%.2f", weightQuantity)
+            }
+            
+            components.append("\(valueString) \(weightUnit.rawValue)")
+        }
+        
+        return components.joined(separator: " • ")
+    }
+}

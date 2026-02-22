@@ -261,8 +261,8 @@ class PantryViewModel: ObservableObject {
             }
         
         if let savedLabels = try? SaveManager.shared.load([ItemLabel].self,
-                                                          forKey: "UserLabels") {
-            self.userLabels = savedLabels
-        }
+            forKey: "UserLabels") {
+                self.userLabels = savedLabels
+            }
     }
 }

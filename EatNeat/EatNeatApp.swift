@@ -14,6 +14,7 @@ struct EatNeatApp: App {
     @StateObject private var pantryViewModel = PantryViewModel()
     @StateObject private var donationViewModel: DonationViewModel
     @StateObject private var agentModel = AgentModel()
+    @StateObject private var settingsModel = SettingsModel()
     
     init() {
         let pantryVM = PantryViewModel()
@@ -32,6 +33,7 @@ struct EatNeatApp: App {
                 .environmentObject(pantryViewModel)
                 .environmentObject(donationViewModel)
                 .environmentObject(agentModel)
+                .environmentObject(settingsModel)
         }
     }
 }

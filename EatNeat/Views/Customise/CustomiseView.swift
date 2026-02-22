@@ -10,18 +10,19 @@ import SwiftUI
 
 struct CustomiseView: View {
     @State private var showAddLabelSheet = false
-    
+
     @EnvironmentObject var pantryVM: PantryViewModel
-    
+
     @AppStorage("enableHaptics") private var enableHaptics = true
     @AppStorage("autoDonateSuggestions") private var autoDonateSuggestions = true
+    @AppStorage("compactPantryView") private var compactPantryView = false
 
     var body: some View {
         NavigationStack {
             List {
                 // MARK: Preferences
                 preferences
-                
+
                 // MARK: Label management
                 Section {
                     LabelBarView(pantryVM: pantryVM)
@@ -37,17 +38,56 @@ struct CustomiseView: View {
             }
         }
     }
-    
+
     var preferences: some View {
-        return Section {
-            Toggle("Haptic Feedback", isOn: $enableHaptics)
-            
-            Toggle("Donation Suggestions", isOn: $autoDonateSuggestions)
-        }
-        header: {
+        Section {
+            preferenceRow(
+                description: "Haptic Feedback",
+                interactor: CapsuleToggleView(
+                    value: $enableHaptics,
+                    trueLabel: .text("On"),
+                    falseLabel: .text("Off"),
+                    color: .gray,
+                    shouldChangeAppearanceOnToggle: false
+                )
+            )
+
+            preferenceRow(
+                description: "Donation Tips",
+                interactor: CapsuleToggleView(
+                    value: $autoDonateSuggestions,
+                    trueLabel: .text("On"),
+                    falseLabel: .text("Off"),
+                    color: .gray,
+                    shouldChangeAppearanceOnToggle: false
+                )
+            )
+
+            preferenceRow(
+                description: "Pantry View",
+                interactor: CapsuleToggleView(
+                    value: $compactPantryView,
+                    trueLabel: .text("Compact"),
+                    falseLabel: .text("Grid"),
+                    color: .gray,
+                    shouldChangeAppearanceOnToggle: false
+                )
+            )
+        } header: {
             Text("Settings")
         } footer: {
             Text("Personalise the app to your own needs.")
+        }
+    }
+
+    private func preferenceRow<Interactor: View>(
+        description: String,
+        interactor: Interactor
+    ) -> some View {
+        HStack {
+            Text(description)
+            Spacer()
+            interactor
         }
     }
 }

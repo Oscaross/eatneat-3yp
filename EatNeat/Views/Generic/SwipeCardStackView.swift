@@ -12,6 +12,7 @@ struct SwipeCardStackView<Item: Identifiable, Content: View>: View {
 
     let items: [Item]
     let onAction: (SwipeCardAction) -> Void
+    let onSwipeProgress: (SwipeCardAction?, Double) -> Void
     @ViewBuilder let content: (Item) -> Content
 
     // Under-card animation is driven by top-card progress only
@@ -37,6 +38,7 @@ struct SwipeCardStackView<Item: Identifiable, Content: View>: View {
                     onProgress: { p in
                         swipeProgress = p
                     },
+                    onSwipeProgress: onSwipeProgress,
                     onDismissed: { action in
                         // Ensure under-card snaps back cleanly before data mutation
                         withTransaction(Transaction(animation: nil)) {
@@ -63,10 +65,11 @@ struct SwipeCardStackView<Item: Identifiable, Content: View>: View {
 }
 
 private struct TopSwipeCard<Item: Identifiable, Content: View>: View {
-
+    
     let item: Item
     let content: (Item) -> Content
     let onProgress: (CGFloat) -> Void
+    let onSwipeProgress: (SwipeCardAction?, Double) -> Void
     let onDismissed: (SwipeCardAction) -> Void
 
     // Top-card physics (isolated per card)
@@ -92,8 +95,8 @@ private struct TopSwipeCard<Item: Identifiable, Content: View>: View {
                 onProgress(0)
             }
             .onDisappear {
-                // Safety: ensure progress doesn't remain non-zero
                 onProgress(0)
+                onSwipeProgress(nil, 0)
             }
     }
 
@@ -107,6 +110,15 @@ private struct TopSwipeCard<Item: Identifiable, Content: View>: View {
 
                 dragOffset = CGSize(width: clampedX, height: 0)
                 rotation = Double(clampedX / maxDragX) * maxRotation
+
+                let progress = min(1, abs(clampedX) / swipeThresholdX) // 0...1
+
+                let direction: SwipeCardAction? =
+                    clampedX > 0 ? .approve :
+                    clampedX < 0 ? .delete :
+                    nil
+
+                onSwipeProgress(direction, Double(progress))
             }
             .onEnded { value in
                 guard !isDismissing else { return }
@@ -120,6 +132,8 @@ private struct TopSwipeCard<Item: Identifiable, Content: View>: View {
                     withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
                         reset()
                     }
+                    // If we didn't dismiss, explicitly clear progress
+                    onSwipeProgress(nil, 0)
                 }
             }
     }
@@ -129,6 +143,9 @@ private struct TopSwipeCard<Item: Identifiable, Content: View>: View {
     private func dismiss(_ action: SwipeCardAction, direction: Direction) {
         guard !isDismissing else { return }
         isDismissing = true
+
+        // reset button scaling immediately
+        onSwipeProgress(nil, 0)
 
         let screenW = UIScreen.main.bounds.width
         let sign: CGFloat = direction == .left ? -1 : 1

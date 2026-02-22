@@ -70,8 +70,6 @@ struct ContentView: View {
                     sheet: .add,
                     pantryVM: pantryViewModel
                 )
-            case .organise:
-                PantryOrganiseView(pantryVM: pantryViewModel)
             }
         }
         .onAppear {

@@ -17,6 +17,8 @@ struct PantryOrganiseView: View {
     // UI-only state
     @State private var banner: ActivityBanner?
     @State private var initialQueueCount: Int = 0
+    @State private var swipeProgress: Double = 0
+    @State private var swipeDirection: SwipeCardAction?
     
     @State private var queue: [PantryQueueItem] // stack-type data structure that is initialized from the pantry model and manipulated in this view
     @State private var draftItem: PantryItem?
@@ -43,9 +45,16 @@ struct PantryOrganiseView: View {
                     EmptyOrganiseView()
                 } else {
                     VStack(spacing: 16) {
-                        queueCounter
+                        queueProgressView
                         
-                        SwipeCardStackView(items: queue, onAction: handleSwipe) { card in
+                        SwipeCardStackView(
+                            items: queue,
+                            onAction: handleSwipe,
+                            onSwipeProgress: { direction, progress in
+                                swipeProgress = progress
+                                swipeDirection = direction
+                            }
+                        ) { card in
                             if draftID == card.id, draftItem != nil {
                                 PantryItemView(
                                     item: Binding(
@@ -75,7 +84,6 @@ struct PantryOrganiseView: View {
                     }
                 }
             }
-            .navigationTitle("Manage Pantry")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -86,6 +94,9 @@ struct PantryOrganiseView: View {
                         action: { showFilterOptions = true },
                         filter: pantryVM.filter
                     )
+                }
+                ToolbarItem(placement: .principal) {
+                    queueCounter
                 }
             }
         }
@@ -114,14 +125,17 @@ struct PantryOrganiseView: View {
         let currentIndex = total - queue.count + 1
         let clampedIndex = min(max(currentIndex, 1), total)
 
-        return HStack(spacing: 10) {
-            Text("\(clampedIndex) of \(total)")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-
-            ProgressView(value: Double(total - queue.count), total: Double(total))
-                .frame(maxWidth: 140)
-        }
+        
+        return Text("\(clampedIndex) of \(total)")
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
+        
+    }
+    
+    var queueProgressView: some View {
+        let total = max(initialQueueCount, 1)
+        return ProgressView(value: Double(total - queue.count), total: Double(total))
+            .frame(maxWidth: 140)
     }
 }
 
@@ -200,14 +214,17 @@ private extension PantryOrganiseView {
             } label: {
                 controlIcon(systemName: "trash", color: .red)
             }
+            .scaleEffect(swipeDirection == .delete ? 1 + swipeProgress / 2 : 1)
+            .animation(.interactiveSpring(response: 0.25, dampingFraction: 0.7),
+                       value: swipeDirection == .delete ? swipeProgress / 2 : 0)
 
             Spacer()
-            
-            // Chip to show when item was added and how long ago
+
             if let item = topItem {
                 Text("Added \(TimeUnit.compactRelativeString(from: item.dateAdded))")
                     .chipStyle(background: getChipColor(interval: Date().timeIntervalSince(item.dateAdded)))
             }
+
             Spacer()
 
             Button {
@@ -215,6 +232,9 @@ private extension PantryOrganiseView {
             } label: {
                 controlIcon(systemName: "checkmark", color: AppStyle.primary)
             }
+            .scaleEffect(swipeDirection == .approve ? 1 + swipeProgress / 2 : 1)
+            .animation(.interactiveSpring(response: 0.25, dampingFraction: 0.7),
+                       value: swipeDirection == .approve ? swipeProgress / 2 : 0)
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
@@ -236,10 +256,7 @@ private extension PantryOrganiseView {
 
 private extension PantryOrganiseView {
 
-    func controlIcon(
-        systemName: String,
-        color: Color
-    ) -> some View {
+    func controlIcon(systemName: String, color: Color) -> some View {
         Image(systemName: systemName)
             .font(.system(size: 18, weight: .semibold))
             .foregroundColor(color)
@@ -248,7 +265,9 @@ private extension PantryOrganiseView {
                 RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(color.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)))
             )
+            .contentShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
+    
 }
 
 struct PantryQueueItem: Identifiable, Hashable {
