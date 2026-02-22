@@ -10,12 +10,13 @@ import SwiftUI
 
 struct PantryOrganiseView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
+    
     @ObservedObject var pantryVM: PantryViewModel
 
     // UI-only state
     @State private var banner: ActivityBanner?
     @State private var initialQueueCount: Int = 0
-    
     
     @State private var queue: [PantryQueueItem] // stack-type data structure that is initialized from the pantry model and manipulated in this view
     @State private var draftItem: PantryItem?
@@ -126,6 +127,11 @@ struct PantryOrganiseView: View {
 
 
 private extension PantryOrganiseView {
+    
+    private var topItem: PantryItem? {
+        guard let id = draftID ?? queue.last?.id else { return nil }
+        return pantryVM.getItemByID(itemID: id)
+    }
 
     func handleSwipe(_ action: SwipeCardAction) {
         guard let id = draftID else { return }
@@ -196,6 +202,13 @@ private extension PantryOrganiseView {
             }
 
             Spacer()
+            
+            // Chip to show when item was added and how long ago
+            if let item = topItem {
+                Text("Added \(TimeUnit.compactRelativeString(from: item.dateAdded))")
+                    .chipStyle(background: getChipColor(interval: Date().timeIntervalSince(item.dateAdded)))
+            }
+            Spacer()
 
             Button {
                 handleSwipe(.approve)
@@ -205,6 +218,18 @@ private extension PantryOrganiseView {
         }
         .padding(.horizontal, 24)
         .padding(.bottom, 16)
+    }
+    
+    func getChipColor(interval: TimeInterval) -> Color {
+        if (interval <= 14 * 24 * 60 * 60) {
+            return AppStyle.primary.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)) // <= 14 days old
+        }
+        else if (interval <= 30 * 24 * 60 * 60) {
+            return .yellow.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)) // <= 30 days old (kinda old)
+        }
+        else {
+            return .red.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)) // everything else (olddd)
+        }
     }
 }
 
@@ -218,10 +243,10 @@ private extension PantryOrganiseView {
         Image(systemName: systemName)
             .font(.system(size: 18, weight: .semibold))
             .foregroundColor(color)
-            .frame(width: 46, height: 46)
+            .frame(width: 40, height: 40)
             .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(color.opacity(0.12))
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(color.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)))
             )
     }
 }

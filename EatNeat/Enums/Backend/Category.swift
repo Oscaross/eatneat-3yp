@@ -7,29 +7,28 @@
 
 enum Category: String, CaseIterable, Identifiable, Codable {
     var id: String { rawValue }
-
-    // Food & Drink
-    case cerealsAndBreakfast = "Cereals & Breakfast"
-    case tinsCansAndPackets = "Tins, Cans & Packets"
-    case pastaRiceAndNoodles = "Pasta, Rice & Noodles"
+    
+    case fruitAndVegetables = "Fruit & Vegetables"
+    case dairy = "Dairy"
+    case meat = "Meat"
+    case chilled = "Chilled"
+    case breakfast = "Breakfast"
+    case tinsAndCans = "Tins & Cans"
+    case grainsAndBakery = "Grains & Bakery"
     case cookingIngredients = "Cooking Ingredients"
-    case biscuitsSnacksAndConfectionery = "Biscuits, Snacks & Confectionery"
-    case spreadsSaucesAndCondiments = "Spreads, Sauces & Condiments"
+    case snacksAndConfectionery = "Snacks & Confectionery"
+    case spreadsAndCondiments = "Spreads & Condiments"
+    case beverages = "Beverages"
+    case frozen = "Frozen"
     case homeBaking = "Home Baking"
 
-    // Toiletries & Personal Care
-    case hairCare = "Hair Care"
-    case bodyAndSkincare = "Body & Skincare"
-    case dentalCare = "Dental Care"
-    case shavingAndGrooming = "Shaving & Grooming"
-    case sanitaryAndBabyCare = "Sanitary & Baby Care"
-
-    // Household & Cleaning
-    case laundryAndFabricCare = "Laundry & Fabric Care"
+    // Household
+    case toiletries = "Toiletries"
     case householdEssentials = "Household Essentials"
-    case petFoodAndSupplies = "Pet Food & Supplies"
+    case babySupplies = "Baby Supplies"
+    case petSupplies = "Pet Supplies"
 
-    case none = "None"
+    case uncategorised = "Uncategorised"
 }
 
 extension Category {

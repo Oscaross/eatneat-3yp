@@ -1,10 +1,15 @@
+//
+//  PantryView.swift
+//  EatNeat
+//
+//  Created by Oscar Horner on 30/09/2026.
+//
+// Root view for users to see their pantry and interact with it by filtering or searching for items. Displays all content related to their pantry.
+
 import SwiftUI
 
 struct PantryView: View {
     @ObservedObject var viewModel: PantryViewModel
-    
-    @State private var searchTerm = "" // search bar
-    
     @State private var gridView = true // if false then pantry items rendered as lists
     
     @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
@@ -44,7 +49,7 @@ struct PantryView: View {
             .listStyle(.plain)
             .navigationTitle("My Pantry")
             .navigationBarTitleDisplayMode(.large)
-            .searchable(text: $searchTerm, prompt: "Search...")
+            .searchable(text: $viewModel.searchTerm, prompt: "Search...")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     FilterButtonView(

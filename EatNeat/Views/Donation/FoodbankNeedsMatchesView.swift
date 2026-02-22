@@ -10,6 +10,7 @@ import SwiftUI
 struct FoodbankNeedsMatchesView: View {
     var foodbank: FoodbankNeeds
     @State private var selectedNeeds: Set<Int> = []
+    @Environment(\.colorScheme) private var colorScheme
     @EnvironmentObject private var donationViewModel: DonationViewModel
 
     private let collapsedLimit = 10
@@ -42,32 +43,15 @@ struct FoodbankNeedsMatchesView: View {
                 let timeElapsed = Date().timeIntervalSince(updated)
                 let threeMonths: TimeInterval = 60 * 60 * 24 * 90
                 
-                let relativeString = compactRelativeString(from: updated) // formatted string ie. (3mo ago)
+                let relativeString = TimeUnit.compactRelativeString(from: updated) // formatted string ie. (3mo ago)
                 
                 if (timeElapsed < threeMonths) {
-                    Text("\(updated.formatted(date: .abbreviated, time: .shortened))")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(AppStyle.lightBlueBackground)
-                        )
+                    Text(updated.formatted(date: .abbreviated, time: .shortened))
+                        .chipStyle(background: AppStyle.primary.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)))
                 }
                 else {
-                    // Older than 3 months → date + (relative)
-                     Text("\(updated.formatted(date: .abbreviated, time: .omitted)) (\(relativeString))")
-                        .font(.caption)
-                        .fontWeight(.medium)
-                        .foregroundColor(.secondary)
-                        .padding(.horizontal, 8)
-                        .padding(.vertical, 4)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(AppStyle.yellowBackground)
-                        )
+                    Text("\(updated.formatted(date: .abbreviated, time: .omitted)) (\(relativeString))")
+                        .chipStyle(background: .orange.opacity(AppStyle.backgroundOpacity(darkMode: colorScheme == .dark)))
                 }
 
             }
@@ -160,33 +144,5 @@ struct FoodbankNeedsMatchesView: View {
             }
         }
         
-    }
-    
-    private func compactRelativeString(from date: Date) -> String {
-        let seconds = Int(Date().timeIntervalSince(date))
-
-        let minute = 60
-        let hour = 60 * minute
-        let day = 24 * hour
-        let week = 7 * day
-        let month = 30 * day
-        let year = 365 * day
-
-        switch seconds {
-        case ..<60:
-            return "just now"
-        case ..<hour:
-            return "\(seconds / minute)m ago"
-        case ..<day:
-            return "\(seconds / hour)h ago"
-        case ..<week:
-            return "\(seconds / day)d ago"
-        case ..<(month):
-            return "\(seconds / week)w ago"
-        case ..<(year):
-            return "\(seconds / month)mo ago"
-        default:
-            return "\(seconds / year)y ago"
-        }
     }
 }

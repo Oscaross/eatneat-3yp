@@ -16,8 +16,6 @@ enum AppStyle {
     static let accentBlue = Color.blue.opacity(0.8)
     static let primary = Color.blue
     static let secondary = Color.indigo
-    static let lightBlueBackground = Color.blue.opacity(0.08)
-    static let yellowBackground = Color.yellow.opacity(0.3)
     static let containerGray = Color(.systemGray6).opacity(0.3)
     static let secondaryContainerGray = Color(.systemGray).opacity(0.2)
     
@@ -59,6 +57,11 @@ enum AppStyle {
                         x: 0,
                         y: shadowY)
         }
+    }
+    
+    /// The opacity of background (container shader) colors in the app
+    static func backgroundOpacity(darkMode: Bool) -> Double {
+        return darkMode ? 0.30 : 0.10
     }
     
     static func card(

@@ -15,6 +15,7 @@ class PantryViewModel: ObservableObject {
     @Published var donationCount: Int = 0 // number of items donated by the user
     @Published private var userLabels: [ItemLabel] = [] // custom labels created by the user
     @Published var filter: PantryFilterSet // the current filter that the user has active
+    @Published var searchTerm: String = "" // if the user is currently searching for an item the term that they are searching for
     
     private var lastRemovedItem: PantryItem? // store the last deleted item for undo functionality
     
@@ -38,7 +39,15 @@ class PantryViewModel: ObservableObject {
     }
     
     var filteredItems: [PantryItem] {
-        getAllItems().filter { filter.matches($0) }
+        itemsByCategory.values
+            .flatMap { $0 }
+            .filter { item in
+                let matchesSearch =
+                    searchTerm.isEmpty ||
+                    item.name.localizedCaseInsensitiveContains(searchTerm)
+
+                return matchesSearch && filter.matches(item)
+            }
     }
     
     /// Adds a PantryItem instance according to primitive required data

@@ -26,7 +26,7 @@ struct PantryItemEditorSheet: View {
         case .add:
             _draft = State(initialValue: PantryItem(
                 name: "",
-                category: .none,
+                category: .uncategorised,
                 quantity: 1,
                 weightQuantity: nil,
                 weightUnit: .grams,

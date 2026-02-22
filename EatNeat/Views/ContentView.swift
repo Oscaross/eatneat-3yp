@@ -78,9 +78,15 @@ struct ContentView: View {
             #if DEBUG
             pantryViewModel.clearPantry()
             if !loadedSampleItems {
-                SampleData.generateSampleItems().forEach {
+                print("Generating sample user pantry data...")
+                SampleData.generateSampleItems(labels: pantryViewModel.getUserLabels()).forEach {
                     pantryViewModel.addItem(item: $0)
                 }
+                
+                print("Items created and added! Assigning random added dates to these items...")
+                SampleData.assignRandomAddedDates(to: pantryViewModel)
+                
+                print("Loading complete! Items populated and ready to use.")
                 loadedSampleItems = true
             }
             #endif
