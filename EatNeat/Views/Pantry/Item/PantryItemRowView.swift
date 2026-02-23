@@ -10,24 +10,22 @@ import SwiftUI
 
 struct PantryItemRowView: View {
     let item: PantryItem
-
+    
     var body: some View {
-        HStack(alignment: .center) {
-
-            // NAME
+        HStack(spacing: 12) {
+            
             Text(item.name)
-                .font(.body)
+                .font(.system(size: 15, weight: .medium))
                 .lineLimit(1)
-                .truncationMode(.tail)
-
-            Spacer()
-
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
             Text(item.subtitleText)
-                .foregroundColor(.secondary)
-                .font(.body)
+                .font(.system(size: 14))
+                .foregroundStyle(.secondary)
+                .monospacedDigit()
         }
-        .padding(.horizontal)
-        .padding(.vertical, 10)
-        .background(Color.clear)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .contentShape(Rectangle())
     }
 }

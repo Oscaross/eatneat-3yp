@@ -11,11 +11,13 @@ import SwiftUI
 struct PantryView: View {
     @ObservedObject var viewModel: PantryViewModel
     @EnvironmentObject var settingsModel: SettingsModel
+    @EnvironmentObject var bannerManager: BannerManager
     
     @State private var editorSheet: PantryEditorSheet? // shows the add or edit item sheet when called
     
     @State var showFilterOptions: Bool = false
     @State var showOrganiseView: Bool = false
+    
 
     var body: some View {
         NavigationStack {
@@ -30,16 +32,26 @@ struct PantryView: View {
                 ForEach(Category.allCases, id: \.self) { category in
                     if let items = getItemsToRender(category: category),
                        !items.isEmpty {
-                        Section {
-                            categoryHeader(category, count: items.count)
+                        if settingsModel.compactPantryView {
+                            Group {
+                                PantryTableSection(
+                                    categoryName: category.rawValue,
+                                    itemCount: items.count,
+                                    items: items,
+                                    onTapItem: { tapped in
+                                        editorSheet = .edit(tapped)
+                                    }
+                                )
                                 .listRowInsets(EdgeInsets())
                                 .listRowSeparator(.hidden)
-
-                            if settingsModel.compactPantryView {
-                                PantryTableSection(items: items)
+                                .listRowBackground(Color.clear)
+                            }
+                        } else {
+                            Section {
+                                categoryHeader(category, count: items.count)
                                     .listRowInsets(EdgeInsets())
                                     .listRowSeparator(.hidden)
-                            } else {
+
                                 gridSection(items: items)
                             }
                         }
@@ -48,26 +60,24 @@ struct PantryView: View {
             }
             .scrollIndicators(.hidden)
             .listStyle(.plain)
-            .navigationTitle("My Pantry")
-            .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $viewModel.searchTerm, prompt: "Search...")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    FilterButtonView(
-                        action: { showFilterOptions = true },
-                        filter: viewModel.filter
-                    )
-                }
-                
-                ToolbarItemGroup(placement: .topBarLeading) {
-                    CapsuleView(
-                        content: .textAndIcon(text: "Review", systemName: "rectangle.stack"),
-                        color: AppStyle.primary,
-                        heavy: false,
-                        action: {
-                            showOrganiseView = true
-                        }
-                    )
+                    HStack {
+                        CapsuleView(
+                            content: .textAndIcon(text: "Review", systemName: "rectangle.stack"),
+                            color: AppStyle.primary,
+                            heavy: false,
+                            action: {
+                                showOrganiseView = true
+                            }
+                        )
+                        
+                        FilterButtonView(
+                            action: { showFilterOptions = true },
+                            filter: viewModel.filter
+                        )
+                    }
                 }
             }
             .sheet(item: $editorSheet) { sheet in
@@ -83,13 +93,18 @@ struct PantryView: View {
                     onApply: { newFilter in
                         viewModel.filter = newFilter
                         showFilterOptions = false
+                        bannerManager.spawn(_: .generic(message: "Filter applied to items."))
                     },
-                    onCancel: { showFilterOptions = false }
+                    onCancel: {
+                        showFilterOptions = false
+                        bannerManager.spawn(_: .generic(message: "All active filters cleared."))
+                    }
                 )
             }
             .sheet(isPresented: $showOrganiseView) {
                 PantryOrganiseView(pantryVM: viewModel)
             }
+            .activityBanner(_: $bannerManager.banner)
         }
     }
 
@@ -169,38 +184,63 @@ private extension PantryView {
 
 
 struct PantryTableSection: View {
+    let categoryName: String
+    let itemCount: Int
     let items: [PantryItem]
-
+    let onTapItem: (PantryItem) -> Void
+    
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-
-            // HEADER
-            HStack {
-                Text("NAME")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-                Spacer()
-                Text("STOCK")
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.secondary)
-            }
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(AppStyle.containerGray)
+        VStack(spacing: 0) {
             
-            Divider()
-
-            // ROWS
-            VStack(spacing: 0) {
-                ForEach(items) { item in
-                    PantryItemRowView(item: item)
+            // MARK: - Category Header
+            VStack(spacing: 10) {
+                
+                // Combined title + count
+                Text("\(categoryName) (\(itemCount))")
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(AppStyle.primary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                // Column markers
+                HStack {
+                    Text("NAME")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    
+                    Spacer()
+                    
+                    Text("AMOUNT")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .listRowSeparator(.hidden)
+            .padding(.horizontal, 16)
+            .padding(.top, 14)
+            .padding(.bottom, 8)
+            
+            Divider()
+            
+            // MARK: - Rows
+            ForEach(items) { item in
+                PantryItemRowView(item: item)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        onTapItem(item)
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    }
+            }
         }
-        .cardStyle(padding: 8, cornerRadius: 4)
+        .background(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .fill(.ultraThinMaterial)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(Color.white.opacity(0.12))
+        )
+        .shadow(color: .black.opacity(0.08), radius: 6, y: 3)
         
+        .padding(.vertical, 12)
     }
 }

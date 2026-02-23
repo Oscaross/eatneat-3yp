@@ -50,7 +50,7 @@ enum AppStyle {
         func body(content: Content) -> some View {
             content
                 .padding(padding)
-                .background(AppStyle.cardBackground)
+                .background(.ultraThickMaterial)
                 .cornerRadius(cornerRadius)
                 .shadow(color: AppStyle.cardShadow,
                         radius: shadowRadius,

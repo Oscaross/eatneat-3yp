@@ -17,6 +17,7 @@ struct PantryItemEditorSheet: View {
     let sheet: PantryEditorSheet
 
     @State private var draft: PantryItem
+    var onUpdate: (() -> Void)?
 
     init(sheet: PantryEditorSheet, pantryVM: PantryViewModel) {
         self.sheet = sheet
@@ -49,21 +50,9 @@ struct PantryItemEditorSheet: View {
                 mode: sheetMode,
                 onDelete: {
                     pantryVM.removeItem(itemID: draft.id)
-                    
-                    withAnimation {
-                        banner = ActivityBanner(
-                            message: "Deleted \(draft.name) from pantry",
-                            actionTitle: "Undo",
-                            action: {
-                                undoLastAction()
-                                banner = nil
-                            }
-                        )
-                    }
                     dismiss()
                 }
             )
-            .activityBanner($banner)
             .navigationTitle(title)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

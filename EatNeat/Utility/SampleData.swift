@@ -1,4 +1,5 @@
-// Author: ChatGPT
+// Code (including product data) entirely synthesised by Generative AI.
+
 // Class to support testing, large amount of realistic looking test data and test values that simulate a real-world pantry.
 // For future testing, we would get a user to actually use the pantry for 3 months or so, then we would take that snapshot as the test data.
 
@@ -120,208 +121,82 @@ struct SampleData {
 
         var items: [PantryItem] = []
 
-        // MARK: - Fruit & Vegetables (8)
+        // MARK: - Fruit & Vegetables
         items += [
-            make("Bananas", .fruitAndVegetables, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: true,  isOpened: false),
-            make("Apples", .fruitAndVegetables, weightQuantity: 6,   weightUnit: WeightUnit.none,     isPerishable: true,  isOpened: false),
-            make("Carrots", .fruitAndVegetables, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: true, isOpened: false),
-            make("Broccoli", .fruitAndVegetables, weightQuantity: 350, weightUnit: .grams,   isPerishable: true,  isOpened: false),
-            make("Cherry Tomatoes", .fruitAndVegetables, weightQuantity: 250, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Spinach", .fruitAndVegetables, weightQuantity: 200, weightUnit: .grams,   isPerishable: true,  isOpened: true),
-            make("Onions", .fruitAndVegetables, weightQuantity: 1.0,  weightUnit: .kilograms, isPerishable: false, isOpened: false),
-            make("Potatoes", .fruitAndVegetables, weightQuantity: 2.5, weightUnit: .kilograms, isPerishable: false, isOpened: false),
+            make("Tesco Bananas 6 Pack", .fruitAndVegetables, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
+            make("Tesco British Gala Apples", .fruitAndVegetables, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
+            make("Tesco Carrots 1kg", .fruitAndVegetables, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: true, isOpened: false),
+            make("Tesco Cherry Tomatoes", .fruitAndVegetables, weightQuantity: 250, weightUnit: .grams, isPerishable: true, isOpened: true),
+            make("Tesco White Potatoes 2.5kg", .fruitAndVegetables, weightQuantity: 2.5, weightUnit: .kilograms, isPerishable: false, isOpened: false),
+            make("Tesco Broccoli", .fruitAndVegetables, weightQuantity: 335, weightUnit: .grams, isPerishable: true, isOpened: false),
         ]
 
-        // MARK: - Dairy (8)
+        // MARK: - Dairy
         items += [
-            make("Milk", .dairy, weightQuantity: 2.0, weightUnit: .litres, isPerishable: true,  isOpened: true),
-            make("Butter", .dairy, weightQuantity: 250, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Cheddar Cheese", .dairy, weightQuantity: 400, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Greek Yogurt", .dairy, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Natural Yogurt", .dairy, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Eggs", .dairy, weightQuantity: 12, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
-            make("Cream", .dairy, weightQuantity: 300, weightUnit: .millilitres, isPerishable: true, isOpened: false),
-            make("Mozzarella", .dairy, weightQuantity: 125, weightUnit: .grams, isPerishable: true, isOpened: false),
+            make("Tesco British Semi Skimmed Milk", .dairy, weightQuantity: 2.272, weightUnit: .litres, isPerishable: true, isOpened: true),
+            make("Tesco Salted Butter 250g", .dairy, weightQuantity: 250, weightUnit: .grams, isPerishable: true, isOpened: true),
+            make("Cathedral City Mature Cheddar", .dairy, weightQuantity: 350, weightUnit: .grams, isPerishable: true, isOpened: true),
+            make("Tesco Greek Style Yogurt 500g", .dairy, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
+            make("Tesco British Free Range Eggs 12 Pack", .dairy, weightQuantity: 12, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
+            make("Galbani Mozzarella", .dairy, weightQuantity: 125, weightUnit: .grams, isPerishable: true, isOpened: false),
         ]
 
-        // MARK: - Meat (8)
+        // MARK: - Meat
         items += [
-            make("Chicken Breast Fillets", .meat, weightQuantity: 600, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Beef Mince", .meat, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Smoked Bacon", .meat, weightQuantity: 300, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Pork Sausages", .meat, weightQuantity: 8, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
-            make("Chicken Thighs", .meat, weightQuantity: 800, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Salami Slices", .meat, weightQuantity: 120, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Turkey Slices", .meat, weightQuantity: 150, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Beef Steak", .meat, weightQuantity: 2, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
+            make("Tesco British Chicken Breast Fillets", .meat, weightQuantity: 600, weightUnit: .grams, isPerishable: true, isOpened: false),
+            make("Tesco Lean Beef Steak Mince 500g", .meat, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
+            make("Tesco Smoked Back Bacon", .meat, weightQuantity: 300, weightUnit: .grams, isPerishable: true, isOpened: true),
+            make("Richmond Pork Sausages 8 Pack", .meat, weightQuantity: 8, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
+            make("Tesco British Rump Steak", .meat, weightQuantity: 2, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
         ]
 
-        // MARK: - Chilled (8)
+        // MARK: - Tins & Cans
         items += [
-            make("Hummus", .chilled, weightQuantity: 200, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Fresh Pasta", .chilled, weightQuantity: 300, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Coleslaw", .chilled, weightQuantity: 300, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Pesto", .chilled, weightQuantity: 190, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Fresh Soup", .chilled, weightQuantity: 600, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Cooked Ham", .chilled, weightQuantity: 200, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Ready-to-Eat Salad", .chilled, weightQuantity: 220, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Fresh Salsa", .chilled, weightQuantity: 200, weightUnit: .grams, isPerishable: true, isOpened: true),
+            make("Heinz Baked Beans", .tinsAndCans, quantity: 3, weightQuantity: 415, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("Tesco Chopped Tomatoes 400g", .tinsAndCans, quantity: 4, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("Tesco Red Kidney Beans", .tinsAndCans, quantity: 2, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("Princes Tuna Chunks", .tinsAndCans, quantity: 2, weightQuantity: 145, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("Tesco Coconut Milk 400ml", .tinsAndCans, quantity: 2, weightQuantity: 400, weightUnit: .millilitres, isPerishable: false, isOpened: false),
+            make("Heinz Cream of Tomato Soup", .tinsAndCans, quantity: 2, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
         ]
 
-        // MARK: - Breakfast (8)
+        // MARK: - Grains & Bakery
         items += [
-            make("Corn Flakes", .breakfast, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Porridge Oats", .breakfast, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: false),
-            make("Granola", .breakfast, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Muesli", .breakfast, weightQuantity: 750, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Pancake Mix", .breakfast, weightQuantity: 155, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Maple Syrup", .breakfast, weightQuantity: 250, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Breakfast Bars", .breakfast, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-            make("Rice Cakes", .breakfast, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: true),
+            make("Warburtons Toastie Bread", .grainsAndBakery, weightQuantity: 800, weightUnit: .grams, isPerishable: true, isOpened: true),
+            make("Tesco Plain Tortilla Wraps", .grainsAndBakery, weightQuantity: 8, weightUnit: WeightUnit.none, isPerishable: true, isOpened: true),
+            make("Tesco Spaghetti 500g", .grainsAndBakery, quantity: 2, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: true),
+            make("Tilda Basmati Rice", .grainsAndBakery, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: false),
+            make("Tesco Couscous", .grainsAndBakery, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("New York Bakery Bagels 5 Pack", .grainsAndBakery, weightQuantity: 5, weightUnit: WeightUnit.none, isPerishable: true, isOpened: true),
         ]
 
-        // MARK: - Tins & Cans (8)
+        // MARK: - Snacks & Confectionery
         items += [
-            make("Baked Beans", .tinsAndCans, quantity: 3, weightQuantity: 415, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Chopped Tomatoes", .tinsAndCans, quantity: 4, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Kidney Beans", .tinsAndCans, quantity: 2, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Sweetcorn", .tinsAndCans, quantity: 2, weightQuantity: 325, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Tuna Chunks", .tinsAndCans, quantity: 2, weightQuantity: 145, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Coconut Milk", .tinsAndCans, quantity: 2, weightQuantity: 400, weightUnit: .millilitres, isPerishable: false, isOpened: false),
-            make("Tinned Peaches", .tinsAndCans, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Tomato Soup", .tinsAndCans, quantity: 2, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("Cadbury Dairy Milk Chocolate Bar", .snacksAndConfectionery, quantity: 3, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: false),
+            make("McVitie's Digestive Biscuits", .snacksAndConfectionery, weightQuantity: 400, weightUnit: .grams, isPerishable: false, isOpened: true),
+            make("Tesco Ready Salted Crisps 6 Pack", .snacksAndConfectionery, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
+            make("Butterkist Salted Popcorn", .snacksAndConfectionery, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: true),
+            make("Tesco Chocolate Chip Cookies", .snacksAndConfectionery, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: true),
+            make("Haribo Starmix", .snacksAndConfectionery, weightQuantity: 190, weightUnit: .grams, isPerishable: false, isOpened: false),
         ]
 
-        // MARK: - Grains & Bakery (8)
+        // MARK: - Beverages
         items += [
-            make("Spaghetti", .grainsAndBakery, quantity: 2, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Penne", .grainsAndBakery, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Basmati Rice", .grainsAndBakery, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: false),
-            make("Couscous", .grainsAndBakery, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Noodles", .grainsAndBakery, weightQuantity: 300, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Bread", .grainsAndBakery, weightQuantity: 800, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Bagels", .grainsAndBakery, weightQuantity: 5, weightUnit: WeightUnit.none, isPerishable: true, isOpened: true),
-            make("Wraps", .grainsAndBakery, weightQuantity: 8, weightUnit: WeightUnit.none, isPerishable: true, isOpened: true),
+            make("Tesco Pure Orange Juice 1L", .beverages, weightQuantity: 1.0, weightUnit: .litres, isPerishable: true, isOpened: true),
+            make("Innocent Apple Juice", .beverages, weightQuantity: 1.0, weightUnit: .litres, isPerishable: true, isOpened: false),
+            make("Coca-Cola Original Taste 2L", .beverages, weightQuantity: 2.0, weightUnit: .litres, isPerishable: false, isOpened: false),
+            make("Tesco Sparkling Water 6 Pack", .beverages, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
+            make("Tetley Tea Bags 80 Pack", .beverages, weightQuantity: 80, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
+            make("Nescafé Gold Blend", .beverages, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: true),
         ]
 
-        // MARK: - Cooking Ingredients (8)
+        // MARK: - Frozen
         items += [
-            make("Olive Oil", .cookingIngredients, weightQuantity: 500, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Vegetable Oil", .cookingIngredients, weightQuantity: 1.0, weightUnit: .litres, isPerishable: false, isOpened: false),
-            make("Vegetable Stock Cubes", .cookingIngredients, weightQuantity: 12, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-            make("Garlic", .cookingIngredients, weightQuantity: 3, weightUnit: WeightUnit.none, isPerishable: true, isOpened: false),
-            make("Ginger", .cookingIngredients, weightQuantity: 150, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Chilli Flakes", .cookingIngredients, weightQuantity: 45, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Ground Cumin", .cookingIngredients, weightQuantity: 45, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Salt", .cookingIngredients, weightQuantity: 750, weightUnit: .grams, isPerishable: false, isOpened: true),
-        ]
-
-        // MARK: - Snacks & Confectionery (8)
-        items += [
-            make("Digestive Biscuits", .snacksAndConfectionery, weightQuantity: 300, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Chocolate Bar", .snacksAndConfectionery, quantity: 3, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Crisps Multipack", .snacksAndConfectionery, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
-            make("Popcorn", .snacksAndConfectionery, weightQuantity: 90, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Trail Mix", .snacksAndConfectionery, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Jelly Sweets", .snacksAndConfectionery, weightQuantity: 190, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Cookies", .snacksAndConfectionery, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Pretzels", .snacksAndConfectionery, weightQuantity: 175, weightUnit: .grams, isPerishable: false, isOpened: false),
-        ]
-
-        // MARK: - Spreads & Condiments (8)
-        items += [
-            make("Strawberry Jam", .spreadsAndCondiments, weightQuantity: 340, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Peanut Butter", .spreadsAndCondiments, weightQuantity: 350, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Tomato Ketchup", .spreadsAndCondiments, weightQuantity: 460, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Mayonnaise", .spreadsAndCondiments, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Soy Sauce", .spreadsAndCondiments, weightQuantity: 150, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Hot Sauce", .spreadsAndCondiments, weightQuantity: 165, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Mustard", .spreadsAndCondiments, weightQuantity: 185, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("BBQ Sauce", .spreadsAndCondiments, weightQuantity: 480, weightUnit: .grams, isPerishable: false, isOpened: false),
-        ]
-
-        // MARK: - Beverages (8)
-        items += [
-            make("Orange Juice", .beverages, weightQuantity: 1.0, weightUnit: .litres, isPerishable: true, isOpened: true),
-            make("Apple Juice", .beverages, weightQuantity: 1.0, weightUnit: .litres, isPerishable: true, isOpened: false),
-            make("Cola", .beverages, weightQuantity: 2.0, weightUnit: .litres, isPerishable: false, isOpened: false),
-            make("Sparkling Water", .beverages, weightQuantity: 6, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-            make("Tea Bags", .beverages, weightQuantity: 80, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
-            make("Ground Coffee", .beverages, weightQuantity: 227, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Hot Chocolate", .beverages, weightQuantity: 250, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Oat Drink", .beverages, weightQuantity: 1.0, weightUnit: .litres, isPerishable: true, isOpened: true),
-        ]
-
-        // MARK: - Frozen (8)
-        items += [
-            make("Frozen Peas", .frozen, weightQuantity: 900, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Frozen Sweetcorn", .frozen, weightQuantity: 900, weightUnit: .grams, isPerishable: true, isOpened: true),
-            make("Frozen Mixed Vegetables", .frozen, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: true, isOpened: false),
-            make("Frozen Pizza", .frozen, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Fish Fingers", .frozen, weightQuantity: 10, weightUnit: WeightUnit.none, isPerishable: true, isOpened: true),
-            make("Frozen Chips", .frozen, weightQuantity: 1.5, weightUnit: .kilograms, isPerishable: true, isOpened: true),
-            make("Ice Cream", .frozen, weightQuantity: 900, weightUnit: .millilitres, isPerishable: true, isOpened: true),
-            make("Frozen Berries", .frozen, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
-        ]
-
-        // MARK: - Home Baking (8)
-        items += [
-            make("Plain Flour", .homeBaking, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: true),
-            make("Self-Raising Flour", .homeBaking, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: false),
-            make("Caster Sugar", .homeBaking, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: true),
-            make("Baking Powder", .homeBaking, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Chocolate Chips", .homeBaking, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Vanilla Extract", .homeBaking, weightQuantity: 38, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Icing Sugar", .homeBaking, weightQuantity: 500, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Bicarbonate of Soda", .homeBaking, weightQuantity: 200, weightUnit: .grams, isPerishable: false, isOpened: true),
-        ]
-
-        // MARK: - Toiletries (8)
-        items += [
-            make("Shampoo", .toiletries, weightQuantity: 400, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Conditioner", .toiletries, weightQuantity: 400, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Toothpaste", .toiletries, quantity: 2, weightQuantity: 75, weightUnit: .millilitres, isPerishable: false, isOpened: false),
-            make("Mouthwash", .toiletries, weightQuantity: 500, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Hand Soap", .toiletries, weightQuantity: 250, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Deodorant", .toiletries, weightQuantity: 150, weightUnit: .millilitres, isPerishable: false, isOpened: false),
-            make("Shower Gel", .toiletries, weightQuantity: 500, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Cotton Pads", .toiletries, weightQuantity: 100, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-        ]
-
-        // MARK: - Household Essentials (8)
-        items += [
-            make("Washing Up Liquid", .householdEssentials, weightQuantity: 450, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Laundry Detergent", .householdEssentials, weightQuantity: 1.4, weightUnit: .litres, isPerishable: false, isOpened: true),
-            make("Fabric Softener", .householdEssentials, weightQuantity: 1.2, weightUnit: .litres, isPerishable: false, isOpened: true),
-            make("Kitchen Roll", .householdEssentials, weightQuantity: 2, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-            make("Toilet Roll", .householdEssentials, weightQuantity: 9, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-            make("Bin Bags", .householdEssentials, weightQuantity: 30, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
-            make("Surface Cleaner", .householdEssentials, weightQuantity: 750, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Disinfectant Wipes", .householdEssentials, weightQuantity: 80, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
-        ]
-
-        // MARK: - Baby Supplies (8)
-        items += [
-            make("Nappies", .babySupplies, weightQuantity: 44, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
-            make("Baby Wipes", .babySupplies, weightQuantity: 80, weightUnit: WeightUnit.none, isPerishable: false, isOpened: true),
-            make("Baby Shampoo", .babySupplies, weightQuantity: 250, weightUnit: .millilitres, isPerishable: false, isOpened: false),
-            make("Nappy Cream", .babySupplies, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Baby Lotion", .babySupplies, weightQuantity: 200, weightUnit: .millilitres, isPerishable: false, isOpened: true),
-            make("Formula Powder", .babySupplies, weightQuantity: 800, weightUnit: .grams, isPerishable: false, isOpened: false),
-            make("Baby Food Pouches", .babySupplies, quantity: 6, weightQuantity: 90, weightUnit: .grams, isPerishable: true, isOpened: false),
-            make("Teething Biscuits", .babySupplies, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: true),
-        ]
-
-        // MARK: - Pet Supplies (8)
-        items += [
-            make("Dog Dry Food", .petSupplies, weightQuantity: 2.0, weightUnit: .kilograms, isPerishable: false, isOpened: true),
-            make("Cat Dry Food", .petSupplies, weightQuantity: 1.5, weightUnit: .kilograms, isPerishable: false, isOpened: true),
-            make("Cat Food Pouches", .petSupplies, weightQuantity: 12, weightUnit: WeightUnit.none, isPerishable: false, isOpened: false),
-            make("Dog Treats", .petSupplies, weightQuantity: 180, weightUnit: .grams, isPerishable: false, isOpened: true),
-            make("Cat Litter", .petSupplies, weightQuantity: 10, weightUnit: .kilograms, isPerishable: false, isOpened: true),
-            make("Pet Shampoo", .petSupplies, weightQuantity: 250, weightUnit: .millilitres, isPerishable: false, isOpened: false),
-            make("Bird Seed", .petSupplies, weightQuantity: 1.0, weightUnit: .kilograms, isPerishable: false, isOpened: false),
-            make("Fish Food Flakes", .petSupplies, weightQuantity: 100, weightUnit: .grams, isPerishable: false, isOpened: true),
+            make("Tesco Garden Peas 900g", .frozen, weightQuantity: 900, weightUnit: .grams, isPerishable: true, isOpened: false),
+            make("Tesco Homestyle Oven Chips 1.5kg", .frozen, weightQuantity: 1.5, weightUnit: .kilograms, isPerishable: true, isOpened: true),
+            make("Chicago Town Deep Dish Pepperoni Pizza", .frozen, weightQuantity: 435, weightUnit: .grams, isPerishable: true, isOpened: false),
+            make("Birds Eye 10 Fish Fingers", .frozen, weightQuantity: 10, weightUnit: WeightUnit.none, isPerishable: true, isOpened: true),
+            make("Tesco Frozen Summer Fruits", .frozen, weightQuantity: 500, weightUnit: .grams, isPerishable: true, isOpened: false),
         ]
 
         return items

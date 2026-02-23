@@ -13,9 +13,9 @@ struct PantryOrganiseView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     @ObservedObject var pantryVM: PantryViewModel
+    @EnvironmentObject var bannerManager: BannerManager
 
     // UI-only state
-    @State private var banner: ActivityBanner?
     @State private var initialQueueCount: Int = 0
     @State private var swipeProgress: Double = 0
     @State private var swipeDirection: SwipeCardAction?
@@ -114,10 +114,10 @@ struct PantryOrganiseView: View {
                 }
             )
         }
-        .activityBanner($banner)
         .onAppear {
             loadDraftForTopCard()
         }
+        .activityBanner(_: $bannerManager.banner)
     }
     
     var queueCounter: some View {
@@ -169,38 +169,13 @@ private extension PantryOrganiseView {
             pantryVM.removeItem(itemID: id)
 
             if let name {
-                showDeleteBanner(itemName: name)
+                bannerManager.spawn(.removedItem(name: name, undo: {
+                    pantryVM.undoLastRemoval()
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                }))
             }
             
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-        }
-    }
-}
-
-private extension PantryOrganiseView {
-    
-    private func showDeleteBanner(itemName: String) {
-        presentBanner(
-            ActivityBanner(
-                message: "Deleted \(itemName) from pantry",
-                actionTitle: "Undo",
-                action: {
-                    pantryVM.undoLastRemoval()
-                    banner = nil
-                }
-            )
-        )
-    }
-
-    private func presentBanner(_ newBanner: ActivityBanner) {
-        // Immediately clear any existing banner
-        banner = nil
-        
-        // Small delay ensures SwiftUI processes the removal first
-        DispatchQueue.main.async {
-            withAnimation {
-                banner = newBanner
-            }
         }
     }
 }
