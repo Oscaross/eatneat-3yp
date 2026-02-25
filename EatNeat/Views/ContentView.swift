@@ -52,7 +52,6 @@ struct ContentView: View {
                 lastNonMiddleTab = newValue
             }
         }
-
         .sheet(isPresented: $showingAddView) {
             AddItemModeView { mode in
                 addMode = mode

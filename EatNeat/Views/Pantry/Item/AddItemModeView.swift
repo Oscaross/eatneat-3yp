@@ -43,7 +43,7 @@ struct AddItemModeView: View {
             Spacer(minLength: 8)
         }
         .padding(.horizontal)
-        .presentationDetents([.height(UIScreen.main.bounds.height * 0.3)])
+        .presentationDetents([.height(UIScreen.main.bounds.height * 0.35)])
         .presentationDragIndicator(.visible)
     }
 

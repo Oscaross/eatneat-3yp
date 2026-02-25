@@ -24,7 +24,7 @@ struct PantryItemFormView: View {
         self.pantryVM = pantryVM
     }
 
-var body: some View {
+    var body: some View {
         // DETAILS
         Section(header: Text("Details")) {
 
@@ -175,8 +175,8 @@ var body: some View {
             header: HStack {
                 Text(
                     item.labels.isEmpty
-                    ? "LABELS"
-                    : "LABELS (\(item.labels.count))"
+                    ? "Labels"
+                    : "Labels (\(item.labels.count))"
                 )
                 Spacer()
 

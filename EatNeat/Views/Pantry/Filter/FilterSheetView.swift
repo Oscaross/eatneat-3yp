@@ -21,6 +21,9 @@ struct FilterSheetView: View {
     @State private var lastSelectedCategory: Category
     @State private var selectedCategories: [Category]
     @State private var shouldIncludeCategories: Bool
+    private let pillColumns = [
+        GridItem(.adaptive(minimum: 90), spacing: 8, alignment: .leading)
+    ]
 
     // Attribute state
     @State private var selectedFilters: [PantryFilter]
@@ -47,108 +50,117 @@ struct FilterSheetView: View {
         _shouldIncludeCategories = State(initialValue: filter.includeCategories)
         _selectedCategories = State(initialValue: filter.categoryFilters)
 
-        // choose a sensible default that won't look "random"
         _lastSelectedCategory = State(initialValue: filter.categoryFilters.first ?? .homeBaking)
     }
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("LABELS") {
-                    LabelBarView(
-                        pantryVM: pantryVM,
-                        selectedLabels: $selectedLabels,
-                        allowsMultipleSelection: true,
-                        onAddLabel: {
-                            print("User wants to add a label")
-                        }
-                    )
-                }
-
-                Section {
-                    CapsuleMenu(
-                        title: "Category",
-                        options: Category.allCases.filter { !selectedCategories.contains($0) },
-                        display: { $0.rawValue },
-                        onConfirm: { category in
-                            selectedCategories.append(category)
-                        },
-                        color: .gray,
-                        label: {
-                            AddButtonView(action: {})
-                        }
-                    )
-
-                    ForEach(selectedCategories, id: \.self) { category in
-                        PillView(text: category.rawValue)
+            VStack(spacing: 0) {
+                Form {
+                    Section("Labels") {
+                        LabelBarView(
+                            pantryVM: pantryVM,
+                            selectedLabels: $selectedLabels,
+                            allowsMultipleSelection: true,
+                            onAddLabel: {
+                                print("User wants to add a label")
+                            }
+                        )
                     }
-                } header: {
-                    HStack {
-                        Text("CATEGORIES")
-                        Spacer()
-                        CapsuleToggleView(
-                            value: $shouldIncludeCategories,
-                            trueLabel: .text("Include"),
-                            falseLabel: .text("Exclude"),
+
+                    Section {
+                        CapsuleMenu(
+                            title: "Category",
+                            options: Category.allCases.filter { !selectedCategories.contains($0) },
+                            display: { $0.rawValue },
+                            onConfirm: { category in
+                                selectedCategories.append(category)
+                            },
                             color: .gray,
-                            shouldChangeAppearanceOnToggle: false
+                            label: {
+                                AddButtonView(action: {})
+                            }
+                        )
+                        FlowLayoutView(spacing: 8) {
+                            ForEach(selectedCategories, id: \.self) { category in
+                                PillView(
+                                    text: category.rawValue,
+                                    onTap: {
+                                        selectedCategories.removeAll { $0 == category }
+                                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                    }
+                                )
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    } header: {
+                        HStack {
+                            Text("Categories")
+                            Spacer()
+                            CapsuleToggleView(
+                                value: $shouldIncludeCategories,
+                                trueLabel: .text("Include"),
+                                falseLabel: .text("Exclude"),
+                                color: .gray,
+                                shouldChangeAppearanceOnToggle: false
+                            )
+                        }
+                        .textCase(nil)
+                    }
+
+                    Section("Attributes") {
+                        ForEach(selectedFilters.indices, id: \.self) { index in
+                            let f = selectedFilters[index]
+                            CapsuleView(
+                                content: .text(f.displayText),
+                                color: AppStyle.primary,
+                                heavy: false,
+                                action: { selectedFilters.remove(at: index) }
+                            )
+                        }
+
+                        AddButtonView(
+                            color: .gray,
+                            action: { showAddAttributeSheet = true }
                         )
                     }
-                    .textCase(nil)
                 }
-
-                Section("ATTRIBUTES") {
-                    ForEach(selectedFilters.indices, id: \.self) { index in
-                        let f = selectedFilters[index]
-                        CapsuleView(
-                            content: .text(f.displayText),
-                            color: AppStyle.primary,
-                            heavy: false,
-                            action: { selectedFilters.remove(at: index) }
-                        )
+                .navigationTitle("Filter Items")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Clear") {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                            // reset the filter to a default state
+                            pantryVM.filter = .init()
+                            onCancel()
+                        }
                     }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Apply") {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
 
-                    AddButtonView(
-                        color: .gray,
-                        action: { showAddAttributeSheet = true }
+                            var updated = filter
+                            updated.attributeFilters = selectedFilters
+                            updated.categoryFilters = selectedCategories
+                            updated.includeCategories = shouldIncludeCategories
+                            updated.labelFilters = selectedLabels
+                            updated.includeLabels = true
+
+                            onApply(updated)
+                        }
+                    }
+                }
+                .sheet(isPresented: $showAddAttributeSheet) {
+                    CreateFilterSheetView(
+                        onCreate: { f in
+                            selectedFilters.append(f)
+                            showAddAttributeSheet = false
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+                        },
+                        onDismiss: { showAddAttributeSheet = false }
                     )
                 }
-            }
-            .navigationTitle("Filter Items")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Clear") {
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                        // reset the filter to a default state
-                        pantryVM.filter = .init()
-                        onCancel()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Apply") {
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-
-                        var updated = filter
-                        updated.attributeFilters = selectedFilters
-                        updated.categoryFilters = selectedCategories
-                        updated.includeCategories = shouldIncludeCategories
-                        updated.labelFilters = selectedLabels
-                        updated.includeLabels = true
-
-                        onApply(updated)
-                    }
-                }
-            }
-            .sheet(isPresented: $showAddAttributeSheet) {
-                CreateFilterSheetView(
-                    onCreate: { f in
-                        selectedFilters.append(f)
-                        showAddAttributeSheet = false
-                        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
-                    },
-                    onDismiss: { showAddAttributeSheet = false }
-                )
             }
         }
     }

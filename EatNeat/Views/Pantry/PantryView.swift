@@ -60,23 +60,26 @@ struct PantryView: View {
             }
             .scrollIndicators(.hidden)
             .listStyle(.plain)
-            .searchable(text: $viewModel.searchTerm, prompt: "Search...")
+            .searchable(text: $viewModel.searchTerm, prompt: "Search my pantry...")
             .toolbar {
+                ToolbarItemGroup(placement: .topBarLeading) {
+                    Button("Grid") {
+                        
+                    }
+                }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     HStack {
-                        CapsuleView(
-                            content: .textAndIcon(text: "Review", systemName: "rectangle.stack"),
-                            color: AppStyle.primary,
-                            heavy: false,
-                            action: {
-                                showOrganiseView = true
-                            }
-                        )
+                        Button(action: {
+                            showOrganiseView = true
+                        }) {
+                            Label("Organise", systemImage: "rectangle.stack")
+                        }
                         
-                        FilterButtonView(
-                            action: { showFilterOptions = true },
-                            filter: viewModel.filter
-                        )
+                        Button(action: {
+                            showFilterOptions = true
+                        }) {
+                            Label("Filter", systemImage: "line.3.horizontal.decrease")
+                        }
                     }
                 }
             }
@@ -119,20 +122,16 @@ private extension PantryView {
     func categoryHeader(_ category: Category, count: Int) -> some View {
         HStack {
             Text("\(category.rawValue) (\(count))")
-                .font(AppStyle.Text.sectionHeader)
-                .foregroundStyle(.blue.opacity(0.85))
-                .textCase(nil)
+                .font(.headline)
+                .fontWeight(.semibold)
+                .foregroundStyle(AppStyle.primary)
+                .frame(maxWidth: .infinity, alignment: .leading)
             Spacer()
-            // CapsuleView(content: .icon(systemName: "magnifyingglass"), color: .blue, heavy: true, action: {print("Expand")})
         }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal)
-            .padding(.vertical, 6)
-            .background(
-                Color.blue.opacity(0.08)
-            )
-            .listRowBackground(Color.clear)
-            .contentMargins(.horizontal, 0, for: .scrollContent)
+        .padding(.horizontal)
+        .padding(.vertical, 6)
+        .listRowBackground(Color.clear)
+        .contentMargins(.horizontal, 0, for: .scrollContent)
     }
 }
 

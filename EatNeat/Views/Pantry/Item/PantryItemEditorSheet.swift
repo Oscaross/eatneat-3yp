@@ -53,7 +53,6 @@ struct PantryItemEditorSheet: View {
                     dismiss()
                 }
             )
-            .navigationTitle(title)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
@@ -72,13 +71,6 @@ struct PantryItemEditorSheet: View {
         switch sheet {
         case .add: return .add
         case .edit: return .edit
-        }
-    }
-
-    private var title: String {
-        switch sheet {
-        case .add:  return "Add Item"
-        case .edit: return "Edit Item"
         }
     }
 
