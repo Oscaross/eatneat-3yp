@@ -2,293 +2,89 @@
 //  DonationView.swift
 //  EatNeat
 //
-//  Created by Oscar Horner on 26/10/2025.
+//  Created by Oscar Horner on 26/02/2026.
 //
+// Viewer which allows users to see their nearby foodbank
 
 import SwiftUI
 
 struct DonationView: View {
-    @ObservedObject var viewModel: DonationViewModel
-    @EnvironmentObject var pantryViewModel: PantryViewModel
-    @EnvironmentObject var agentModel: AgentModel
-    
-    // --- Foodbank Info View ---
-    @State private var selectedFoodbank: FoodbankNeeds? = nil
-    
-    // --- Help Tooltip ---
-    @State private var showHelpDialog: Bool = false
-    
-    // --- Refresh Button Tooltip ---
-    @State private var isRefreshing = false
-    
+
+    // @EnvironmentObject var donationVM: DonationViewModel
+    @State private var foodbanks = SampleData.sampleFoodbankDonationData()
+    @State private var selectedFoodbankID: String?
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
-                // --- Foodbank slider / pager ---
-                if viewModel.foodbanks.isEmpty {
-                    Spacer()
-                    ProgressView("Loading nearby foodbanks…")
-                    Spacer()
-                } else {
-                    TabView {
-                        ForEach(Array(viewModel.foodbanks.values), id: \.id) { foodbank in
-                            FoodbankCardView(foodbank: foodbank)
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    handleFoodbankTap(foodbank)
-                                }
-                        }
-                    }
-                    .tabViewStyle(.page)
-                    .indexViewStyle(.page(backgroundDisplayMode: .always))
-                }
-                
-                // --- Donation collection area ---
-                donationCollectionSection
-            }
-            .navigationTitle("Donate")
-            .toolbar {
-                // --- action icons ---
-                ToolbarItemGroup(placement: .topBarTrailing) {
-                    Button {
-                        if !isRefreshing {
-                            Task {
-                                isRefreshing = true
-                                await viewModel.loadFoodbanks()
-                                isRefreshing = false
-                            }
-                        }
-                    } label: {
-                        if isRefreshing {
-                            ProgressView()
-                        } else {
-                            Image(systemName: "arrow.clockwise")
-                        }
-                    }
 
-                    Button {
-                        showHelpDialog = true
+            ScrollView {
+                VStack(alignment: .leading, spacing: 6) {
+                    header
+                        .padding(.horizontal, 16)
+
+                    carousel
+
+                    Spacer()
+                }
+                .padding(.top, 4)
+                .padding(.bottom, 16)
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        EmptyView()  // Placeholder
                     } label: {
                         Image(systemName: "questionmark.circle")
+                            .font(.system(size: 18, weight: .semibold))
                     }
                 }
             }
-            .task {
-                await viewModel.loadFoodbanks()
-            }
-            .sheet(isPresented: $showHelpDialog) {
-                helpSheet
-            }
-            .sheet(item: $selectedFoodbank) { fb in
-                FoodbankInfoView(foodbank: fb)
+        }
+        .onAppear {
+            if selectedFoodbankID == nil {
+                selectedFoodbankID = foodbanks.first?.id
             }
         }
+        .scrollDisabled(_: true)
     }
-    
-    // MARK: - Donation Collection Section
 
-    @ViewBuilder
-    private var donationCollectionSection: some View {
-        
-        if !viewModel.donations.isEmpty {
-            
-            VStack(alignment: .leading, spacing: 8) {
-                
-                // --- Title + Button ---
-                HStack {
-                    Text("Donation Collection")
-                        .font(.headline)
-                    
-                    Spacer()
-                    
-                    Button {
-                        processDonations()
-                        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
-                        
-                    } label: {
-                        Text("Mark Donated")
-                            .font(.subheadline)
-                            .fontWeight(.semibold)
-                    }
-                    .disabled(!viewModel.donations.contains(where: { $0.isSelected }))
-                }
-                
-                .padding(.bottom, 6)
-                
-                // --- Column headers ---
-                HStack {
-                    Text("ITEM")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Text("RECIPIENT")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Text("") // checkmark column
-                        .frame(width: 30)
-                }
-                
-                Divider()
-                
-                // --- Table Rows ---
-                ScrollView {
-                    VStack(spacing: 4) {
-                        ForEach($viewModel.donations) { $donation in
-                            HStack {
-                                Text(donation.item.name)
-                                    .font(.subheadline)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                
-                                Text(donation.recipient.name)
-                                    .font(.subheadline)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                
-                                Button {
-                                    donation.isSelected.toggle()
-                                } label: {
-                                    Image(systemName: donation.isSelected
-                                          ? "checkmark.circle.fill"
-                                          : "circle")
-                                        .foregroundColor(AppStyle.primary)
-                                }
-                                .buttonStyle(.plain)
-                                .frame(width: 30)
-                            }
-                            .padding(.vertical, 6)
-                        }
-                    }
-                }
-                .frame(maxHeight: UIScreen.main.bounds.height * 0.25)
-                
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
-            )
-            .padding(.horizontal)
-            
-        } else {
-            
-            // Empty State (unchanged)
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Donation Collection")
-                    .font(.headline)
-                
-                Text("Items you plan to donate will appear here once you select matches from foodbanks.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemBackground))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
-            )
-            .padding(.horizontal)
+    // MARK: Header
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Local foodbanks")
+                .font(.title2.weight(.semibold))
+
+            Text("Foodbanks across the UK publish lists of items they urgently need. If you can, add an item or two when you next shop using personalised suggestions tailored to the needs of your local community! ")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 
-    
-    // MARK: - Logic
-    
-    private func handleFoodbankTap(_ foodbank: FoodbankNeeds) {
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        selectedFoodbank = foodbank
+    // MARK: Carousel
 
-        // TODO: MCP is disabled now we know it is working. It will be enabled once the frontend and backend is prepared.
-        
-        print(MCPInstructions.matchItemToNeedsInstructions(needs: foodbank, items: pantryViewModel.getAllItems()))
-        
-//        Task {
-//            try await agentViewModel.triggerMCPTool(
-//                tool: .matchItemToNeeds,
-//                instructions: MCPInstructions.matchItemToNeedsInstructions(
-//                    needs: foodbank,
-//                    items: pantryViewModel.getAllItems()
-//                ),
-//                pantryViewModel: pantryViewModel,
-//                donationViewModel: viewModel
-//            )
-//        }
-        
-        // TODO: Remove temporary debug for spawning many items to donate
-        Task {
-            // Get all pantry items
-            let items = pantryViewModel.getAllItems()
-            guard !items.isEmpty else { return }
+    @State private var selectedFoodbank: FoodbankCard?
 
-            // Ensure the foodbank has needs to choose from
-            guard !foodbank.needsList.isEmpty else { return }
+    private var carousel: some View {
+        let screenH = UIScreen.main.bounds.height
+        let cardHeight = screenH * 0.64
 
-            // We must use a var because registerMatch mutates foodbank
-            var fbCopy = foodbank
-
-            // Clear old donations before adding new debug ones
-            viewModel.donations.removeAll()
-
-            for item in items {
-                // Pick a random need
-                if let randomNeed = fbCopy.needsList.randomElement() {
-                    let id = randomNeed.id
-
-                    // Register match on the foodbank object
-                    fbCopy.registerMatch(needId: id, item: item)
-
-                    // Push to UI collection area
-                    let assignment = DonationAssignment(item: item, recipient: fbCopy)
-                    viewModel.donations.append(assignment)
+        return ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack() {
+                ForEach(foodbanks) { foodbank in
+                    FoodbankCardView(foodbank: foodbank)
+                        // width: one “page” with side spacing, auto-centers with viewAligned
+                        .containerRelativeFrame(.horizontal, count: 1, span: 1, spacing: 32)
+                        .frame(height: cardHeight)
+                        .contentShape(RoundedRectangle(cornerRadius: 32, style: .continuous))
+                        .onTapGesture { selectedFoodbank = foodbank }
+                        .padding(.all, 16)
                 }
             }
-
-            print("[DEBUG] Added \(viewModel.donations.count) fake donation matches.")
+            .scrollTargetLayout()
         }
-        
-    }
-    
-    private func processDonations() {
-        let itemsToDonate = viewModel.donations.filter { $0.isSelected }
-        
-        for donation in itemsToDonate {
-            pantryViewModel.markItemDonated(item: donation.item)
-        }
-    }
-
-    // MARK: - Help Sheet
-    
-    @ViewBuilder
-    private var helpSheet: some View {
-        HelpView(
-            title: "Help",
-            message: "Foodbanks often have an abundance of some goods and a shortage of other goods. Many families and individuals within the community rely on these items to feed and care for each other and their children. EatNeat helps you to identify what foodbanks within your local community desparately need, and what you have told the app you have that could help make a difference.",
-            faqs: [
-                (
-                    "What are matches?",
-                    "Matches are entries into your pantry that we believe could seriously help a foodbank with a shortage of that particular type of good."
-                ),
-                (
-                    "Do I have to arrange to donate items?",
-                    "No! Just follow the instructions for each foodbank to see how to help, whether that is a local drop-off point or the foodbank themselves."
-                ),
-                (
-                    "How are foodbanks discovered?",
-                    "EatNeat asks for your location while using the application to find foodbanks within a 25km radius. The data from these foodbanks is then displayed and matched to your individual situation."
-                ),
-                (
-                    "Do I have to use the donation feature?",
-                    "Nope, it is just a feature that is there to help users who are able to support local foodbanks to do so more efficiently. The application is primarily designed for helping individuals organise and manage their shopping and pantry."
-                )
-            ]
-        )
+        .scrollTargetBehavior(.viewAligned)
+        .frame(height: cardHeight)
     }
 }
+

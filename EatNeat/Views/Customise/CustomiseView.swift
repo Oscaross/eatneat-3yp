@@ -32,7 +32,6 @@ struct CustomiseView: View {
                     Text("Labels are custom tags that you can apply to your products to help filter, organise and keep track of them.")
                 }
             }
-            .navigationTitle("Customise")
             .sheet(isPresented: $showAddLabelSheet) {
                 AddLabelSheet()
             }

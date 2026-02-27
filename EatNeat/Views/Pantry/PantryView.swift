@@ -18,7 +18,6 @@ struct PantryView: View {
     @State var showFilterOptions: Bool = false
     @State var showOrganiseView: Bool = false
     
-
     var body: some View {
         NavigationStack {
             
@@ -63,9 +62,14 @@ struct PantryView: View {
             .searchable(text: $viewModel.searchTerm, prompt: "Search my pantry...")
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) {
-                    Button("Grid") {
-                        
+                    Button {
+                        settingsModel.compactPantryView.toggle()
+                    } label: {
+                        Label(settingsModel.compactPantryView ? "Compact View" : "Grid View",
+                              systemImage: settingsModel.compactPantryView ? "list.bullet" : "square.grid.2x2"
+                        )
                     }
+                    .labelStyle(.iconOnly)
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
                     HStack {
@@ -82,6 +86,7 @@ struct PantryView: View {
                         }
                     }
                 }
+                
             }
             .sheet(item: $editorSheet) { sheet in
                 PantryItemEditorSheet(

@@ -22,20 +22,20 @@ struct EatNeatApp: App {
         _pantryViewModel = StateObject(wrappedValue: pantryVM)
         _donationViewModel = StateObject(
             wrappedValue: DonationViewModel(
-                locationManager: LocationManager(),
-                pantryViewModel: pantryVM
             )
         )
     }
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(pantryViewModel)
-                .environmentObject(donationViewModel)
-                .environmentObject(agentModel)
-                .environmentObject(settingsModel)
-                .environmentObject(bannerManager)
+            AppBackgroundView {
+                ContentView()
+                    .environmentObject(pantryViewModel)
+                    .environmentObject(donationViewModel)
+                    .environmentObject(agentModel)
+                    .environmentObject(settingsModel)
+                    .environmentObject(bannerManager)
+            }
         }
     }
 }

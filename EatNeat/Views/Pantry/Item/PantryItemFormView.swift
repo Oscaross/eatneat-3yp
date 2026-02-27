@@ -33,7 +33,7 @@ struct PantryItemFormView: View {
                 TextField("Item Name", text: $item.name)
             }
 
-            // CATEGORY — manual row (left-aligned)
+            // CATEGORY
             HStack {
                 Picker("", selection: $item.category) {
                     ForEach(Category.allCases, id: \.self) { category in

@@ -11,25 +11,6 @@
 import Foundation
 
 class MCPInstructions {
-    /// Given some foodbank needs and a list of items which the matching should be done against, return a detailed instruction set for an MCP agent to follow to match items to needs.
-    public static func matchItemToNeedsInstructions(needs: FoodbankNeeds, items: [PantryItem]) -> String {
-        let preamble = "You are an agent tasked with matching foodbank needs to available pantry items. Use the MCP tool provided to register a match between an item and a need. Only match an item to one need. The foodbank ID is \(needs.id)."
-        
-        var needsInstructions = "\n The needs: "
-        
-        for need in needs.needsList {
-            needsInstructions += "\n ID: \(need.id) Need: \(need.name) \n"
-        }
-        
-        var itemsInstructions = "\n Items: "
-        
-        for item in items {
-            itemsInstructions += "\n ID: \(item.id) Name: \(item.name) \n"
-        }
-        
-        return preamble + needsInstructions + itemsInstructions
-    }
-    
     /// Given a list of receipt lines scanned, return a detailed instruction set for an MCP agent to follow to extract pantry item data from the receipt.
     public static func generateItemsFromReceiptInstructions(lines: [String]) -> String {
         let preamble = "Use the MCP tool provided to create pantry items based on the receipt lines. Each line may contain the item name, quantity, weight, and price. Parse each line carefully to extract this information accurately, use inference where neccessary, some product names might be abbreviated heavily, use the context to infer them if possible. Fix obvious product name errors."

@@ -17,6 +17,9 @@ class PantryViewModel: ObservableObject {
     @Published var filter: PantryFilterSet // the current filter that the user has active
     @Published var searchTerm: String = "" // if the user is currently searching for an item the term that they are searching for
     
+    /// Storage object that stores information
+    var userItemHabits: [String : PantryItemHabits]
+    
     private var lastRemovedItem: PantryItem? // store the last deleted item for undo functionality
     
     private var saveURL: URL {

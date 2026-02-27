@@ -31,7 +31,7 @@ struct ContentView: View {
                 }
                 .tag(2)
 
-            DonationView(viewModel: donationViewModel)
+            DonationView()
                 .tabItem { Label("Donate", systemImage: "heart.circle.fill") }
                 .tag(3)
 

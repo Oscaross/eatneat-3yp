@@ -259,4 +259,158 @@ struct SampleData {
             }
         }
     }
+    
+    /// Return sample data for the Donation viewer with dummy item rankings
+    static func sampleFoodbankDonationData() -> [FoodbankCard] {
+
+        func relativeText(_ date: Date) -> String {
+            let formatter = RelativeDateTimeFormatter()
+            formatter.unitsStyle = .short
+            return formatter.localizedString(for: date, relativeTo: .now)
+        }
+
+        func makePrompts(
+            foodbankID: String,
+            pairs: [(item: String, need: String)]
+        ) -> [DonationPromptDisplay] {
+
+            pairs.enumerated().map { index, pair in
+                DonationPromptDisplay(
+                    id: "\(foodbankID)-\(index)",
+                    needID: UUID(),
+                    needName: pair.need,
+                    itemID: UUID(),
+                    itemName: pair.item,
+                    behaviouralScore: Double.random(in: 0.6...0.95),
+                    semanticScore: Double.random(in: 0.65...0.98),
+                    finalScore: Double.random(in: 0.7...0.99)
+                )
+            }
+        }
+
+        let now = Date()
+
+        return [
+
+            // MARK: Coventry
+            FoodbankCard(
+                id: "coventry",
+                name: "Coventry Foodbank",
+                distanceMeters: 1800,
+                distanceText: "1.8 km away",
+                needsLastUpdated: now.addingTimeInterval(-3600 * 6),
+                needsLastUpdatedText: relativeText(now.addingTimeInterval(-3600 * 6)),
+                isFavourite: true,
+                needs: [
+                    Need(id: UUID(), name: "Toothpaste"),
+                    Need(id: UUID(), name: "Tinned Vegetables"),
+                    Need(id: UUID(), name: "Pasta"),
+                    Need(id: UUID(), name: "Rice"),
+                    Need(id: UUID(), name: "Cereal")
+                ],
+                surpluses: [
+                    "Baked Beans",
+                    "Instant Noodles"
+                ],
+                donationPrompts: makePrompts(
+                    foodbankID: "coventry",
+                    pairs: [
+                        ("Colgate Toothpaste", "Toothpaste"),
+                        ("Tesco Wholemeal Pasta", "Pasta"),
+                        ("Heinz Baked Beans", "Tinned Vegetables"),
+                        ("Long Grain Rice", "Rice"),
+                        ("Corn Flakes", "Cereal")
+                    ]
+                )
+            ),
+
+            // MARK: Warwick
+            FoodbankCard(
+                id: "warwick",
+                name: "Warwick District Foodbank",
+                distanceMeters: 4200,
+                distanceText: "4.2 km away",
+                needsLastUpdated: now.addingTimeInterval(-3600 * 24),
+                needsLastUpdatedText: relativeText(now.addingTimeInterval(-3600 * 24)),
+                isFavourite: false,
+                needs: [
+                    Need(id: UUID(), name: "Baby Food"),
+                    Need(id: UUID(), name: "Nappies"),
+                    Need(id: UUID(), name: "Tinned Fruit"),
+                    Need(id: UUID(), name: "Jam")
+                ],
+                surpluses: [
+                    "Pasta",
+                    "Rice"
+                ],
+                donationPrompts: makePrompts(
+                    foodbankID: "warwick",
+                    pairs: [
+                        ("Ella's Kitchen Pouches", "Baby Food"),
+                        ("Pampers Size 4", "Nappies"),
+                        ("Tinned Peaches", "Tinned Fruit"),
+                        ("Strawberry Jam", "Jam")
+                    ]
+                )
+            ),
+
+            // MARK: Leamington
+            FoodbankCard(
+                id: "leamington",
+                name: "Leamington Spa Foodbank",
+                distanceMeters: 950,
+                distanceText: "950 m away",
+                needsLastUpdated: now.addingTimeInterval(-3600 * 3),
+                needsLastUpdatedText: relativeText(now.addingTimeInterval(-3600 * 3)),
+                isFavourite: false,
+                needs: [
+                    Need(id: UUID(), name: "UHT Milk"),
+                    Need(id: UUID(), name: "Tea Bags"),
+                    Need(id: UUID(), name: "Sugar"),
+                    Need(id: UUID(), name: "Cooking Oil")
+                ],
+                surpluses: [
+                    "Breakfast Cereal",
+                    "Tinned Sweetcorn"
+                ],
+                donationPrompts: makePrompts(
+                    foodbankID: "leamington",
+                    pairs: [
+                        ("UHT Semi-Skimmed Milk", "UHT Milk"),
+                        ("PG Tips Tea Bags", "Tea Bags"),
+                        ("Granulated Sugar 1kg", "Sugar"),
+                        ("Sunflower Oil 1L", "Cooking Oil")
+                    ]
+                )
+            ),
+
+            // MARK: Kenilworth
+            FoodbankCard(
+                id: "kenilworth",
+                name: "Kenilworth Community Foodbank",
+                distanceMeters: 6100,
+                distanceText: "6.1 km away",
+                needsLastUpdated: now.addingTimeInterval(-3600 * 48),
+                needsLastUpdatedText: relativeText(now.addingTimeInterval(-3600 * 48)),
+                isFavourite: false,
+                needs: [
+                    Need(id: UUID(), name: "Soap"),
+                    Need(id: UUID(), name: "Shampoo"),
+                    Need(id: UUID(), name: "Tinned Soup")
+                ],
+                surpluses: [
+                    "Baked Beans",
+                    "Spaghetti Hoops"
+                ],
+                donationPrompts: makePrompts(
+                    foodbankID: "kenilworth",
+                    pairs: [
+                        ("Dove Soap Bars", "Soap"),
+                        ("Head & Shoulders Shampoo", "Shampoo"),
+                        ("Tomato Soup", "Tinned Soup")
+                    ]
+                )
+            )
+        ]
+    }
 }
